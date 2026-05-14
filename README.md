@@ -10,45 +10,32 @@
 ./run_docker.sh
 ```
 
-脚本会完成两件事：
+这个脚本会先准备仿真源码依赖，再删除旧的 `ros2-active-slam` 容器，使用当前 `Dockerfile` 强制重建 `ros2:latest`，最后启动新容器。
 
-1. 构建 Docker 镜像 `ros2`
-2. 启动容器，并将本地 `src/` 挂载到容器内 `/home/ubuntu/ros2_ws`
+当前脚本固定使用 `linux/arm64` 平台，也就是原生 ARM 镜像。
 
-启动后可在浏览器打开：
+由于 ROS 2 Humble 在 Jammy 的 `arm64` 源里没有现成的 `gazebo_ros_pkgs` 和 `turtlebot3_gazebo` 二进制包，这个仓库会额外准备两份源码到工作区：
 
-```text
-http://127.0.0.1:6080
-```
+1. `src/gazebo_ros_pkgs`
+2. `src/turtlebot3_simulations`
 
-## 容器内编译
+其中 Gazebo 11 本体通过 Open Robotics 的 `gazebo11-non-amd64` PPA 安装。
 
-进入容器终端后，执行：
-
-```bash
-cd /home/ubuntu/ros2_ws
-source /opt/ros/humble/setup.bash
-colcon build --symlink-install
-source install/setup.bash
-```
-
-如果你使用仓库自带脚本，也可以执行：
-
-```bash
-source /home/ubuntu/ros2_ws/setup.sh
-cb
-source /home/ubuntu/ros2_ws/install/setup.bash
-```
+启动后可在浏览器打开：`http://127.0.0.1:6080`
 
 ## 运行 SLAM
 
 在容器内执行：
 
 ```bash
-source /opt/ros/humble/setup.bash
+cd /home/ubuntu/ros2_ws
+source setup.sh
+cb
 source /home/ubuntu/ros2_ws/install/setup.bash
 ros2 launch activeslam slam.launch.py
 ```
+
+`setup.sh` 会把 `MAKEFLAGS`、`CMAKE_BUILD_PARALLEL_LEVEL` 和 `NINJAFLAGS` 都限制到 `1`，并让 `colcon` 顺序构建，用来降低 Gazebo 相关源码在 ARM 容器中的 OOM 概率。
 
 这个 launch 会：
 

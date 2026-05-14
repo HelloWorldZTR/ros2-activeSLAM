@@ -12,10 +12,9 @@
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
 
-  <dependency>rclpy</dependency>
-  <dependency>std_msgs</dependency>
-  <dependency>geometry_msgs</dependency>
-  <dependency>sensor_msgs</dependency>
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>slam_toolbox</exec_depend>
