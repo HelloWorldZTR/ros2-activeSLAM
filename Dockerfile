@@ -12,10 +12,12 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/source
 
 # Install additional ROS 2 packages or tools
 RUN apt-get update && apt-get install -y \
+    ros-$ROS_DISTRO-gazebo-* \ 
     ros-$ROS_DISTRO-navigation2 \
     ros-$ROS_DISTRO-nav2-bringup \
     ros-$ROS_DISTRO-slam-toolbox \
     ros-$ROS_DISTRO-turtlebot3 \
+    ros-$ROS_DISTRO-turtlebot3-gazebo \
     ros-$ROS_DISTRO-turtlebot3-msgs \
     ros-$ROS_DISTRO-turtlebot3-bringup \
     python3-colcon-common-extensions \
