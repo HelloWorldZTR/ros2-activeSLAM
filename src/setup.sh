@@ -7,7 +7,7 @@ export NINJAFLAGS=-j1
 
 alias cb='colcon build --symlink-install --executor sequential --parallel-workers 1'
 
-export GAZEBO_MODEL_PATH=/home/ubuntu/ros2_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models:${GAZEBO_MODEL_PATH}
+export GAZEBO_MODEL_PATH=/usr/share/gazebo-11/models:/home/ubuntu/ros2_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models:${GAZEBO_MODEL_PATH}
 export GAZEBO_MODEL_DATABASE_URI=""
 export TURTLEBOT3_MODEL=waffle
 

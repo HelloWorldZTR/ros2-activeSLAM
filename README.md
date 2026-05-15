@@ -4,15 +4,23 @@
 
 ## 启动 Docker
 
-在项目根目录执行：
+首次启动（或 Dockerfile/仿真源码有变更时）在项目根目录执行：
+
+```bash
+./run_docker_setup.sh
+```
+
+这个脚本会准备仿真源码依赖，并使用当前 `Dockerfile` 强制重建 `ros2:latest`。
+
+后续启动直接执行：
 
 ```bash
 ./run_docker.sh
 ```
 
-这个脚本会先准备仿真源码依赖，再删除旧的 `ros2-active-slam` 容器，使用当前 `Dockerfile` 强制重建 `ros2:latest`，最后启动新容器。
+这个脚本会删除旧的 `ros2-active-slam` 容器，然后启动新容器。
 
-当前脚本固定使用 `linux/arm64` 平台，也就是原生 ARM 镜像。
+**注意**：当前脚本使用 `linux/arm64` 平台，如在amd64平台使用，需手动将PLATFORM改为amd64
 
 由于 ROS 2 Humble 在 Jammy 的 `arm64` 源里没有现成的 `gazebo_ros_pkgs` 和 `turtlebot3_gazebo` 二进制包，这个仓库会额外准备两份源码到工作区：
 
@@ -43,6 +51,23 @@ ros2 launch activeslam slam.launch.py
 2. 加载 TurtleBot3
 3. 启动 `slam_toolbox`
 4. 启动 `random_walker` 控制节点，让机器人随机游走
+
+## 查看 SLAM 地图
+
+直接启动 RViz（推荐）
+
+在容器里新开终端执行：
+
+```bash
+rviz2
+```
+
+RViz 打开后：
+
+1. 左侧 Displays 点击 Add
+2. 选择 Map
+3. Topic 选 /map
+4. 把 Fixed Frame 设为 map（或 odom，一般 map 更合适）
 
 ## 可选参数
 
