@@ -1,0 +1,15 @@
+exploration_coordinator:
+  ros__parameters:
+    planner_type: "astar"
+    target_linear_speed: 0.08
+    lookahead_distance: 0.5
+    kp_angular: 1.2
+    max_angular_speed: 0.6
+    replan_interval: 3.0
+    goal_tolerance: 0.5
+    stability_duration: 10.0
+    stability_threshold: 0.02
+    min_frontier_size: 5
+    obstacle_distance: 0.2
+    obstacle_inflation: 0.3
+    rrt_step_size: 0.3

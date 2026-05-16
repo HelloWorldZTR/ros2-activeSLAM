@@ -1,6 +1,7 @@
-from setuptools import find_packages, setup
-from glob import glob
 import os
+from glob import glob
+
+from setuptools import find_packages, setup
 
 package_name = 'activeslam'
 
@@ -12,13 +13,14 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='ubuntu',
     maintainer_email='2279429006@qq.com',
-    description='TODO: Package description',
+    description='Active SLAM exploration with frontier-based planning.',
     license='TODO: License declaration',
     extras_require={
         'test': [
@@ -28,6 +30,7 @@ setup(
     entry_points={
         'console_scripts': [
             'random_walker = activeslam.random_walker:main',
+            'exploration_coordinator = activeslam.exploration_coordinator:main',
         ],
     },
 )
