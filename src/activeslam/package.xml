@@ -21,6 +21,9 @@
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>activeslam_resource</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>turtlebot3_gazebo</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
 

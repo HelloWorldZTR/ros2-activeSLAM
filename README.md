@@ -50,7 +50,7 @@ ros2 launch activeslam slam.launch.py
 1. 打开 Gazebo
 2. 加载 TurtleBot3
 3. 启动 `slam_toolbox`
-4. 启动 `random_walker` 控制节点，让机器人随机游走
+4. 启动 `exploration_coordinator` 控制节点，使用 frontier-based planning 自动探索
 
 ## 查看 SLAM 地图
 
@@ -75,4 +75,11 @@ RViz 打开后：
 
 ```bash
 ros2 launch activeslam slam.launch.py turtlebot3_model:=waffle
+```
+
+如果需要选择 Gazebo 地图，例如 TurtleBot3 house：
+不许加入world后缀
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms x_pose:=-2.0 y_pose:=-0.5
 ```
