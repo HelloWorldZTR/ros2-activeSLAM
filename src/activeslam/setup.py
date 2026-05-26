@@ -31,6 +31,7 @@ setup(
         'console_scripts': [
             'random_walker = activeslam.random_walker:main',
             'exploration_coordinator = activeslam.exploration_coordinator:main',
+            'slam_evaluator = activeslam.slam_evaluator:main',
         ],
     },
 )
