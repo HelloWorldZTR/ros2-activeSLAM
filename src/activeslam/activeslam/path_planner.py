@@ -190,12 +190,13 @@ class RRTPlanner:
                     cost = self._path_cost(path_w)
                     return path_w, cost, True
 
-        # Return best effort
+        # Return the closest branch for diagnostics, but do not mark it as a
+        # valid plan because it did not reach the goal tolerance.
         best = min(nodes, key=lambda n: math.hypot(n[0] - goal[0], n[1] - goal[1]))
         path_w = self._extract_path(parents, best)
         path_w = self._smooth(path_w, data, ox, oy, res, width, height)
         cost = self._path_cost(path_w)
-        return path_w, cost, True
+        return path_w, cost, False
 
     def _collision_free(self, a, b, data, ox, oy, res, width, height):
         steps = max(2, int(math.hypot(b[0] - a[0], b[1] - a[1]) / res))

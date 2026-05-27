@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 
 IMAGE_NAME=ros2:latest
 CONTAINER_NAME=ros2-active-slam
-PLATFORM=linux/arm64
+PLATFORM=linux/amd64
 
 # Remove any old container so the next run always uses the latest image.
 docker rm -f "${CONTAINER_NAME}" 2>/dev/null || true

@@ -14,6 +14,12 @@ from tf2_ros import Buffer, TransformListener
 from visualization_msgs.msg import Marker, MarkerArray
 
 from .frontier_detector import FrontierCluster, FrontierDetector
+from .graph_exploration import (
+    ApproximatePoseGraphTracker,
+    GraphBasedFrontierScorer,
+    graph_to_marker_array,
+    make_information_matrix,
+)
 from .path_planner import create_planner
 
 
@@ -41,12 +47,50 @@ class ExplorationCoordinator(Node):
         self.obstacle_distance = self.declare_parameter('obstacle_distance', 0.4).value
         self.obstacle_inflation = self.declare_parameter('obstacle_inflation', 0.3).value
         self.rrt_step_size = self.declare_parameter('rrt_step_size', 0.3).value
+        self.exploration_strategy = self.declare_parameter('exploration_strategy', 'frontier').value
+        self.frontier_planning_attempts = int(
+            self.declare_parameter('frontier_planning_attempts', 3).value
+        )
+        self.graph_max_frontier_candidates = int(
+            self.declare_parameter('graph_max_frontier_candidates', 8).value
+        )
+        self.graph_info_radius = self.declare_parameter('graph_info_radius', 1.5).value
+        self.graph_node_spacing = self.declare_parameter('graph_node_spacing', 0.5).value
+        self.graph_yaw_spacing = self.declare_parameter('graph_yaw_spacing', 0.35).value
+        self.graph_hallucinated_node_spacing = self.declare_parameter(
+            'graph_hallucinated_node_spacing', 0.75
+        ).value
+        self.graph_loop_closure_radius = self.declare_parameter(
+            'graph_loop_closure_radius', 2.0
+        ).value
+        self.graph_loop_closure_min_separation = int(
+            self.declare_parameter('graph_loop_closure_min_separation', 20).value
+        )
+        self.graph_loop_closure_occupied_threshold = self.declare_parameter(
+            'graph_loop_closure_occupied_threshold', 0.03
+        ).value
+        self.graph_loop_closure_weight = self.declare_parameter(
+            'graph_loop_closure_weight', 1.5
+        ).value
+        self.graph_max_loop_closures_per_node = int(
+            self.declare_parameter('graph_max_loop_closures_per_node', 3).value
+        )
+        self.graph_path_cost_weight = self.declare_parameter(
+            'graph_path_cost_weight', 0.05
+        ).value
+        self.graph_frontier_weight = self.declare_parameter(
+            'graph_frontier_weight', 0.001
+        ).value
+        self.graph_odom_cov_x = self.declare_parameter('graph_odom_cov_x', 0.04).value
+        self.graph_odom_cov_y = self.declare_parameter('graph_odom_cov_y', 0.04).value
+        self.graph_odom_cov_yaw = self.declare_parameter('graph_odom_cov_yaw', 0.008).value
 
         # --- Publishers ---
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.path_pub = self.create_publisher(Path, '/planned_path', 10)
         self.goal_pub = self.create_publisher(Marker, '/goal_point', 10)
         self.frontier_pub = self.create_publisher(MarkerArray, '/frontier_markers', 10)
+        self.pose_graph_pub = self.create_publisher(MarkerArray, '/pose_graph_markers', 10)
 
         # --- Subscribers ---
         self.map_sub = self.create_subscription(OccupancyGrid, '/map', self._map_callback, 10)
@@ -63,6 +107,40 @@ class ExplorationCoordinator(Node):
             goal_tolerance=self.goal_tolerance,
             obstacle_inflation=self.obstacle_inflation,
             rrt_step_size=self.rrt_step_size,
+        )
+        if self.exploration_strategy not in ('frontier', 'graph', 'graph_based'):
+            self.get_logger().warn(
+                f'Unknown exploration_strategy={self.exploration_strategy}. Falling back to frontier.'
+            )
+            self.exploration_strategy = 'frontier'
+        if self.exploration_strategy == 'graph_based':
+            self.exploration_strategy = 'graph'
+
+        graph_odom_information = make_information_matrix(
+            self.graph_odom_cov_x,
+            self.graph_odom_cov_y,
+            self.graph_odom_cov_yaw,
+        )
+        self.pose_graph_tracker = ApproximatePoseGraphTracker(
+            node_spacing=self.graph_node_spacing,
+            yaw_spacing=self.graph_yaw_spacing,
+            loop_closure_radius=self.graph_loop_closure_radius,
+            loop_closure_min_separation=self.graph_loop_closure_min_separation,
+            loop_closure_weight=self.graph_loop_closure_weight,
+            max_loop_closures_per_node=self.graph_max_loop_closures_per_node,
+            odom_information=graph_odom_information,
+        )
+        self.graph_scorer = GraphBasedFrontierScorer(
+            info_radius=self.graph_info_radius,
+            hallucinated_node_spacing=self.graph_hallucinated_node_spacing,
+            loop_closure_radius=self.graph_loop_closure_radius,
+            loop_closure_min_separation=self.graph_loop_closure_min_separation,
+            loop_closure_occupied_threshold=self.graph_loop_closure_occupied_threshold,
+            loop_closure_weight=self.graph_loop_closure_weight,
+            max_loop_closures_per_node=self.graph_max_loop_closures_per_node,
+            path_cost_weight=self.graph_path_cost_weight,
+            frontier_weight=self.graph_frontier_weight,
+            odom_information=graph_odom_information,
         )
 
         # --- State ---
@@ -83,7 +161,12 @@ class ExplorationCoordinator(Node):
         self.control_timer = self.create_timer(0.1, self._control_loop)
 
         self.get_logger().info(
-            f'Exploration coordinator started. Planner: {self.planner_type}'
+            f'Exploration coordinator started. Planner: {self.planner_type}, '
+            f'strategy: {self.exploration_strategy}'
+        )
+        self.get_logger().info(
+            'Pose graph source: approximate TF trajectory. slam_toolbox can serialize '
+            'its pose graph, but this node does not receive live nodes/edges/FIM from it.'
         )
 
     # ------------------------------------------------------------------
@@ -123,10 +206,13 @@ class ExplorationCoordinator(Node):
             self._publish_cmd_vel(0.0, 0.1)
             return
         rx, ry, ryaw = pose
+        self.pose_graph_tracker.update((rx, ry, ryaw))
 
         # --- Publish visualizations ---
         self._publish_frontier_markers()
         self._publish_goal_marker()
+        if self.exploration_strategy == 'graph':
+            self._publish_pose_graph_markers()
 
         # --- Check if replan needed ---
         now = self.get_clock().now()
@@ -189,34 +275,83 @@ class ExplorationCoordinator(Node):
             self.target_cluster = None
             return
 
-        scored = []
-        for c in self.frontier_clusters:
-            dist = math.hypot(c.centroid_x - rx, c.centroid_y - ry)
-            utility = c.size / (dist + 0.1)
-            scored.append((utility, c))
-        scored.sort(key=lambda x: x[0], reverse=True)
+        if self.exploration_strategy == 'graph':
+            planned = self._select_graph_based_plan(rx, ry)
+        else:
+            planned = self._select_frontier_plan(rx, ry)
 
-        for _, cluster in scored[:3]:
-            path, cost, success = self.planner.plan(
-                self.latest_map,
-                (rx, ry),
-                (cluster.centroid_x, cluster.centroid_y),
-            )
-            if success and len(path) >= 2:
-                self.current_path = path
-                self.current_goal = (cluster.centroid_x, cluster.centroid_y)
-                self.target_cluster = cluster
-                self.last_replan_time = self.get_clock().now()
-                self._publish_path()
-                return
+        if planned:
+            return
 
         self.current_path.clear()
         self.current_goal = None
         self.target_cluster = None
         self.last_replan_time = self.get_clock().now()
         self.get_logger().info(
-            f'No reachable frontier among {len(scored)} clusters. Random walking.'
+            f'No reachable frontier among {len(self.frontier_clusters)} clusters. Random walking.'
         )
+
+    def _score_frontiers_by_size_distance(self, rx: float, ry: float):
+        scored = []
+        for c in self.frontier_clusters:
+            dist = math.hypot(c.centroid_x - rx, c.centroid_y - ry)
+            utility = c.size / (dist + 0.1)
+            scored.append((utility, c))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return scored
+
+    def _select_frontier_plan(self, rx: float, ry: float) -> bool:
+        scored = self._score_frontiers_by_size_distance(rx, ry)
+        for _, cluster in scored[:self.frontier_planning_attempts]:
+            path, _, success = self.planner.plan(
+                self.latest_map,
+                (rx, ry),
+                (cluster.centroid_x, cluster.centroid_y),
+            )
+            if success and len(path) >= 2:
+                self._set_plan(path, cluster)
+                return True
+        return False
+
+    def _select_graph_based_plan(self, rx: float, ry: float) -> bool:
+        scored = self._score_frontiers_by_size_distance(rx, ry)
+        candidates = []
+        for _, cluster in scored[:self.graph_max_frontier_candidates]:
+            path, _, success = self.planner.plan(
+                self.latest_map,
+                (rx, ry),
+                (cluster.centroid_x, cluster.centroid_y),
+            )
+            if not success or len(path) < 2:
+                continue
+            graph_score = self.graph_scorer.score(
+                self.pose_graph_tracker.graph,
+                self.latest_map,
+                path,
+                cluster.size,
+            )
+            candidates.append((graph_score, cluster, path))
+
+        if not candidates:
+            return False
+
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        score, cluster, path = candidates[0]
+        if not np.isfinite(score):
+            return False
+
+        self.get_logger().info(
+            f'Graph-based selected frontier score={score:.3f}, size={cluster.size}'
+        )
+        self._set_plan(path, cluster)
+        return True
+
+    def _set_plan(self, path: List[Tuple[float, float]], cluster: FrontierCluster):
+        self.current_path = path
+        self.current_goal = (cluster.centroid_x, cluster.centroid_y)
+        self.target_cluster = cluster
+        self.last_replan_time = self.get_clock().now()
+        self._publish_path()
 
     def _target_frontier_shrunk(self) -> bool:
         if self.target_cluster is None:
@@ -381,6 +516,14 @@ class ExplorationCoordinator(Node):
             ps.pose.orientation.w = 1.0
             path_msg.poses.append(ps)
         self.path_pub.publish(path_msg)
+
+    def _publish_pose_graph_markers(self):
+        markers = graph_to_marker_array(
+            self.pose_graph_tracker.graph,
+            'map',
+            self.get_clock().now().to_msg(),
+        )
+        self.pose_graph_pub.publish(markers)
 
     # ------------------------------------------------------------------
     # Helpers

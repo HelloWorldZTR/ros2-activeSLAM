@@ -15,6 +15,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     turtlebot3_model = LaunchConfiguration('turtlebot3_model')
     planner_type = LaunchConfiguration('planner_type')
+    exploration_strategy = LaunchConfiguration('exploration_strategy')
     map_name = LaunchConfiguration('map')
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
@@ -90,6 +91,7 @@ def generate_launch_description():
             {
                 'use_sim_time': use_sim_time,
                 'planner_type': planner_type,
+                'exploration_strategy': exploration_strategy,
             },
         ],
     )
@@ -116,6 +118,12 @@ def generate_launch_description():
             default_value='astar',
             choices=['astar', 'rrt'],
             description='Path planning algorithm: astar or rrt.',
+        ),
+        DeclareLaunchArgument(
+            'exploration_strategy',
+            default_value='frontier',
+            choices=['frontier', 'graph'],
+            description='Exploration target selection strategy.',
         ),
         DeclareLaunchArgument(
             'map',

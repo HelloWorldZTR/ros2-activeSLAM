@@ -1,15 +1,32 @@
 exploration_coordinator:
   ros__parameters:
     planner_type: "astar"
-    target_linear_speed: 0.08
-    lookahead_distance: 0.5
-    kp_angular: 1.2
-    max_angular_speed: 0.6
-    replan_interval: 3.0
-    goal_tolerance: 0.5
+    target_linear_speed: 0.5
+    lookahead_distance: 0.7
+    kp_angular: 1.0
+    max_angular_speed: 0.8
+    replan_interval: 4.0
+    goal_tolerance: 0.05
     stability_duration: 10.0
     stability_threshold: 0.02
     min_frontier_size: 5
-    obstacle_distance: 0.2
-    obstacle_inflation: 0.3
-    rrt_step_size: 0.3
+    obstacle_distance: 0.30
+    obstacle_inflation: 0.30
+    rrt_step_size: 0.45
+    exploration_strategy: "frontier"  # frontier or graph
+    frontier_planning_attempts: 3
+    graph_max_frontier_candidates: 8
+    graph_info_radius: 1.5
+    graph_node_spacing: 0.5
+    graph_yaw_spacing: 0.35
+    graph_hallucinated_node_spacing: 0.75
+    graph_loop_closure_radius: 2.0
+    graph_loop_closure_min_separation: 20
+    graph_loop_closure_occupied_threshold: 0.03
+    graph_loop_closure_weight: 1.5
+    graph_max_loop_closures_per_node: 3
+    graph_path_cost_weight: 0.05
+    graph_frontier_weight: 0.001
+    graph_odom_cov_x: 0.04
+    graph_odom_cov_y: 0.04
+    graph_odom_cov_yaw: 0.008
