@@ -13,6 +13,7 @@ class FrontierCluster:
     centroid_x: float
     centroid_y: float
     size: int
+    points: Optional[List[Tuple[float, float]]] = None
 
 
 class FrontierDetector:
@@ -31,6 +32,7 @@ class FrontierDetector:
         step_size: float = 1.0,
         cluster_radius: float = 0.6,
         max_frontier_points: int = 120,
+        map_padding: float = 2.0,
         seed: Optional[int] = None,
     ):
         self.min_frontier_size = min_frontier_size
@@ -38,6 +40,7 @@ class FrontierDetector:
         self.step_size = step_size
         self.cluster_radius = cluster_radius
         self.max_frontier_points = max_frontier_points
+        self.map_padding = map_padding
         self.rng = random.Random(seed)
 
     def detect(
@@ -61,9 +64,14 @@ class FrontierDetector:
         tree = [start]
         frontier_points: List[Tuple[float, float]] = []
         for _ in range(max(1, int(self.iterations))):
+            sample_padding = max(0.0, self.map_padding)
             sample = (
-                origin_x + self.rng.random() * width * resolution,
-                origin_y + self.rng.random() * height * resolution,
+                origin_x
+                - sample_padding
+                + self.rng.random() * (width * resolution + 2.0 * sample_padding),
+                origin_y
+                - sample_padding
+                + self.rng.random() * (height * resolution + 2.0 * sample_padding),
             )
             nearest = min(tree, key=lambda p: _distance(p, sample))
             new_point = self._steer(nearest, sample, self.step_size)
@@ -87,6 +95,15 @@ class FrontierDetector:
                 if len(frontier_points) >= self.max_frontier_points:
                     break
 
+        frontier_points.extend(
+            self._map_edge_frontier_points(
+                data,
+                origin_x,
+                origin_y,
+                resolution,
+                self.max_frontier_points,
+            )
+        )
         clusters = self._cluster_points(frontier_points, self.cluster_radius)
         result = []
         for points in clusters:
@@ -94,7 +111,14 @@ class FrontierDetector:
                 continue
             cx = sum(p[0] for p in points) / len(points)
             cy = sum(p[1] for p in points) / len(points)
-            result.append(FrontierCluster(centroid_x=cx, centroid_y=cy, size=len(points)))
+            result.append(
+                FrontierCluster(
+                    centroid_x=cx,
+                    centroid_y=cy,
+                    size=len(points),
+                    points=list(points),
+                )
+            )
 
         return result, frontier_mask
 
@@ -112,9 +136,11 @@ class FrontierDetector:
         i, j = cell
         height, width = data.shape
         if not (0 <= i < height and 0 <= j < width):
-            return None
+            i = min(max(i, 0), height - 1)
+            j = min(max(j, 0), width - 1)
         if data[i, j] == 0:
-            return start_xy
+            if 0 <= cell[0] < height and 0 <= cell[1] < width:
+                return start_xy
 
         nearest = self._nearest_free_cell(data, i, j)
         if nearest is None:
@@ -163,7 +189,7 @@ class FrontierDetector:
                 return 'blocked', None
             i, j = cell
             if not (0 <= i < height and 0 <= j < width):
-                return 'blocked', None
+                return 'unknown', (x, y)
             value = data[i, j]
             if value > 50:
                 return 'blocked', None
@@ -171,6 +197,45 @@ class FrontierDetector:
                 return 'unknown', (x, y)
 
         return 'free', None
+
+    def _map_edge_frontier_points(
+        self,
+        data: np.ndarray,
+        origin_x: float,
+        origin_y: float,
+        resolution: float,
+        limit: int,
+    ) -> List[Tuple[float, float]]:
+        height, width = data.shape
+        if height == 0 or width == 0:
+            return []
+
+        stride = max(1, int(round(max(self.cluster_radius, resolution) / resolution)))
+        cells = []
+        for j in range(0, width, stride):
+            cells.append((0, j, 0.0, -1.0))
+            cells.append((height - 1, j, 0.0, 1.0))
+        for i in range(0, height, stride):
+            cells.append((i, 0, -1.0, 0.0))
+            cells.append((i, width - 1, 1.0, 0.0))
+
+        points = []
+        for i, j, normal_x, normal_y in cells:
+            if data[i, j] != 0:
+                continue
+            wx = origin_x + (j + 0.5) * resolution + normal_x * resolution
+            wy = origin_y + (i + 0.5) * resolution + normal_y * resolution
+            points.append((wx, wy))
+
+        if limit <= 0 or len(points) <= limit:
+            return points
+
+        sampled = []
+        denom = max(1, limit - 1)
+        for k in range(limit):
+            index = round(k * (len(points) - 1) / denom)
+            sampled.append(points[index])
+        return sampled
 
     @staticmethod
     def _steer(

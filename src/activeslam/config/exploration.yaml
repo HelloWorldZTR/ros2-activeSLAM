@@ -1,12 +1,7 @@
 exploration_coordinator:
   ros__parameters:
-    planner_type: "astar"
-    target_linear_speed: 0.5
-    lookahead_distance: 0.7
-    kp_angular: 1.0
-    max_angular_speed: 0.8
     replan_interval: 4.0
-    goal_tolerance: 0.1
+    goal_reached_distance: 0.35
     stability_duration: 10.0
     stability_threshold: 0.02
     min_frontier_size: 5
@@ -15,11 +10,30 @@ exploration_coordinator:
     rrt_frontier_step_size: 1.0
     rrt_frontier_cluster_radius: 0.6
     rrt_frontier_max_points: 120
-    obstacle_distance: 0.30
-    obstacle_inflation: 0.30
-    rrt_step_size: 0.45
-    exploration_strategy: "frontier"  # frontier or graph
-    frontier_planning_attempts: 3
+    rrt_frontier_map_padding: 2.0
+    exploration_strategy: "graph"  # frontier or graph
+    frontier_goal_candidates: 5
+    frontier_goal_search_radius: 1.2
+    frontier_goal_clearance: 0.20
+    frontier_goal_standoff: 0.45
+    frontier_goal_map_edge_clearance: 0.0
+    frontier_goal_min_advance: 0.35
+    frontier_goal_point_sample_limit: 40
+    failed_goal_cooldown: 20.0
+    failed_goal_radius: 0.6
+    nav2_goal_timeout: 30.0
+    nav2_wait_log_interval: 5.0
+    completion_frontierless_scans: 5
+    completion_grace_period: 20.0
+    completion_open_edge_min_cells: 3
+    frontier_probe_enabled: true
+    frontier_probe_speed: 0.08
+    frontier_probe_obstacle_distance: 0.35
+    frontier_probe_timeout: 12.0
+    frontier_probe_map_growth_cells: 30
+    frontier_probe_start_max_map_growth_cells: 15
+    frontier_probe_kp_angular: 1.0
+    frontier_probe_max_angular_speed: 0.6
     graph_max_frontier_candidates: 8
     graph_info_radius: 1.5
     graph_node_spacing: 0.5

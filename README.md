@@ -12,6 +12,8 @@ source /home/ubuntu/ros2_ws/install/setup.bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms
 ```
 
+当前探索节点使用 RRT frontier 生成探索目标，并通过 Nav2 执行导航、避障和恢复行为。
+
 如果需要同时记录评估指标：
 
 ```bash
@@ -59,4 +61,10 @@ ros2 launch activeslam slam.launch.py turtlebot3_model:=waffle
 
 ```bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms x_pose:=-2.0 y_pose:=-0.5
+```
+
+如果需要切换目标选择策略：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms exploration_strategy:=graph enable_evaluator:=true
 ```

@@ -16,7 +16,6 @@ import os
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     turtlebot3_model = LaunchConfiguration('turtlebot3_model')
-    planner_type = LaunchConfiguration('planner_type')
     exploration_strategy = LaunchConfiguration('exploration_strategy')
     enable_evaluator = LaunchConfiguration('enable_evaluator')
     evaluator_log_root = LaunchConfiguration('evaluator_log_root')
@@ -86,6 +85,23 @@ def generate_launch_description():
         [FindPackageShare('activeslam'), 'config', 'exploration.yaml']
     )
 
+    nav2_params_path = PathJoinSubstitution(
+        [FindPackageShare('activeslam'), 'config', 'nav2_params.yaml']
+    )
+
+    nav2_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [FindPackageShare('nav2_bringup'), 'launch', 'navigation_launch.py']
+            )
+        ),
+        launch_arguments={
+            'use_sim_time': use_sim_time,
+            'params_file': nav2_params_path,
+            'autostart': 'true',
+        }.items(),
+    )
+
     explorer_node = Node(
         package='activeslam',
         executable='exploration_coordinator',
@@ -95,7 +111,6 @@ def generate_launch_description():
             config_path,
             {
                 'use_sim_time': use_sim_time,
-                'planner_type': planner_type,
                 'exploration_strategy': exploration_strategy,
             },
         ],
@@ -136,12 +151,6 @@ def generate_launch_description():
             'turtlebot3_model',
             default_value='burger',
             description='TurtleBot3 model to spawn in Gazebo.',
-        ),
-        DeclareLaunchArgument(
-            'planner_type',
-            default_value='astar',
-            choices=['astar', 'rrt'],
-            description='Path planning algorithm: astar or rrt.',
         ),
         DeclareLaunchArgument(
             'exploration_strategy',
@@ -186,6 +195,7 @@ def generate_launch_description():
         robot_state_publisher_launch,
         spawn_turtlebot_launch,
         slam_node,
+        nav2_launch,
         explorer_node,
         evaluator_node,
     ])
