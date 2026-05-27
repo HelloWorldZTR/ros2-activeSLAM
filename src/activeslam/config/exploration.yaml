@@ -6,7 +6,7 @@ exploration_coordinator:
     kp_angular: 1.0
     max_angular_speed: 0.8
     replan_interval: 4.0
-    goal_tolerance: 0.05
+    goal_tolerance: 0.25
     stability_duration: 10.0
     stability_threshold: 0.02
     min_frontier_size: 5
@@ -14,7 +14,10 @@ exploration_coordinator:
     obstacle_inflation: 0.30
     rrt_step_size: 0.45
     exploration_strategy: "frontier"  # frontier or graph
-    frontier_planning_attempts: 3
+    frontier_planning_attempts: 12
+    frontier_goal_sample_count: 6
+    planner_allow_unknown: false
+    planner_unknown_fallback: true
     graph_max_frontier_candidates: 8
     graph_info_radius: 1.5
     graph_node_spacing: 0.5

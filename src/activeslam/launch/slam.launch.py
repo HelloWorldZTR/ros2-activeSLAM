@@ -4,6 +4,7 @@ from launch.actions import (
     IncludeLaunchDescription,
     SetEnvironmentVariable,
 )
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
@@ -19,6 +20,9 @@ def generate_launch_description():
     map_name = LaunchConfiguration('map')
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
+    gui = LaunchConfiguration('gui')
+    run_evaluator = LaunchConfiguration('run_evaluator')
+    log_root = LaunchConfiguration('log_root')
 
     gazebo_world = PathJoinSubstitution([
         FindPackageShare('activeslam_resource'),
@@ -41,6 +45,7 @@ def generate_launch_description():
                 [FindPackageShare('gazebo_ros'), 'launch', 'gzclient.launch.py']
             )
         ),
+        condition=IfCondition(gui),
     )
 
     robot_state_publisher_launch = IncludeLaunchDescription(
@@ -96,6 +101,22 @@ def generate_launch_description():
         ],
     )
 
+    evaluator_node = Node(
+        package='activeslam',
+        executable='slam_evaluator',
+        name='slam_evaluator',
+        output='screen',
+        condition=IfCondition(run_evaluator),
+        parameters=[
+            {
+                'use_sim_time': use_sim_time,
+                'world_name': map_name,
+                'log_root': log_root,
+                'gt_model_name': turtlebot3_model,
+            },
+        ],
+    )
+
     available_maps = [
         file.split('.')[0] for file in os.listdir(os.path.join(
             FindPackageShare('activeslam_resource').find('activeslam_resource'), 'maps'
@@ -127,9 +148,24 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'map',
-            default_value='turtlebot3_world',
+            default_value='slam_rooms',
             choices=available_maps,
             description='Gazebo world name from the activeslam_resource maps directory.',
+        ),
+        DeclareLaunchArgument(
+            'gui',
+            default_value='true',
+            description='Start Gazebo client GUI.',
+        ),
+        DeclareLaunchArgument(
+            'run_evaluator',
+            default_value='false',
+            description='Start slam_evaluator in the same launch for experiment runs.',
+        ),
+        DeclareLaunchArgument(
+            'log_root',
+            default_value='logs',
+            description='Directory where slam_evaluator writes run logs.',
         ),
         DeclareLaunchArgument(
             'x_pose',
@@ -148,4 +184,5 @@ def generate_launch_description():
         spawn_turtlebot_launch,
         slam_node,
         explorer_node,
+        evaluator_node,
     ])

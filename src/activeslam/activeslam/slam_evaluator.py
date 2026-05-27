@@ -11,7 +11,8 @@ import numpy as np
 import rclpy
 from ament_index_python.packages import get_package_share_directory
 from gazebo_msgs.msg import ModelStates
-from nav_msgs.msg import OccupancyGrid
+from gazebo_msgs.srv import GetEntityState
+from nav_msgs.msg import OccupancyGrid, Odometry
 try:
     from rclpy.clock import Clock, ClockType
 except ImportError:  # pragma: no cover - ROS distro compatibility.
@@ -55,19 +56,45 @@ class SlamEvaluator(Node):
             'est_child_frame',
             'base_footprint',
         ).value
+        self.est_child_frame_candidates = self._parse_csv_parameter(
+            self.declare_parameter(
+                'est_child_frame_candidates',
+                'base_footprint,base_link',
+            ).value
+        )
         self.gt_topic = self.declare_parameter(
             'gt_topic',
-            '/gazebo/model_states',
+            '/model_states',
+        ).value
+        self.gt_topic_candidates = self._parse_csv_parameter(
+            self.declare_parameter(
+                'gt_topic_candidates',
+                '/model_states,/gazebo/model_states',
+            ).value
+        )
+        self.gt_service = self.declare_parameter(
+            'gt_service',
+            '/get_entity_state',
+        ).value
+        self.gt_odom_topic = self.declare_parameter(
+            'gt_odom_topic',
+            '/odom',
         ).value
         self.gt_model_name = self.declare_parameter(
             'gt_model_name',
-            'turtlebot3_burger',
+            os.environ.get('TURTLEBOT3_MODEL', 'burger'),
         ).value
         self.eval_margin = self.declare_parameter('eval_margin', 0.5).value
         self.eval_min_x = self.declare_parameter('eval_min_x', float('nan')).value
         self.eval_max_x = self.declare_parameter('eval_max_x', float('nan')).value
         self.eval_min_y = self.declare_parameter('eval_min_y', float('nan')).value
         self.eval_max_y = self.declare_parameter('eval_max_y', float('nan')).value
+        self.plot_live = self._as_bool(
+            self.declare_parameter('plot_live', False).value
+        )
+        self.save_plots = self._as_bool(
+            self.declare_parameter('save_plots', False).value
+        )
 
         self.world_name = self._normalize_world_name(self.world_name)
         self.world_path = self._resolve_world_path(self.world_name)
@@ -88,10 +115,24 @@ class SlamEvaluator(Node):
             self._map_callback,
             10,
         )
-        self.gt_sub = self.create_subscription(
-            ModelStates,
-            self.gt_topic,
-            self._gt_callback,
+        self.gt_subs = []
+        for topic in self._gt_topic_candidates():
+            self.gt_subs.append(
+                self.create_subscription(
+                    ModelStates,
+                    topic,
+                    lambda msg, topic=topic: self._gt_callback(msg, topic),
+                    10,
+                )
+            )
+        self.gt_service_client = self.create_client(
+            GetEntityState,
+            self.gt_service,
+        )
+        self.gt_odom_sub = self.create_subscription(
+            Odometry,
+            self.gt_odom_topic,
+            self._gt_odom_callback,
             10,
         )
 
@@ -99,7 +140,14 @@ class SlamEvaluator(Node):
         self.latest_map: Optional[OccupancyGrid] = None
         self.latest_gt: Optional[Tuple[float, float, float]] = None
         self.latest_gt_timestamp: Optional[float] = None
+        self.latest_gt_topic: Optional[str] = None
+        self.gt_model_candidates = self._build_gt_model_candidates()
+        self.latest_gt_model_names = []
+        self.last_gt_names_log_time = 0.0
+        self.gt_service_future = None
+        self.gt_service_candidate_index = 0
         self.latest_est_available = False
+        self.latest_est_frame: Optional[str] = None
         self.est_samples = []
         self.gt_samples = []
         self.coverage_times = []
@@ -199,10 +247,10 @@ class SlamEvaluator(Node):
     def _map_callback(self, msg: OccupancyGrid):
         self.latest_map = msg
 
-    def _gt_callback(self, msg: ModelStates):
-        try:
-            index = msg.name.index(self.gt_model_name)
-        except ValueError:
+    def _gt_callback(self, msg: ModelStates, topic: str):
+        self.latest_gt_model_names = list(msg.name)
+        index = self._find_gt_model_index(msg.name)
+        if index is None:
             return
 
         pose = msg.pose[index]
@@ -214,11 +262,132 @@ class SlamEvaluator(Node):
         )
         self.latest_gt = (pose.position.x, pose.position.y, yaw)
         self.latest_gt_timestamp = self._now_sec()
+        self.latest_gt_topic = topic
+
+    def _gt_odom_callback(self, msg: Odometry):
+        if self.latest_gt is not None and self.latest_gt_topic != self.gt_odom_topic:
+            return
+
+        pose = msg.pose.pose
+        yaw = yaw_from_quaternion(
+            pose.orientation.x,
+            pose.orientation.y,
+            pose.orientation.z,
+            pose.orientation.w,
+        )
+        self.latest_gt = (pose.position.x, pose.position.y, yaw)
+        self.latest_gt_timestamp = self._now_sec()
+        self.latest_gt_topic = self.gt_odom_topic
+
+    def _build_gt_model_candidates(self):
+        configured = str(self.gt_model_name)
+        candidates = [configured]
+
+        if configured.startswith('turtlebot3_'):
+            candidates.append(configured.removeprefix('turtlebot3_'))
+        else:
+            candidates.append(f'turtlebot3_{configured}')
+
+        for name in ('burger', 'waffle', 'waffle_pi'):
+            candidates.append(name)
+            candidates.append(f'turtlebot3_{name}')
+
+        deduped = []
+        for name in candidates:
+            if name and name not in deduped:
+                deduped.append(name)
+        return deduped
+
+    def _find_gt_model_index(self, model_names):
+        for candidate in self.gt_model_candidates:
+            if candidate in model_names:
+                if candidate != self.gt_model_name:
+                    self.gt_model_name = candidate
+                    self.get_logger().info(
+                        f'Using Gazebo ground-truth model: {candidate}'
+                    )
+                return model_names.index(candidate)
+
+        normalized_candidates = {
+            candidate.removeprefix('turtlebot3_')
+            for candidate in self.gt_model_candidates
+        }
+        for index, model_name in enumerate(model_names):
+            normalized_name = str(model_name).removeprefix('turtlebot3_')
+            if normalized_name in normalized_candidates:
+                if model_name != self.gt_model_name:
+                    self.gt_model_name = model_name
+                    self.get_logger().info(
+                        f'Using Gazebo ground-truth model: {model_name}'
+                    )
+                return index
+        return None
+
+    def _gt_topic_candidates(self):
+        topics = [self.gt_topic] + list(self.gt_topic_candidates)
+        deduped = []
+        for topic in topics:
+            topic = str(topic).strip()
+            if topic and topic not in deduped:
+                deduped.append(topic)
+        return deduped
+
+    def _request_gt_service_pose(self):
+        if self.gt_service_future is not None and not self.gt_service_future.done():
+            return
+        if not self.gt_service_client.service_is_ready():
+            self.gt_service_client.wait_for_service(timeout_sec=0.0)
+            if not self.gt_service_client.service_is_ready():
+                return
+
+        candidates = self.gt_model_candidates
+        if not candidates:
+            return
+        self.gt_service_candidate_index %= len(candidates)
+        model_name = candidates[self.gt_service_candidate_index]
+        request = GetEntityState.Request()
+        request.name = model_name
+        request.reference_frame = 'world'
+        future = self.gt_service_client.call_async(request)
+        self.gt_service_future = future
+        future.add_done_callback(
+            lambda done, name=model_name: self._gt_service_callback(done, name)
+        )
+
+    def _gt_service_callback(self, future, model_name: str):
+        try:
+            response = future.result()
+        except Exception as exc:
+            self.get_logger().debug(f'Ground-truth service unavailable: {exc}')
+            return
+        finally:
+            self.gt_service_future = None
+
+        if not response.success:
+            self.gt_service_candidate_index += 1
+            return
+
+        pose = response.state.pose
+        yaw = yaw_from_quaternion(
+            pose.orientation.x,
+            pose.orientation.y,
+            pose.orientation.z,
+            pose.orientation.w,
+        )
+        self.latest_gt = (pose.position.x, pose.position.y, yaw)
+        self.latest_gt_timestamp = self._now_sec()
+        self.latest_gt_topic = f'{self.gt_service}:{model_name}'
+        if model_name != self.gt_model_name:
+            self.gt_model_name = model_name
+            self.get_logger().info(
+                f'Using Gazebo ground-truth entity service model: {model_name}'
+            )
 
     def _sample(self):
         now_sec = self._now_sec()
         elapsed = now_sec - self.start_time
 
+        self._request_gt_service_pose()
         est_pose = self._lookup_estimated_pose()
         self.latest_est_available = est_pose is not None
         if est_pose is not None:
@@ -260,6 +429,7 @@ class SlamEvaluator(Node):
                 self.ate_values = [error for _, error in ate_errors]
 
         self._flush_csv_files()
+        self._write_metrics_json(self._base_metrics())
         self._update_plots()
         self._log_status_if_needed()
 
@@ -276,23 +446,62 @@ class SlamEvaluator(Node):
         )
 
     def _lookup_estimated_pose(self) -> Optional[Tuple[float, float, float]]:
-        try:
-            transform = self.tf_buffer.lookup_transform(
-                self.est_parent_frame,
-                self.est_child_frame,
-                rclpy.time.Time(),
-                timeout=Duration(seconds=0.2),
-            )
-        except Exception as exc:
-            self.get_logger().debug(f'Estimated pose unavailable: {exc}')
-            return None
+        child_frames = self._estimated_child_frame_candidates()
+        last_error = None
+        for child_frame in child_frames:
+            try:
+                transform = self.tf_buffer.lookup_transform(
+                    self.est_parent_frame,
+                    child_frame,
+                    rclpy.time.Time(),
+                    timeout=Duration(seconds=0.2),
+                )
+            except Exception as exc:
+                last_error = exc
+                continue
 
-        translation = transform.transform.translation
-        rotation = transform.transform.rotation
-        yaw = yaw_from_quaternion(rotation.x, rotation.y, rotation.z, rotation.w)
-        return translation.x, translation.y, yaw
+            if child_frame != self.est_child_frame:
+                self.est_child_frame = child_frame
+                self.get_logger().info(
+                    f'Using estimated pose TF: {self.est_parent_frame}->{child_frame}'
+                )
+            self.latest_est_frame = child_frame
+            translation = transform.transform.translation
+            rotation = transform.transform.rotation
+            yaw = yaw_from_quaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+            return translation.x, translation.y, yaw
+
+        if last_error is not None:
+            self.get_logger().debug(f'Estimated pose unavailable: {last_error}')
+        return None
+
+    def _estimated_child_frame_candidates(self):
+        frames = [self.est_child_frame] + list(self.est_child_frame_candidates)
+        deduped = []
+        for frame in frames:
+            frame = str(frame).strip()
+            if frame and frame not in deduped:
+                deduped.append(frame)
+        return deduped
+
+    @staticmethod
+    def _parse_csv_parameter(value):
+        if isinstance(value, (list, tuple)):
+            return [str(item).strip() for item in value if str(item).strip()]
+        return [part.strip() for part in str(value).split(',') if part.strip()]
+
+    @staticmethod
+    def _as_bool(value) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.strip().lower() in ('1', 'true', 'yes', 'on')
+        return bool(value)
 
     def _init_plotting(self):
+        if not self.plot_live:
+            return
+
         if plt is None:
             self.get_logger().warning('matplotlib is unavailable; live plots disabled.')
             return
@@ -337,13 +546,7 @@ class SlamEvaluator(Node):
         plt.pause(0.001)
 
     def _save_final_outputs(self):
-        metrics = {
-            'final_coverage': self.final_coverage,
-            'total_path_length': self.total_path_length,
-            'total_time': self._now_sec() - self.start_time,
-            'world_name': self.world_name,
-            'evaluation_bounds': self.eval_bounds,
-        }
+        metrics = self._base_metrics()
 
         if self.latest_map is not None:
             self._save_occupancy_map(self.latest_map)
@@ -354,16 +557,11 @@ class SlamEvaluator(Node):
             metrics['occupied_iou'] = None
             metrics['free_iou'] = None
 
-        ate_rmse, ate_errors = compute_ate(self.est_samples, self.gt_samples)
-        if ate_rmse is not None:
-            metrics['ate_rmse'] = ate_rmse
-            metrics['ate_samples'] = len(ate_errors)
+        self._write_metrics_json(metrics)
 
-        with open(self.run_dir / 'metrics.json', 'w') as handle:
-            json.dump(metrics, handle, indent=2)
-
-        if plt is not None and self.fig is not None:
-            self.fig.savefig(self.run_dir / 'metrics_live_plots.png', dpi=150)
+        if self.save_plots and plt is not None:
+            if self.fig is not None:
+                self.fig.savefig(self.run_dir / 'metrics_live_plots.png', dpi=150)
             self._save_metric_plot(
                 'coverage_time.png',
                 self.coverage_times,
@@ -389,6 +587,34 @@ class SlamEvaluator(Node):
                     'ATE [m]',
                     'ATE Over Time',
                 )
+
+    def _base_metrics(self):
+        metrics = {
+            'final_coverage': self.final_coverage,
+            'total_path_length': self.total_path_length,
+            'total_time': self._now_sec() - self.start_time,
+            'world_name': self.world_name,
+            'evaluation_bounds': self.eval_bounds,
+            'gt_model_name': self.gt_model_name,
+            'gt_topic': self.latest_gt_topic or self.gt_topic,
+            'est_parent_frame': self.est_parent_frame,
+            'est_child_frame': self.latest_est_frame or self.est_child_frame,
+            'estimated_samples': len(self.est_samples),
+            'ground_truth_samples': len(self.gt_samples),
+        }
+
+        ate_rmse, ate_errors = compute_ate(self.est_samples, self.gt_samples)
+        if ate_rmse is not None:
+            metrics['ate_rmse'] = ate_rmse
+            metrics['ate_samples'] = len(ate_errors)
+
+        return metrics
+
+    def _write_metrics_json(self, metrics):
+        tmp_path = self.run_dir / 'metrics.json.tmp'
+        with open(tmp_path, 'w') as handle:
+            json.dump(metrics, handle, indent=2)
+        tmp_path.replace(self.run_dir / 'metrics.json')
 
     def _compute_final_iou(
         self,
@@ -485,12 +711,23 @@ class SlamEvaluator(Node):
                 f'TF {self.est_parent_frame}->{self.est_child_frame}'
             )
         if self.latest_gt is None:
-            missing.append(f'{self.gt_topic} model {self.gt_model_name}')
+            missing.append(
+                f'ground truth model {self.gt_model_name} on '
+                + ', '.join(self._gt_topic_candidates())
+                + f', {self.gt_service}, or {self.gt_odom_topic}'
+            )
 
         if missing:
             self.get_logger().info(
                 'Waiting for data: ' + ', '.join(missing)
             )
+            if self.latest_gt is None and self.latest_gt_model_names:
+                names = ', '.join(self.latest_gt_model_names[:12])
+                if len(self.latest_gt_model_names) > 12:
+                    names += ', ...'
+                self.get_logger().info(
+                    f'Gazebo models currently published: {names}'
+                )
             return
 
         if not self.ready_logged:

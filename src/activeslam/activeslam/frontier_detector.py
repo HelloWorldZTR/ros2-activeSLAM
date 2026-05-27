@@ -11,6 +11,7 @@ class FrontierCluster:
     centroid_x: float
     centroid_y: float
     size: int
+    cells: Tuple[Tuple[int, int], ...]
 
 
 class FrontierDetector:
@@ -46,7 +47,14 @@ class FrontierDetector:
             mean_j = sum(c[1] for c in cells) / len(cells)
             cx = origin_x + (mean_j + 0.5) * resolution
             cy = origin_y + (mean_i + 0.5) * resolution
-            result.append(FrontierCluster(centroid_x=cx, centroid_y=cy, size=len(cells)))
+            result.append(
+                FrontierCluster(
+                    centroid_x=cx,
+                    centroid_y=cy,
+                    size=len(cells),
+                    cells=tuple(cells),
+                )
+            )
 
         return result, frontier_mask
 

@@ -26,9 +26,15 @@ def inflate_obstacles(data: np.ndarray, resolution: float, inflation_radius: flo
 
 
 class AStarPlanner:
-    def __init__(self, goal_tolerance: float = 0.3, obstacle_inflation: float = 0.3):
+    def __init__(
+        self,
+        goal_tolerance: float = 0.3,
+        obstacle_inflation: float = 0.3,
+        allow_unknown: bool = False,
+    ):
         self.goal_tolerance = goal_tolerance
         self.obstacle_inflation = obstacle_inflation
+        self.allow_unknown = allow_unknown
 
     def plan(
         self,
@@ -48,7 +54,7 @@ class AStarPlanner:
         si, sj = self._w2g(start_xy[0], start_xy[1], ox, oy, res, width, height)
         gi, gj = self._w2g(goal_xy[0], goal_xy[1], ox, oy, res, width, height)
 
-        if data[si, sj] > 50:
+        if data[si, sj] > 50 or (data[si, sj] < 0 and not self.allow_unknown):
             return [], float('inf'), False
 
         goal_thresh = self.goal_tolerance / res
@@ -77,7 +83,7 @@ class AStarPlanner:
                 if not (0 <= ni < height and 0 <= nj < width):
                     continue
                 val = data[ni, nj]
-                if val > 50:
+                if val > 50 or (val < 0 and not self.allow_unknown):
                     continue
                 base = 1.0 if val == 0 else 2.0
                 step_cost = base * (SQRT2 if di != 0 and dj != 0 else 1.0)
@@ -133,12 +139,14 @@ class RRTPlanner:
         goal_bias: float = 0.1,
         goal_tolerance: float = 0.3,
         obstacle_inflation: float = 0.3,
+        allow_unknown: bool = False,
     ):
         self.max_iterations = max_iterations
         self.step_size = step_size
         self.goal_bias = goal_bias
         self.goal_tolerance = goal_tolerance
         self.obstacle_inflation = obstacle_inflation
+        self.allow_unknown = allow_unknown
 
     def plan(
         self,
@@ -208,7 +216,7 @@ class RRTPlanner:
             i = int((y - oy) / res)
             if not (0 <= i < height and 0 <= j < width):
                 return False
-            if data[i, j] > 50:
+            if data[i, j] > 50 or (data[i, j] < 0 and not self.allow_unknown):
                 return False
         return True
 
@@ -243,10 +251,12 @@ class RRTPlanner:
 
 def create_planner(planner_type: str, **kwargs):
     inflation = kwargs.get('obstacle_inflation', 0.3)
+    allow_unknown = kwargs.get('allow_unknown', False)
     if planner_type == 'astar':
         return AStarPlanner(
             goal_tolerance=kwargs.get('goal_tolerance', 0.5),
             obstacle_inflation=inflation,
+            allow_unknown=allow_unknown,
         )
     elif planner_type == 'rrt':
         return RRTPlanner(
@@ -255,6 +265,7 @@ def create_planner(planner_type: str, **kwargs):
             goal_bias=kwargs.get('goal_bias', 0.1),
             goal_tolerance=kwargs.get('goal_tolerance', 0.5),
             obstacle_inflation=inflation,
+            allow_unknown=allow_unknown,
         )
     else:
         raise ValueError(f'Unknown planner type: {planner_type}')

@@ -29,6 +29,14 @@ def _yaw_from_quaternion(q):
     return math.atan2(siny, cosy)
 
 
+def _as_bool(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in ('1', 'true', 'yes', 'on')
+    return bool(value)
+
+
 class ExplorationCoordinator(Node):
     def __init__(self):
         super().__init__('exploration_coordinator')
@@ -50,6 +58,15 @@ class ExplorationCoordinator(Node):
         self.exploration_strategy = self.declare_parameter('exploration_strategy', 'frontier').value
         self.frontier_planning_attempts = int(
             self.declare_parameter('frontier_planning_attempts', 3).value
+        )
+        self.frontier_goal_sample_count = int(
+            self.declare_parameter('frontier_goal_sample_count', 5).value
+        )
+        self.planner_allow_unknown = _as_bool(
+            self.declare_parameter('planner_allow_unknown', False).value
+        )
+        self.planner_unknown_fallback = _as_bool(
+            self.declare_parameter('planner_unknown_fallback', True).value
         )
         self.graph_max_frontier_candidates = int(
             self.declare_parameter('graph_max_frontier_candidates', 8).value
@@ -107,6 +124,14 @@ class ExplorationCoordinator(Node):
             goal_tolerance=self.goal_tolerance,
             obstacle_inflation=self.obstacle_inflation,
             rrt_step_size=self.rrt_step_size,
+            allow_unknown=self.planner_allow_unknown,
+        )
+        self.unknown_fallback_planner = create_planner(
+            self.planner_type,
+            goal_tolerance=self.goal_tolerance,
+            obstacle_inflation=self.obstacle_inflation,
+            rrt_step_size=self.rrt_step_size,
+            allow_unknown=True,
         )
         if self.exploration_strategy not in ('frontier', 'graph', 'graph_based'):
             self.get_logger().warn(
@@ -303,13 +328,13 @@ class ExplorationCoordinator(Node):
     def _select_frontier_plan(self, rx: float, ry: float) -> bool:
         scored = self._score_frontiers_by_size_distance(rx, ry)
         for _, cluster in scored[:self.frontier_planning_attempts]:
-            path, _, success = self.planner.plan(
-                self.latest_map,
-                (rx, ry),
-                (cluster.centroid_x, cluster.centroid_y),
+            path, _, success, goal_xy = self._plan_to_frontier_cluster(
+                cluster,
+                rx,
+                ry,
             )
             if success and len(path) >= 2:
-                self._set_plan(path, cluster)
+                self._set_plan(path, cluster, goal_xy)
                 return True
         return False
 
@@ -317,10 +342,10 @@ class ExplorationCoordinator(Node):
         scored = self._score_frontiers_by_size_distance(rx, ry)
         candidates = []
         for _, cluster in scored[:self.graph_max_frontier_candidates]:
-            path, _, success = self.planner.plan(
-                self.latest_map,
-                (rx, ry),
-                (cluster.centroid_x, cluster.centroid_y),
+            path, _, success, goal_xy = self._plan_to_frontier_cluster(
+                cluster,
+                rx,
+                ry,
             )
             if not success or len(path) < 2:
                 continue
@@ -330,25 +355,112 @@ class ExplorationCoordinator(Node):
                 path,
                 cluster.size,
             )
-            candidates.append((graph_score, cluster, path))
+            candidates.append((graph_score, cluster, path, goal_xy))
 
         if not candidates:
             return False
 
         candidates.sort(key=lambda item: item[0], reverse=True)
-        score, cluster, path = candidates[0]
+        score, cluster, path, goal_xy = candidates[0]
         if not np.isfinite(score):
             return False
 
         self.get_logger().info(
             f'Graph-based selected frontier score={score:.3f}, size={cluster.size}'
         )
-        self._set_plan(path, cluster)
+        self._set_plan(path, cluster, goal_xy)
         return True
 
-    def _set_plan(self, path: List[Tuple[float, float]], cluster: FrontierCluster):
+    def _plan_to_frontier_cluster(
+        self,
+        cluster: FrontierCluster,
+        rx: float,
+        ry: float,
+    ):
+        best = ([], float('inf'), False, (cluster.centroid_x, cluster.centroid_y))
+        for goal_xy in self._frontier_goal_candidates(cluster, rx, ry):
+            path, cost, success = self.planner.plan(
+                self.latest_map,
+                (rx, ry),
+                goal_xy,
+            )
+            if success and len(path) >= 2 and cost < best[1]:
+                best = (path, cost, success, goal_xy)
+        if best[2] or self.planner_allow_unknown or not self.planner_unknown_fallback:
+            return best
+
+        for goal_xy in self._frontier_goal_candidates(cluster, rx, ry):
+            path, cost, success = self.unknown_fallback_planner.plan(
+                self.latest_map,
+                (rx, ry),
+                goal_xy,
+            )
+            if success and len(path) >= 2 and cost < best[1]:
+                best = (path, cost, success, goal_xy)
+        return best
+
+    def _frontier_goal_candidates(
+        self,
+        cluster: FrontierCluster,
+        rx: float,
+        ry: float,
+    ) -> List[Tuple[float, float]]:
+        if not cluster.cells:
+            return [(cluster.centroid_x, cluster.centroid_y)]
+
+        info = self.latest_map.info
+        origin_x = info.origin.position.x
+        origin_y = info.origin.position.y
+        res = info.resolution
+
+        def to_world(cell):
+            i, j = cell
+            return origin_x + (j + 0.5) * res, origin_y + (i + 0.5) * res
+
+        cells = list(cluster.cells)
+        centroid_cell = min(
+            cells,
+            key=lambda cell: math.hypot(
+                to_world(cell)[0] - cluster.centroid_x,
+                to_world(cell)[1] - cluster.centroid_y,
+            ),
+        )
+        nearest_cell = min(
+            cells,
+            key=lambda cell: math.hypot(to_world(cell)[0] - rx, to_world(cell)[1] - ry),
+        )
+        ordered = sorted(
+            cells,
+            key=lambda cell: math.hypot(to_world(cell)[0] - rx, to_world(cell)[1] - ry),
+        )
+
+        sample_count = max(1, self.frontier_goal_sample_count)
+        if len(ordered) <= sample_count:
+            sampled = ordered
+        elif sample_count == 1:
+            sampled = [ordered[0]]
+        else:
+            step = (len(ordered) - 1) / float(sample_count - 1)
+            sampled = [ordered[int(round(k * step))] for k in range(sample_count)]
+
+        candidates = [centroid_cell, nearest_cell] + sampled
+        deduped = []
+        seen = set()
+        for cell in candidates:
+            if cell in seen:
+                continue
+            seen.add(cell)
+            deduped.append(to_world(cell))
+        return deduped
+
+    def _set_plan(
+        self,
+        path: List[Tuple[float, float]],
+        cluster: FrontierCluster,
+        goal_xy: Optional[Tuple[float, float]] = None,
+    ):
         self.current_path = path
-        self.current_goal = (cluster.centroid_x, cluster.centroid_y)
+        self.current_goal = goal_xy or (cluster.centroid_x, cluster.centroid_y)
         self.target_cluster = cluster
         self.last_replan_time = self.get_clock().now()
         self._publish_path()
@@ -549,7 +661,10 @@ class ExplorationCoordinator(Node):
         self.cmd_pub.publish(twist)
 
     def destroy_node(self):
-        self._publish_cmd_vel(0.0, 0.0)
+        try:
+            self._publish_cmd_vel(0.0, 0.0)
+        except Exception:
+            pass
         super().destroy_node()
 
 
