@@ -12,7 +12,7 @@ Changes in progress:
   - Added simulator `/odom` as the final ground-truth fallback for this TurtleBot3 Gazebo launch, which exposes odometry but not model-state topics.
   - Ground-truth model lookup now accepts the Gazebo entity names used by the TurtleBot3 spawner, e.g. `burger`, while still accepting `turtlebot3_burger`.
   - Estimated pose lookup tries `base_footprint` and `base_link` under `map`, and logs the selected frame.
-  - Live plotting and final metric plot generation are disabled by default for headless remote runs; CSV, JSON metrics, and final map files are still written.
+  - Live plotting and final metric plot generation remain enabled by default; agents should disable them explicitly for headless remote runs.
   - `metrics.json` is refreshed during sampling, so timeout-limited runs keep usable metrics even if final shutdown is interrupted.
   - Metrics now record selected TF/model names and sample counts.
 - Frontier baseline:

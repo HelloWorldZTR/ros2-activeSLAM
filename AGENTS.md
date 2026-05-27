@@ -47,6 +47,17 @@ s # alias for source install/setup.zsh
 
 When debugging, try your best to use text only ways, e.g debug output file, tea to a log file etc. Rather than listening to the program outputs, as ROS command output can be quite lengthy and difficult to terminate.
 When performing experiments, remember to kill existing processes.
+For headless remote experiments, disable evaluator matplotlib explicitly instead of changing project defaults:
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_evaluator:=true plot_live:=false save_plots:=false
+```
+
+For standalone evaluator runs, pass:
+
+```bash
+ros2 run activeslam slam_evaluator --ros-args -p plot_live:=false -p save_plots:=false
+```
 
 **Do not** perform any risky commands such as `rm -rf` or something that requires password.
 

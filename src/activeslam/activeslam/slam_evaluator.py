@@ -90,10 +90,10 @@ class SlamEvaluator(Node):
         self.eval_min_y = self.declare_parameter('eval_min_y', float('nan')).value
         self.eval_max_y = self.declare_parameter('eval_max_y', float('nan')).value
         self.plot_live = self._as_bool(
-            self.declare_parameter('plot_live', False).value
+            self.declare_parameter('plot_live', True).value
         )
         self.save_plots = self._as_bool(
-            self.declare_parameter('save_plots', False).value
+            self.declare_parameter('save_plots', True).value
         )
 
         self.world_name = self._normalize_world_name(self.world_name)

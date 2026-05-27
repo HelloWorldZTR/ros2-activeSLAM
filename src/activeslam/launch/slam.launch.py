@@ -23,6 +23,8 @@ def generate_launch_description():
     gui = LaunchConfiguration('gui')
     run_evaluator = LaunchConfiguration('run_evaluator')
     log_root = LaunchConfiguration('log_root')
+    plot_live = LaunchConfiguration('plot_live')
+    save_plots = LaunchConfiguration('save_plots')
 
     gazebo_world = PathJoinSubstitution([
         FindPackageShare('activeslam_resource'),
@@ -113,6 +115,8 @@ def generate_launch_description():
                 'world_name': map_name,
                 'log_root': log_root,
                 'gt_model_name': turtlebot3_model,
+                'plot_live': plot_live,
+                'save_plots': save_plots,
             },
         ],
     )
@@ -166,6 +170,16 @@ def generate_launch_description():
             'log_root',
             default_value='logs',
             description='Directory where slam_evaluator writes run logs.',
+        ),
+        DeclareLaunchArgument(
+            'plot_live',
+            default_value='true',
+            description='Show slam_evaluator live matplotlib windows.',
+        ),
+        DeclareLaunchArgument(
+            'save_plots',
+            default_value='true',
+            description='Save slam_evaluator matplotlib plot images on shutdown.',
         ),
         DeclareLaunchArgument(
             'x_pose',
