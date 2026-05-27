@@ -136,8 +136,8 @@ class SlamEvaluator(Node):
         name = str(world_name).strip()
         if name.endswith('.world'):
             name = name[:-6]
-        if not name.startswith('slam') or '/' in name or '\\' in name:
-            raise ValueError('world_name must be a slam*.world basename')
+        if not name or '/' in name or '\\' in name:
+            raise ValueError('world_name must be a world-file basename')
         return name
 
     def _resolve_world_path(self, world_name: str) -> Path:

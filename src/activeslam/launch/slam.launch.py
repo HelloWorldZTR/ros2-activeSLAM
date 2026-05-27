@@ -4,9 +4,11 @@ from launch.actions import (
     IncludeLaunchDescription,
     SetEnvironmentVariable,
 )
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 import os
@@ -16,6 +18,9 @@ def generate_launch_description():
     turtlebot3_model = LaunchConfiguration('turtlebot3_model')
     planner_type = LaunchConfiguration('planner_type')
     exploration_strategy = LaunchConfiguration('exploration_strategy')
+    enable_evaluator = LaunchConfiguration('enable_evaluator')
+    evaluator_log_root = LaunchConfiguration('evaluator_log_root')
+    evaluator_sample_interval = LaunchConfiguration('evaluator_sample_interval')
     map_name = LaunchConfiguration('map')
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
@@ -96,6 +101,25 @@ def generate_launch_description():
         ],
     )
 
+    evaluator_node = Node(
+        package='activeslam',
+        executable='slam_evaluator',
+        name='slam_evaluator',
+        output='screen',
+        condition=IfCondition(enable_evaluator),
+        parameters=[
+            {
+                'use_sim_time': use_sim_time,
+                'world_name': map_name,
+                'log_root': evaluator_log_root,
+                'sample_interval': ParameterValue(
+                    evaluator_sample_interval,
+                    value_type=float,
+                ),
+            },
+        ],
+    )
+
     available_maps = [
         file.split('.')[0] for file in os.listdir(os.path.join(
             FindPackageShare('activeslam_resource').find('activeslam_resource'), 'maps'
@@ -126,6 +150,21 @@ def generate_launch_description():
             description='Exploration target selection strategy.',
         ),
         DeclareLaunchArgument(
+            'enable_evaluator',
+            default_value='false',
+            description='Start the SLAM evaluator node with the experiment.',
+        ),
+        DeclareLaunchArgument(
+            'evaluator_log_root',
+            default_value='logs',
+            description='Directory where evaluator run logs are written.',
+        ),
+        DeclareLaunchArgument(
+            'evaluator_sample_interval',
+            default_value='1.0',
+            description='Evaluator sampling interval in seconds.',
+        ),
+        DeclareLaunchArgument(
             'map',
             default_value='turtlebot3_world',
             choices=available_maps,
@@ -148,4 +187,5 @@ def generate_launch_description():
         spawn_turtlebot_launch,
         slam_node,
         explorer_node,
+        evaluator_node,
     ])

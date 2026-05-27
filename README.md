@@ -10,7 +10,12 @@ source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms
-ros2 run activeslam slam_evaluator --ros-args -p use_sim_time:=true -p world_name:=slam_rooms
+```
+
+如果需要同时记录评估指标：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms enable_evaluator:=true
 ```
 
 在bc01执行
@@ -22,8 +27,6 @@ cb
 s
 # in terminal 2
 ros2 launch activeslam slam.launch.py map:=slam_rooms
-# in terminal 1
-ros2 run activeslam slam_evaluator --ros-args -p use_sim_time:=true -p world_name:=slam_rooms
 ```
 
 ## 查看 SLAM 地图

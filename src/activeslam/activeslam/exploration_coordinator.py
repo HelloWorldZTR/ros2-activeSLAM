@@ -44,6 +44,21 @@ class ExplorationCoordinator(Node):
         self.stability_duration = self.declare_parameter('stability_duration', 10.0).value
         self.stability_threshold = self.declare_parameter('stability_threshold', 0.02).value
         self.min_frontier_size = self.declare_parameter('min_frontier_size', 5).value
+        self.frontier_detection_interval = self.declare_parameter(
+            'frontier_detection_interval', 1.0
+        ).value
+        self.rrt_frontier_iterations = int(
+            self.declare_parameter('rrt_frontier_iterations', 800).value
+        )
+        self.rrt_frontier_step_size = self.declare_parameter(
+            'rrt_frontier_step_size', 1.0
+        ).value
+        self.rrt_frontier_cluster_radius = self.declare_parameter(
+            'rrt_frontier_cluster_radius', 0.6
+        ).value
+        self.rrt_frontier_max_points = int(
+            self.declare_parameter('rrt_frontier_max_points', 120).value
+        )
         self.obstacle_distance = self.declare_parameter('obstacle_distance', 0.4).value
         self.obstacle_inflation = self.declare_parameter('obstacle_inflation', 0.3).value
         self.rrt_step_size = self.declare_parameter('rrt_step_size', 0.3).value
@@ -101,7 +116,13 @@ class ExplorationCoordinator(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
         # --- Components ---
-        self.frontier_detector = FrontierDetector(min_frontier_size=self.min_frontier_size)
+        self.frontier_detector = FrontierDetector(
+            min_frontier_size=self.min_frontier_size,
+            iterations=self.rrt_frontier_iterations,
+            step_size=self.rrt_frontier_step_size,
+            cluster_radius=self.rrt_frontier_cluster_radius,
+            max_frontier_points=self.rrt_frontier_max_points,
+        )
         self.planner = create_planner(
             self.planner_type,
             goal_tolerance=self.goal_tolerance,
@@ -146,6 +167,8 @@ class ExplorationCoordinator(Node):
         # --- State ---
         self.latest_map: Optional[OccupancyGrid] = None
         self.frontier_clusters: List[FrontierCluster] = []
+        self.last_frontier_detection_time = self.get_clock().now()
+        self.frontiers_initialized = False
         self.current_path: List[Tuple[float, float]] = []
         self.current_goal: Optional[Tuple[float, float]] = None
         self.target_cluster: Optional[FrontierCluster] = None
@@ -175,7 +198,6 @@ class ExplorationCoordinator(Node):
 
     def _map_callback(self, msg: OccupancyGrid):
         self.latest_map = msg
-        self.frontier_clusters, _ = self.frontier_detector.detect(msg)
         self._update_explored_history(msg)
 
     def _scan_callback(self, msg: LaserScan):
@@ -207,6 +229,7 @@ class ExplorationCoordinator(Node):
             return
         rx, ry, ryaw = pose
         self.pose_graph_tracker.update((rx, ry, ryaw))
+        self._update_frontiers(rx, ry)
 
         # --- Publish visualizations ---
         self._publish_frontier_markers()
@@ -291,6 +314,18 @@ class ExplorationCoordinator(Node):
             f'No reachable frontier among {len(self.frontier_clusters)} clusters. Random walking.'
         )
 
+    def _update_frontiers(self, rx: float, ry: float):
+        now = self.get_clock().now()
+        elapsed = (now - self.last_frontier_detection_time).nanoseconds / 1e9
+        if self.frontiers_initialized and elapsed < self.frontier_detection_interval:
+            return
+        self.frontier_clusters, _ = self.frontier_detector.detect(
+            self.latest_map,
+            (rx, ry),
+        )
+        self.last_frontier_detection_time = now
+        self.frontiers_initialized = True
+
     def _score_frontiers_by_size_distance(self, rx: float, ry: float):
         scored = []
         for c in self.frontier_clusters:
@@ -354,15 +389,6 @@ class ExplorationCoordinator(Node):
         self._publish_path()
 
     def _target_frontier_shrunk(self) -> bool:
-        if self.target_cluster is None:
-            return False
-        for c in self.frontier_clusters:
-            d = math.hypot(
-                c.centroid_x - self.target_cluster.centroid_x,
-                c.centroid_y - self.target_cluster.centroid_y,
-            )
-            if d < 0.5 and c.size < self.target_cluster.size * 0.5:
-                return True
         return False
 
     # ------------------------------------------------------------------
