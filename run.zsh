@@ -19,7 +19,15 @@ LOG_ROOT=${LOG_ROOT:-logs}
 
 cd "${SRC_DIR}"
 
-source /opt/ros/humble/setup.zsh
+source_ros_setup() {
+  # ROS/colcon setup scripts may read optional unset variables such as
+  # COLCON_TRACE, so source them with nounset temporarily disabled.
+  set +u
+  source "$1"
+  set -u
+}
+
+source_ros_setup /opt/ros/humble/setup.zsh
 
 export MAKEFLAGS=-j1
 export CMAKE_BUILD_PARALLEL_LEVEL=1
@@ -52,7 +60,7 @@ colcon build \
   --parallel-workers 1 \
   --packages-skip ${=GAZEBO_ROS_PKGS_SKIP}
 
-source "${SRC_DIR}/install/setup.zsh"
+source_ros_setup "${SRC_DIR}/install/setup.zsh"
 
 ros2 launch activeslam slam.launch.py \
   map:="${MAP}" \
