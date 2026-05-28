@@ -1,4 +1,5 @@
 import math
+import time
 from collections import deque
 from random import random as _random
 from typing import List, Optional, Tuple
@@ -62,6 +63,12 @@ class ExplorationCoordinator(Node):
         self.frontier_goal_sample_count = int(
             self.declare_parameter('frontier_goal_sample_count', 5).value
         )
+        self.frontier_approach_distance = self.declare_parameter(
+            'frontier_approach_distance', 0.45
+        ).value
+        self.frontier_min_goal_distance = self.declare_parameter(
+            'frontier_min_goal_distance', 0.35
+        ).value
         self.planner_allow_unknown = _as_bool(
             self.declare_parameter('planner_allow_unknown', False).value
         )
@@ -178,9 +185,13 @@ class ExplorationCoordinator(Node):
         self.front_obstacle_distance = float('inf')
         self.safety_turn_deadline = self.get_clock().now()
         self.safety_turn_direction = 0.0
+        self.recovery_reverse_speed = -0.05
         self.explored_history = deque()
         self.exploration_complete = False
         self.random_walk_deadline = self.get_clock().now()
+        self.last_progress_pose: Optional[Tuple[float, float]] = None
+        self.last_progress_wall_time = time.monotonic()
+        self.stuck_recovery_wall_deadline = 0.0
 
         # --- Timers ---
         self.control_timer = self.create_timer(0.1, self._control_loop)
@@ -233,6 +244,9 @@ class ExplorationCoordinator(Node):
         rx, ry, ryaw = pose
         self.pose_graph_tracker.update((rx, ry, ryaw))
 
+        if self._handle_stuck_recovery(rx, ry):
+            return
+
         # --- Publish visualizations ---
         self._publish_frontier_markers()
         self._publish_goal_marker()
@@ -276,11 +290,14 @@ class ExplorationCoordinator(Node):
                 self.safety_turn_direction = -1.0 if self.safety_turn_direction >= 0 else 1.0
                 duration = 0.8 + np.random.random() * 1.0
                 self.safety_turn_deadline = now + Duration(seconds=duration)
-            self._publish_cmd_vel(0.0, self.safety_turn_direction * 0.8)
+            self._publish_cmd_vel(
+                self.recovery_reverse_speed,
+                self.safety_turn_direction * 0.8,
+            )
             self.current_path.clear()
             self.current_goal = None
             self.target_cluster = None
-            self.last_replan_time = now
+            self.stuck_recovery_wall_deadline = time.monotonic() + 0.8
             return True
         return False
 
@@ -405,17 +422,27 @@ class ExplorationCoordinator(Node):
         rx: float,
         ry: float,
     ) -> List[Tuple[float, float]]:
-        if not cluster.cells:
-            return [(cluster.centroid_x, cluster.centroid_y)]
-
         info = self.latest_map.info
         origin_x = info.origin.position.x
         origin_y = info.origin.position.y
         res = info.resolution
+        data = np.array(self.latest_map.data, dtype=np.int8).reshape(
+            info.height,
+            info.width,
+        )
 
         def to_world(cell):
             i, j = cell
             return origin_x + (j + 0.5) * res, origin_y + (i + 0.5) * res
+
+        def to_grid(point):
+            x, y = point
+            j = int((x - origin_x) / res)
+            i = int((y - origin_y) / res)
+            return i, j
+
+        if not cluster.cells:
+            return [(cluster.centroid_x, cluster.centroid_y)]
 
         cells = list(cluster.cells)
         centroid_cell = min(
@@ -443,15 +470,65 @@ class ExplorationCoordinator(Node):
             step = (len(ordered) - 1) / float(sample_count - 1)
             sampled = [ordered[int(round(k * step))] for k in range(sample_count)]
 
-        candidates = [centroid_cell, nearest_cell] + sampled
+        frontier_cells = [centroid_cell, nearest_cell] + sampled
         deduped = []
         seen = set()
-        for cell in candidates:
+
+        # Prefer known-free approach cells set back from the frontier boundary.
+        # Frontier cells themselves are still retained as a last resort.
+        approach_distances = (
+            max(res, self.frontier_approach_distance),
+            max(res, self.frontier_approach_distance * 0.65),
+            max(res, self.frontier_approach_distance * 1.35),
+        )
+        for cell in frontier_cells:
+            fx, fy = to_world(cell)
+            vx = rx - fx
+            vy = ry - fy
+            norm = math.hypot(vx, vy)
+            if norm < 1e-6:
+                continue
+            ux, uy = vx / norm, vy / norm
+            for distance in approach_distances:
+                candidate = (fx + ux * distance, fy + uy * distance)
+                i, j = to_grid(candidate)
+                if not self._is_safe_goal_cell(data, i, j, res):
+                    continue
+                if (
+                    math.hypot(candidate[0] - rx, candidate[1] - ry)
+                    < self.frontier_min_goal_distance
+                ):
+                    continue
+                key = (i, j)
+                if key in seen:
+                    continue
+                seen.add(key)
+                deduped.append(to_world(key))
+
+        for cell in frontier_cells:
             if cell in seen:
                 continue
             seen.add(cell)
             deduped.append(to_world(cell))
         return deduped
+
+    def _is_safe_goal_cell(
+        self,
+        data: np.ndarray,
+        i: int,
+        j: int,
+        resolution: float,
+    ) -> bool:
+        height, width = data.shape
+        if not (0 <= i < height and 0 <= j < width):
+            return False
+        if data[i, j] != 0:
+            return False
+
+        radius = max(1, int((self.obstacle_inflation * 0.75) / resolution))
+        ilo, ihi = max(0, i - radius), min(height, i + radius + 1)
+        jlo, jhi = max(0, j - radius), min(width, j + radius + 1)
+        return not np.any(data[ilo:ihi, jlo:jhi] > 50)
 
     def _set_plan(
         self,
@@ -514,13 +591,56 @@ class ExplorationCoordinator(Node):
 
         angular_z = self.kp_angular * angle_error
         angular_z = max(-self.max_angular_speed, min(self.max_angular_speed, angular_z))
-        linear_x = self.target_linear_speed * max(0.0, 1.0 - abs(angular_z) / self.max_angular_speed)
+        speed_scale = max(0.0, 1.0 - abs(angular_z) / self.max_angular_speed)
+        linear_x = self.target_linear_speed * speed_scale
 
         dist_to_end = math.hypot(path[-1][0] - rx, path[-1][1] - ry)
         if dist_to_end < 0.5:
             linear_x *= max(0.1, dist_to_end / 0.5)
 
         self._publish_cmd_vel(linear_x, angular_z)
+
+    def _handle_stuck_recovery(self, rx: float, ry: float) -> bool:
+        now = self.get_clock().now()
+        wall_now = time.monotonic()
+        if wall_now < self.stuck_recovery_wall_deadline:
+            self._publish_cmd_vel(
+                self.recovery_reverse_speed,
+                self.safety_turn_direction * 0.8,
+            )
+            return True
+
+        if self.last_progress_pose is None:
+            self.last_progress_pose = (rx, ry)
+            self.last_progress_wall_time = wall_now
+            return False
+
+        moved = math.hypot(rx - self.last_progress_pose[0], ry - self.last_progress_pose[1])
+        elapsed = wall_now - self.last_progress_wall_time
+        if moved > 0.20:
+            self.last_progress_pose = (rx, ry)
+            self.last_progress_wall_time = wall_now
+            return False
+
+        if elapsed < 8.0:
+            return False
+
+        self.get_logger().warn(
+            'Robot appears stuck; backing away and forcing a new frontier plan.'
+        )
+        self.current_path.clear()
+        self.current_goal = None
+        self.target_cluster = None
+        self.last_replan_time = now - Duration(seconds=max(1.1, self.replan_interval))
+        self.safety_turn_direction = -1.0 if self.safety_turn_direction >= 0 else 1.0
+        self.stuck_recovery_wall_deadline = wall_now + 1.5
+        self.last_progress_pose = (rx, ry)
+        self.last_progress_wall_time = wall_now
+        self._publish_cmd_vel(
+            self.recovery_reverse_speed,
+            self.safety_turn_direction * 0.8,
+        )
+        return True
 
     # ------------------------------------------------------------------
     # Random walk (fallback when no path available)

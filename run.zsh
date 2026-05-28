@@ -4,16 +4,18 @@ set -euo pipefail
 # Fast headless experiment runner for the remote ROS 2 Humble workspace.
 # Usage examples:
 #   ./run.zsh
-#   MAP=slam_loop STRATEGY=graph RUN_SECONDS=300 ./run.zsh
+#   MAP=slam_loop STRATEGY=graph RUN_SECONDS=90 ./run.zsh
 #   REAL_TIME_UPDATE_RATE=0 MAX_STEP_SIZE=0.001 ./run.zsh
+# Default physics is capped near 5x realtime; set REAL_TIME_UPDATE_RATE=0
+# only for quick smoke tests where controller stability is less important.
 
 WORKSPACE=${WORKSPACE:-/home/psirobot/projects/ros2_ws}
 SRC_DIR=${SRC_DIR:-${WORKSPACE}/src}
 MAP=${MAP:-slam_rooms}
 PLANNER=${PLANNER:-astar}
 STRATEGY=${STRATEGY:-frontier}
-RUN_SECONDS=${RUN_SECONDS:-0}
-REAL_TIME_UPDATE_RATE=${REAL_TIME_UPDATE_RATE:-0}
+RUN_SECONDS=${RUN_SECONDS:-90}
+REAL_TIME_UPDATE_RATE=${REAL_TIME_UPDATE_RATE:-5000}
 MAX_STEP_SIZE=${MAX_STEP_SIZE:-0.001}
 LOG_ROOT=${LOG_ROOT:-logs}
 
@@ -77,9 +79,9 @@ echo "  gazebo real_time_update_rate: ${REAL_TIME_UPDATE_RATE} (0 means uncapped
 echo "  gazebo max_step_size: ${MAX_STEP_SIZE}"
 echo "  log: ${log_file}"
 
-pkill -f "ros2 launch activeslam slam.launch.py" 2>/dev/null || true
-pkill -f "gzserver" 2>/dev/null || true
-pkill -f "gzclient" 2>/dev/null || true
+pkill -f "[r]os2 launch activeslam slam.launch.py" 2>/dev/null || true
+pkill -f "[g]zserver" 2>/dev/null || true
+pkill -f "[g]zclient" 2>/dev/null || true
 
 rm -f "${SRC_DIR}/install/activeslam/share/activeslam/launch/slam.launch.py" 2>/dev/null || true
 colcon build \
@@ -99,7 +101,7 @@ ros2 launch activeslam slam.launch.py \
   plot_live:=false \
   save_plots:=false \
   log_root:="${LOG_ROOT}" \
-  2>&1 | tee "${log_file}" &
+  > >(tee "${log_file}") 2>&1 &
 
 launch_pid=$!
 
@@ -107,6 +109,17 @@ cleanup() {
   echo
   echo "Stopping experiment..."
   kill "${launch_pid}" 2>/dev/null || true
+  pkill -f "[r]os2 launch activeslam slam.launch.py" 2>/dev/null || true
+  sleep 2
+  pkill -f "[e]xploration_coordinator" 2>/dev/null || true
+  pkill -f "[s]lam_evaluator" 2>/dev/null || true
+  pkill -f "[s]ync_slam_toolbox_node" 2>/dev/null || true
+  pkill -f "[s]pawn_entity.py" 2>/dev/null || true
+  pkill -f "[g]zserver" 2>/dev/null || true
+  pkill -f "[g]zclient" 2>/dev/null || true
+  sleep 1
+  pkill -KILL -f "[g]zserver" 2>/dev/null || true
+  pkill -KILL -f "[g]zclient" 2>/dev/null || true
   wait "${launch_pid}" 2>/dev/null || true
 }
 trap cleanup INT TERM EXIT
