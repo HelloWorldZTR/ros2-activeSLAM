@@ -19,6 +19,33 @@ LOG_ROOT=${LOG_ROOT:-logs}
 
 cd "${SRC_DIR}"
 
+deactivate_conda_if_needed() {
+  if [[ -z "${CONDA_PREFIX:-}" && -z "${CONDA_DEFAULT_ENV:-}" ]]; then
+    return
+  fi
+
+  echo "Conda environment detected; deactivating before ROS setup."
+
+  while [[ "${CONDA_SHLVL:-0}" -gt 0 ]] && command -v conda >/dev/null 2>&1; do
+    conda deactivate || break
+  done
+
+  if [[ -n "${CONDA_PREFIX:-}" ]]; then
+    local conda_prefix="${CONDA_PREFIX}"
+    local -a clean_path
+    local entry
+    for entry in "${path[@]}"; do
+      if [[ "${entry}" != "${conda_prefix}/bin" && "${entry}" != "${conda_prefix}/condabin" ]]; then
+        clean_path+=("${entry}")
+      fi
+    done
+    path=("${clean_path[@]}")
+  fi
+
+  unset CONDA_DEFAULT_ENV CONDA_EXE CONDA_PREFIX CONDA_PROMPT_MODIFIER
+  unset CONDA_PYTHON_EXE CONDA_SHLVL
+}
+
 source_ros_setup() {
   # ROS/colcon setup scripts may read optional unset variables such as
   # COLCON_TRACE, so source them with nounset temporarily disabled.
@@ -27,6 +54,7 @@ source_ros_setup() {
   set -u
 }
 
+deactivate_conda_if_needed
 source_ros_setup /opt/ros/humble/setup.zsh
 
 export MAKEFLAGS=-j1
