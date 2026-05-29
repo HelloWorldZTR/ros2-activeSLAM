@@ -50,20 +50,20 @@ coverage = known_cells / total_cells
 
 LaTeX 表达式：
 
-```latex
+$$
 \mathcal{K} = \{(i,j) \mid G_{ij} \neq -1,\ M_{ij}=1\}
-```
+$$
 
-```latex
+$$
 \mathcal{E} = \{(i,j) \mid M_{ij}=1\}
-```
+$$
 
-```latex
+$$
 \mathrm{Coverage}
 = \frac{|\mathcal{K}|}{|\mathcal{E}|}
 = \frac{\sum_{i,j}\mathbf{1}[G_{ij}\neq -1]\mathbf{1}[M_{ij}=1]}
        {\sum_{i,j}\mathbf{1}[M_{ij}=1]}
-```
+$$
 
 如果 `total_cells == 0`，代码返回：
 
@@ -93,10 +93,10 @@ p_k = (x_k, y_k)
 
 则总路径长度为：
 
-```text
-L = sum_{k=2..N} ||p_k - p_{k-1}||_2
-  = sum_{k=2..N} sqrt((x_k - x_{k-1})^2 + (y_k - y_{k-1})^2)
-```
+$$
+L = \sum_{k=2}^{N}\left\|p_k-p_{k-1}\right\|_2
+  = \sum_{k=2}^{N}\sqrt{(x_k-x_{k-1})^2+(y_k-y_{k-1})^2}
+$$
 
 第一帧估计位姿只用于初始化，不增加路径长度。
 
@@ -119,13 +119,13 @@ ATE 使用估计轨迹和 ground truth 轨迹计算，仅比较平面位置 `(x,
 
 LaTeX 表达式：
 
-```latex
-m(k)=\arg\min_m |t(e_k)-t(g_m)|
-```
+$$
+m(k)=\arg\min_{m} |t(e_k)-t(g_m)|
+$$
 
-```latex
+$$
 \mathcal{P}=\{(e_k,g_{m(k)})\mid |t(e_k)-t(g_{m(k)})|\leq 0.2\}
-```
+$$
 
 没有匹配样本时，`ate_rmse` 不写入 `metrics.json`。
 
@@ -140,11 +140,11 @@ delta_y = y(g_1) - y(e_1)
 
 LaTeX 表达式：
 
-```latex
+$$
 \boldsymbol{\delta}
 = \begin{bmatrix}\delta_x\\\delta_y\end{bmatrix}
 = \begin{bmatrix}x(g_1)-x(e_1)\\y(g_1)-y(e_1)\end{bmatrix}
-```
+$$
 
 ### 单点误差
 
@@ -157,14 +157,14 @@ error_k = sqrt((x(e_k) + delta_x - x(g_k))^2
 
 LaTeX 表达式：
 
-```latex
+$$
 \epsilon_k
 = \left\|
 \begin{bmatrix}x(e_k)\\y(e_k)\end{bmatrix}
 + \boldsymbol{\delta}
 - \begin{bmatrix}x(g_k)\\y(g_k)\end{bmatrix}
 \right\|_2
-```
+$$
 
 ### RMSE
 
@@ -176,10 +176,10 @@ ATE_RMSE = sqrt((1 / N) * sum_{k=1..N} error_k^2)
 
 LaTeX 表达式：
 
-```latex
+$$
 \mathrm{ATE}_{\mathrm{RMSE}}
 = \sqrt{\frac{1}{N}\sum_{k=1}^{N}\epsilon_k^2}
-```
+$$
 
 相关输出：
 
@@ -214,19 +214,19 @@ occupied_iou = count(pred_occupied and gt_occupied and known)
 
 LaTeX 表达式：
 
-```latex
+$$
 \mathcal{P}_{occ}=\{(i,j)\mid G_{ij}\geq 50,\ G_{ij}\neq -1,\ M_{ij}=1\}
-```
+$$
 
-```latex
+$$
 \mathcal{T}_{occ}=\{(i,j)\mid W_{ij}=1,\ M_{ij}=1\}
-```
+$$
 
-```latex
+$$
 \mathrm{IoU}_{occ}
 = \frac{|\mathcal{P}_{occ}\cap\mathcal{T}_{occ}\cap\mathcal{K}|}
        {|(\mathcal{P}_{occ}\cup\mathcal{T}_{occ})\cap\mathcal{K}|}
-```
+$$
 
 如果分母为 0，返回 `None`。
 
@@ -262,19 +262,19 @@ free_iou = count(pred_free and gt_free and known)
 
 LaTeX 表达式：
 
-```latex
+$$
 \mathcal{P}_{free}=\{(i,j)\mid 0\leq G_{ij}<50,\ G_{ij}\neq -1,\ M_{ij}=1\}
-```
+$$
 
-```latex
+$$
 \mathcal{T}_{free}=\{(i,j)\mid W_{ij}=0,\ M_{ij}=1\}
-```
+$$
 
-```latex
+$$
 \mathrm{IoU}_{free}
 = \frac{|\mathcal{P}_{free}\cap\mathcal{T}_{free}\cap\mathcal{K}|}
        {|(\mathcal{P}_{free}\cup\mathcal{T}_{free})\cap\mathcal{K}|}
-```
+$$
 
 如果分母为 0，返回 `None`。
 
