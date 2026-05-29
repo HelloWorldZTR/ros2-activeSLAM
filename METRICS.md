@@ -48,6 +48,23 @@ total_cells = count(M(i, j))
 coverage = known_cells / total_cells
 ```
 
+LaTeX 表达式：
+
+```latex
+\mathcal{K} = \{(i,j) \mid G_{ij} \neq -1,\ M_{ij}=1\}
+```
+
+```latex
+\mathcal{E} = \{(i,j) \mid M_{ij}=1\}
+```
+
+```latex
+\mathrm{Coverage}
+= \frac{|\mathcal{K}|}{|\mathcal{E}|}
+= \frac{\sum_{i,j}\mathbf{1}[G_{ij}\neq -1]\mathbf{1}[M_{ij}=1]}
+       {\sum_{i,j}\mathbf{1}[M_{ij}=1]}
+```
+
 如果 `total_cells == 0`，代码返回：
 
 ```text
@@ -100,6 +117,16 @@ ATE 使用估计轨迹和 ground truth 轨迹计算，仅比较平面位置 `(x,
 |t(e_k) - t(g_m)| <= 0.2
 ```
 
+LaTeX 表达式：
+
+```latex
+m(k)=\arg\min_m |t(e_k)-t(g_m)|
+```
+
+```latex
+\mathcal{P}=\{(e_k,g_{m(k)})\mid |t(e_k)-t(g_{m(k)})|\leq 0.2\}
+```
+
 没有匹配样本时，`ate_rmse` 不写入 `metrics.json`。
 
 ### 初始平移对齐
@@ -111,6 +138,14 @@ delta_x = x(g_1) - x(e_1)
 delta_y = y(g_1) - y(e_1)
 ```
 
+LaTeX 表达式：
+
+```latex
+\boldsymbol{\delta}
+= \begin{bmatrix}\delta_x\\\delta_y\end{bmatrix}
+= \begin{bmatrix}x(g_1)-x(e_1)\\y(g_1)-y(e_1)\end{bmatrix}
+```
+
 ### 单点误差
 
 每组匹配的 ATE 单点误差为：
@@ -120,12 +155,30 @@ error_k = sqrt((x(e_k) + delta_x - x(g_k))^2
              + (y(e_k) + delta_y - y(g_k))^2)
 ```
 
+LaTeX 表达式：
+
+```latex
+\epsilon_k
+= \left\|
+\begin{bmatrix}x(e_k)\\y(e_k)\end{bmatrix}
++ \boldsymbol{\delta}
+- \begin{bmatrix}x(g_k)\\y(g_k)\end{bmatrix}
+\right\|_2
+```
+
 ### RMSE
 
 设共有 `N` 组匹配：
 
 ```text
 ATE_RMSE = sqrt((1 / N) * sum_{k=1..N} error_k^2)
+```
+
+LaTeX 表达式：
+
+```latex
+\mathrm{ATE}_{\mathrm{RMSE}}
+= \sqrt{\frac{1}{N}\sum_{k=1}^{N}\epsilon_k^2}
 ```
 
 相关输出：
@@ -159,6 +212,22 @@ occupied_iou = count(pred_occupied and gt_occupied and known)
              / count((pred_occupied or gt_occupied) and known)
 ```
 
+LaTeX 表达式：
+
+```latex
+\mathcal{P}_{occ}=\{(i,j)\mid G_{ij}\geq 50,\ G_{ij}\neq -1,\ M_{ij}=1\}
+```
+
+```latex
+\mathcal{T}_{occ}=\{(i,j)\mid W_{ij}=1,\ M_{ij}=1\}
+```
+
+```latex
+\mathrm{IoU}_{occ}
+= \frac{|\mathcal{P}_{occ}\cap\mathcal{T}_{occ}\cap\mathcal{K}|}
+       {|(\mathcal{P}_{occ}\cup\mathcal{T}_{occ})\cap\mathcal{K}|}
+```
+
 如果分母为 0，返回 `None`。
 
 相关输出：
@@ -189,6 +258,22 @@ gt_free(i, j) = not rasterized_world_obstacle(i, j) and M(i, j)
 ```text
 free_iou = count(pred_free and gt_free and known)
          / count((pred_free or gt_free) and known)
+```
+
+LaTeX 表达式：
+
+```latex
+\mathcal{P}_{free}=\{(i,j)\mid 0\leq G_{ij}<50,\ G_{ij}\neq -1,\ M_{ij}=1\}
+```
+
+```latex
+\mathcal{T}_{free}=\{(i,j)\mid W_{ij}=0,\ M_{ij}=1\}
+```
+
+```latex
+\mathrm{IoU}_{free}
+= \frac{|\mathcal{P}_{free}\cap\mathcal{T}_{free}\cap\mathcal{K}|}
+       {|(\mathcal{P}_{free}\cup\mathcal{T}_{free})\cap\mathcal{K}|}
 ```
 
 如果分母为 0，返回 `None`。
