@@ -5,6 +5,8 @@ from typing import List, Tuple
 import numpy as np
 from nav_msgs.msg import OccupancyGrid
 
+from .frontier_selection import OPEN_EDGE_FRONTIER, UNKNOWN_FRONTIER
+
 
 @dataclass
 class FrontierCluster:
@@ -12,11 +14,17 @@ class FrontierCluster:
     centroid_y: float
     size: int
     cells: Tuple[Tuple[int, int], ...]
+    source: str = UNKNOWN_FRONTIER
 
 
 class FrontierDetector:
-    def __init__(self, min_frontier_size: int = 5):
+    def __init__(
+        self,
+        min_frontier_size: int = 5,
+        include_open_map_edges: bool = True,
+    ):
         self.min_frontier_size = min_frontier_size
+        self.include_open_map_edges = include_open_map_edges
 
     def detect(self, grid_msg: OccupancyGrid) -> Tuple[List[FrontierCluster], np.ndarray]:
         width = grid_msg.info.width
@@ -27,20 +35,53 @@ class FrontierDetector:
 
         data = np.array(grid_msg.data, dtype=np.int8).reshape(height, width)
 
-        frontier_mask = np.zeros((height, width), dtype=bool)
+        unknown_mask = np.zeros((height, width), dtype=bool)
+        open_edge_mask = np.zeros((height, width), dtype=bool)
         for i in range(height):
             for j in range(width):
-                if data[i, j] == 0:
-                    for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-                        ni, nj = i + di, j + dj
-                        if 0 <= ni < height and 0 <= nj < width and data[ni, nj] == -1:
-                            frontier_mask[i, j] = True
-                            break
+                if data[i, j] != 0:
+                    continue
+                has_unknown_neighbor = False
+                has_outside_neighbor = False
+                for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                    ni, nj = i + di, j + dj
+                    if not (0 <= ni < height and 0 <= nj < width):
+                        has_outside_neighbor = True
+                    elif data[ni, nj] == -1:
+                        has_unknown_neighbor = True
+                if has_unknown_neighbor:
+                    unknown_mask[i, j] = True
+                elif self.include_open_map_edges and has_outside_neighbor:
+                    open_edge_mask[i, j] = True
 
-        clusters = self._cluster(frontier_mask)
+        result = self._make_clusters(
+            unknown_mask,
+            UNKNOWN_FRONTIER,
+            origin_x,
+            origin_y,
+            resolution,
+        )
+        result.extend(
+            self._make_clusters(
+                open_edge_mask,
+                OPEN_EDGE_FRONTIER,
+                origin_x,
+                origin_y,
+                resolution,
+            )
+        )
+        return result, np.logical_or(unknown_mask, open_edge_mask)
 
+    def _make_clusters(
+        self,
+        mask: np.ndarray,
+        source: str,
+        origin_x: float,
+        origin_y: float,
+        resolution: float,
+    ) -> List[FrontierCluster]:
         result = []
-        for cells in clusters:
+        for cells in self._cluster(mask):
             if len(cells) < self.min_frontier_size:
                 continue
             mean_i = sum(c[0] for c in cells) / len(cells)
@@ -53,10 +94,10 @@ class FrontierDetector:
                     centroid_y=cy,
                     size=len(cells),
                     cells=tuple(cells),
+                    source=source,
                 )
             )
-
-        return result, frontier_mask
+        return result
 
     def _cluster(self, mask: np.ndarray) -> List[List[Tuple[int, int]]]:
         height, width = mask.shape

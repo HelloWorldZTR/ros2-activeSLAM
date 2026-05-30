@@ -3,6 +3,7 @@ exploration_coordinator:
     stability_duration: 10.0
     stability_threshold: 0.02
     min_frontier_size: 5
+    frontier_include_open_map_edges: true
     exploration_strategy: "graph"  # frontier or graph
     frontier_planning_attempts: 12
     frontier_goal_search_radius: 1.2
@@ -11,6 +12,8 @@ exploration_coordinator:
     frontier_goal_map_edge_clearance: 0.0
     frontier_goal_min_advance: 0.35
     frontier_goal_point_sample_limit: 40
+    frontier_information_gain_radius: 1.0
+    frontier_information_gain_min: 0.45
     nav2_goal_reach_radius: 0.25  # Keep in sync with Nav2 xy_goal_tolerance.
     failed_goal_cooldown: 20.0
     failed_goal_radius: 0.6
@@ -19,6 +22,13 @@ exploration_coordinator:
     initial_spin_yaw: 6.283185307
     initial_spin_timeout: 30.0
     nav2_goal_timeout: 30.0
+    frontier_open_edge_probe_enabled: true
+    frontier_open_edge_normal_radius: 0.35
+    frontier_open_edge_spin_tolerance: 0.10
+    frontier_open_edge_spin_timeout: 8.0
+    frontier_open_edge_probe_distance: 2.0
+    frontier_open_edge_probe_speed: 0.12
+    frontier_open_edge_probe_timeout: 20.0
     graph_max_frontier_candidates: 8
     graph_info_radius: 1.5
     graph_node_spacing: 0.5
@@ -30,7 +40,6 @@ exploration_coordinator:
     graph_loop_closure_weight: 1.5
     graph_max_loop_closures_per_node: 3
     graph_path_cost_weight: 0.05
-    graph_frontier_weight: 0.001
     graph_odom_cov_x: 0.04
     graph_odom_cov_y: 0.04
     graph_odom_cov_yaw: 0.008

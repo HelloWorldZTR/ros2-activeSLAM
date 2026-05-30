@@ -172,7 +172,6 @@ class GraphBasedFrontierScorer:
         loop_closure_weight: float,
         max_loop_closures_per_node: int,
         path_cost_weight: float,
-        frontier_weight: float,
         odom_information: np.ndarray,
     ):
         self.info_radius = info_radius
@@ -183,7 +182,6 @@ class GraphBasedFrontierScorer:
         self.loop_closure_weight = loop_closure_weight
         self.max_loop_closures_per_node = max_loop_closures_per_node
         self.path_cost_weight = path_cost_weight
-        self.frontier_weight = frontier_weight
         self.odom_information = odom_information
 
     def score(
@@ -191,7 +189,6 @@ class GraphBasedFrontierScorer:
         base_graph: WeightedPoseGraph,
         grid_msg: OccupancyGrid,
         path: Sequence[Tuple[float, float]],
-        frontier_size: int,
     ) -> float:
         if len(path) < 2:
             return -float('inf')
@@ -225,11 +222,7 @@ class GraphBasedFrontierScorer:
             previous = node
 
         path_length = _path_length(path)
-        return (
-            graph.d_opt_score()
-            + self.frontier_weight * float(frontier_size)
-            - self.path_cost_weight * path_length
-        )
+        return graph.d_opt_score() - self.path_cost_weight * path_length
 
     def _sample_path(self, path: Sequence[Tuple[float, float]]) -> List[Tuple[float, float]]:
         sampled = []

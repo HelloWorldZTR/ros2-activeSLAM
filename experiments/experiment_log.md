@@ -88,8 +88,8 @@ Expected checks:
 
 - `/compute_path_to_pose`, `/navigate_to_pose`, and `/spin` action servers exist.
 - Startup logs report the initial Nav2 spin and subsequent frontier goals.
-- `/cmd_vel` is published by Nav2's velocity smoother, not by
-  `exploration_coordinator`.
+- `/cmd_vel` is published by Nav2's velocity smoother or Behavior Server, not
+  by `exploration_coordinator`.
 - Graph mode continues reporting D-opt frontier scores.
 
 Status: implementation complete locally; remote simulation smoke test pending.
@@ -120,3 +120,64 @@ Status: Python compilation, focused helper tests, and diff checks pass locally.
 Full `pytest` collection is blocked because the host is missing the ROS
 `ament_copyright`, `ament_flake8`, and `ament_pep257` Python modules.
 `colcon test` is also blocked until the local ROS workspace is rebuilt.
+
+## 2026-05-30 - Open Map Edge Frontier Fallback
+
+Goal: continue exploration when slam_toolbox publishes a tight occupancy-grid
+rectangle and unexplored space outside that rectangle appears as RViz
+background rather than in-map unknown cells.
+
+Implementation:
+
+- Added open-map-edge frontier clusters for free cells whose four-neighborhood
+  crosses the `/map` array boundary. Ordinary free-to-unknown frontiers retain
+  priority and both sources use independent eight-connected clustering.
+- Initially kept open-edge goals as a fallback only: Nav2 path checks and graph
+  scoring consumed ordinary frontiers first, then open-edge clusters only when
+  needed. This was later replaced by shared information-gain ranking.
+- Added a center-line obstacle check between each frontier seed and its
+  standoff candidate. Unknown cells remain allowed on this short segment;
+  complete reachability remains owned by Nav2.
+- Kept `/frontier_markers` as the visualization interface. Ordinary clusters
+  are green and open-edge fallback clusters are cyan.
+
+Status: Python compilation, diff checks, and focused frontier/Nav2 helper tests
+pass locally. Remote simulation smoke test pending.
+
+## 2026-05-30 - Nav2-Owned Open Edge Probe
+
+Goal: let open-map-edge fallback frontiers expand the SLAM occupancy-grid
+rectangle without publishing velocity commands from the exploration node.
+
+Implementation:
+
+- Kept open-edge navigation goals inside the current map. After Nav2 reaches
+  the safe standoff point, the coordinator estimates a local outward normal
+  from nearby out-of-map neighbors, aligns with Nav2 `Spin`, and advances
+  `0.40m` with Nav2 `DriveOnHeading`. This was later increased to `2.0m`.
+- Added conservative probe speed and timeout parameters. Behavior Server owns
+  the probe velocity command and uses its local costmap collision check.
+- Added the existing failed-goal cooldown to alignment and probe failures so a
+  blocked edge is not selected repeatedly.
+
+Status: Python compilation and focused helper tests pass locally. Remote
+simulation smoke test pending.
+
+## 2026-05-30 - Shared Frontier Information Gain Ranking
+
+Goal: let ordinary and open-map-edge frontiers compete fairly without allowing
+long map-border clusters to dominate merely because they contain many cells.
+
+Implementation:
+
+- Replaced source-priority fallback groups with one shared candidate pool.
+- Added a local potential-unknown-area utility inspired by `active_graph_slam`.
+  Ordinary frontiers count in-map unknown cells; open-edge frontiers also treat
+  out-of-map cells as potential unknown during candidate preselection only.
+- Removed the cluster-size bonus from graph scoring. Graph mode now compares
+  the real Nav2 paths of the shared top candidates using D-opt and path cost.
+- Increased the Nav2-owned open-edge probe to `2.0m` at `0.12m/s` with a
+  `20s` timeout.
+
+Status: Python compilation, YAML parsing, diff checks, and focused helper tests
+pass locally. Remote simulation smoke test pending.

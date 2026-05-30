@@ -7,6 +7,9 @@ from activeslam.frontier_goal_utils import (
     SafeGoalSearchConfig,
     is_goal_outside_reach_radius,
     navigation_timed_out,
+    open_edge_outward_normal,
+    potential_unknown_area,
+    segment_is_obstacle_free,
     select_safe_frontier_goal,
 )
 
@@ -46,7 +49,8 @@ def test_safe_goal_search_selects_standoff_cell():
         config=_config(),
     )
 
-    assert goal == pytest.approx((1.15, 1.05))
+    assert goal.point == pytest.approx((1.15, 1.05))
+    assert goal.seed == (10, 15)
 
 
 def test_safe_goal_search_rejects_obstacles_clearance_and_map_edge():
@@ -83,6 +87,27 @@ def test_safe_goal_search_rejects_short_advance_and_reach_radius():
     assert is_goal_outside_reach_radius((0.0, 0.0), (0.26, 0.0), 0.25)
 
 
+def test_safe_goal_search_rejects_standoff_segment_through_obstacle():
+    grid = np.zeros((20, 20), dtype=np.int8)
+    grid[:, 13] = 100
+
+    assert select_safe_frontier_goal(
+        grid,
+        _geometry(),
+        frontier_cells=[(10, 15)],
+        robot_xy=(0.55, 1.05),
+        config=_config(search_radius=0.0, clearance=0.0),
+    ) is None
+
+
+def test_standoff_segment_allows_unknown_but_rejects_outside_map():
+    grid = np.zeros((20, 20), dtype=np.int8)
+    grid[:, 5] = -1
+
+    assert segment_is_obstacle_free(grid, _geometry(), (0.15, 1.05), (0.85, 1.05))
+    assert not segment_is_obstacle_free(grid, _geometry(), (-0.05, 1.05), (0.85, 1.05))
+
+
 def test_failed_goal_cooldown_expires_and_filters_nearby_goals():
     cooldown = FailedGoalCooldown(duration=20.0, radius=0.6)
     cooldown.mark((1.0, 2.0), now=10.0)
@@ -98,3 +123,69 @@ def test_navigation_timeout_is_disabled_or_triggered_by_deadline():
     assert not navigation_timed_out(10.0, timeout=0.0, now=100.0)
     assert not navigation_timed_out(10.0, timeout=30.0, now=39.9)
     assert navigation_timed_out(10.0, timeout=30.0, now=40.0)
+
+
+def test_open_edge_normal_uses_local_outside_neighbor_votes():
+    normal = open_edge_outward_normal(
+        frontier_cells=[(row, 19) for row in range(20)],
+        seed=(10, 19),
+        geometry=_geometry(),
+        radius=0.35,
+    )
+
+    assert normal == pytest.approx((1.0, 0.0))
+
+
+def test_open_edge_normal_handles_corners_and_ignores_distant_edge_votes():
+    normal = open_edge_outward_normal(
+        frontier_cells=[(0, 0), (0, 1), (19, 19)],
+        seed=(0, 0),
+        geometry=_geometry(),
+        radius=0.15,
+    )
+
+    assert normal == pytest.approx((-2 ** -0.5, -2 ** -0.5))
+
+
+def test_open_edge_normal_returns_none_without_local_edge_cells():
+    assert open_edge_outward_normal(
+        frontier_cells=[(10, 10)],
+        seed=(10, 10),
+        geometry=_geometry(),
+        radius=0.35,
+    ) is None
+
+
+def test_potential_unknown_area_counts_internal_unknown_cells_in_square_meters():
+    grid = np.zeros((3, 3), dtype=np.int8)
+    grid[1, 2] = -1
+
+    area = potential_unknown_area(grid, _geometry(size=3), (1, 1), radius=0.1)
+
+    assert area == pytest.approx(0.01)
+
+
+def test_potential_unknown_area_only_counts_outside_map_when_requested():
+    grid = np.zeros((3, 3), dtype=np.int8)
+    geometry = _geometry(size=3)
+
+    ordinary_area = potential_unknown_area(grid, geometry, (0, 0), radius=0.1)
+    open_edge_area = potential_unknown_area(
+        grid,
+        geometry,
+        (0, 0),
+        radius=0.1,
+        include_outside_map=True,
+    )
+
+    assert ordinary_area == 0.0
+    assert open_edge_area == pytest.approx(0.02)
+
+
+def test_potential_unknown_area_honors_radius():
+    grid = np.zeros((3, 3), dtype=np.int8)
+    grid[1, 2] = -1
+
+    area = potential_unknown_area(grid, _geometry(size=3), (1, 1), radius=0.09)
+
+    assert area == 0.0

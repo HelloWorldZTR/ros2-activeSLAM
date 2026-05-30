@@ -46,6 +46,12 @@ RViz 打开后：
 3. Topic 选 /map
 4. 把 Fixed Frame 设为 map（或 odom，一般 map 更合适）
 
+`/map` 只包含 SLAM 当前发布的有限矩形栅格。矩形内部的灰色区域是
+`data == -1` 的 unknown 栅格；矩形外部的深色区域只是 RViz 背景，不属于
+`/map.data`。探索节点默认将接触该外部边界的 free 格作为开放边缘 frontier：
+普通 unknown frontier marker 为绿色，开放边缘 marker 为青色。两类 frontier
+按局部潜在 unknown 面积和安全落点距离统一排序，再交给 Nav2 检查可达性。
+
 ## 可选参数
 
 如果需要指定 TurtleBot3 型号，例如 `waffle`：
@@ -72,3 +78,13 @@ Nav2 参数默认读取 `activeslam/config/nav2_params.yaml`。如需使用其�
 ```bash
 ros2 launch activeslam slam.launch.py nav2_params_file:=/path/to/nav2_params.yaml
 ```
+
+开放地图边缘 frontier 默认启用。如需对照旧行为，可在
+`activeslam/config/exploration.yaml` 中将
+`frontier_include_open_map_edges` 设为 `false`。
+
+当 Nav2 到达开放边缘 frontier 的地图内部安全落点后，探索节点会调用
+Nav2 `Spin` 对准局部外法线，再调用 `DriveOnHeading` 低速向边界外前探
+`2.0m`。前探速度由 Behavior Server 直接发布到 `/cmd_vel`；它不经过
+velocity smoother，但仍使用 Nav2 local costmap 的碰撞检查。探索节点本身
+不会直接发布速度命令。

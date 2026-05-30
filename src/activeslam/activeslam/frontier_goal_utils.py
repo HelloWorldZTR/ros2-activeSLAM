@@ -30,6 +30,12 @@ class SafeGoalSearchConfig:
 
 
 @dataclass(frozen=True)
+class SafeFrontierGoal:
+    point: Point
+    seed: GridCell
+
+
+@dataclass(frozen=True)
 class FailedGoal:
     x: float
     y: float
@@ -78,13 +84,80 @@ def navigation_timed_out(started_at: Optional[float], timeout: float, now: float
     return started_at is not None and timeout > 0.0 and now - started_at >= timeout
 
 
+def normalize_angle(angle: float) -> float:
+    return math.atan2(math.sin(angle), math.cos(angle))
+
+
+def open_edge_outward_normal(
+    frontier_cells: Sequence[GridCell],
+    seed: GridCell,
+    geometry: GridGeometry,
+    radius: float,
+) -> Optional[Point]:
+    """Estimate the local outward normal from map-edge neighbor directions."""
+
+    if geometry.resolution <= 0.0 or radius < 0.0:
+        return None
+
+    seed_xy = _grid_to_world(seed, geometry)
+    normal_x = 0.0
+    normal_y = 0.0
+    for cell in frontier_cells:
+        cell_xy = _grid_to_world(cell, geometry)
+        if math.hypot(cell_xy[0] - seed_xy[0], cell_xy[1] - seed_xy[1]) > radius:
+            continue
+        i, j = cell
+        if i == 0:
+            normal_y -= 1.0
+        if i == geometry.height - 1:
+            normal_y += 1.0
+        if j == 0:
+            normal_x -= 1.0
+        if j == geometry.width - 1:
+            normal_x += 1.0
+
+    normal_x = math.copysign(1.0, normal_x) if abs(normal_x) >= 1e-6 else 0.0
+    normal_y = math.copysign(1.0, normal_y) if abs(normal_y) >= 1e-6 else 0.0
+    magnitude = math.hypot(normal_x, normal_y)
+    if magnitude < 1e-6:
+        return None
+    return normal_x / magnitude, normal_y / magnitude
+
+
+def potential_unknown_area(
+    grid: np.ndarray,
+    geometry: GridGeometry,
+    center: GridCell,
+    radius: float,
+    include_outside_map: bool = False,
+) -> float:
+    """Return local unknown area, optionally treating out-of-map cells as unknown."""
+
+    if geometry.resolution <= 0.0 or radius < 0.0:
+        return 0.0
+
+    center_i, center_j = center
+    radius_cells = int(math.ceil(radius / geometry.resolution))
+    unknown_cells = 0
+    for i in range(center_i - radius_cells, center_i + radius_cells + 1):
+        for j in range(center_j - radius_cells, center_j + radius_cells + 1):
+            if math.hypot(i - center_i, j - center_j) * geometry.resolution > radius:
+                continue
+            if i < 0 or j < 0 or i >= geometry.height or j >= geometry.width:
+                if include_outside_map:
+                    unknown_cells += 1
+            elif grid[i, j] == -1:
+                unknown_cells += 1
+    return unknown_cells * geometry.resolution * geometry.resolution
+
+
 def select_safe_frontier_goal(
     grid: np.ndarray,
     geometry: GridGeometry,
     frontier_cells: Sequence[GridCell],
     robot_xy: Point,
     config: SafeGoalSearchConfig,
-) -> Optional[Point]:
+) -> Optional[SafeFrontierGoal]:
     """Find the best known-free standoff cell for a frontier cluster."""
 
     if geometry.resolution <= 0.0 or not frontier_cells:
@@ -124,6 +197,8 @@ def select_safe_frontier_goal(
                     continue
 
                 candidate_xy = _grid_to_world(cell, geometry)
+                if not segment_is_obstacle_free(grid, geometry, frontier_xy, candidate_xy):
+                    continue
                 if not is_goal_outside_reach_radius(
                     robot_xy,
                     candidate_xy,
@@ -157,9 +232,36 @@ def select_safe_frontier_goal(
                     + 0.005 * distance_to_robot
                 )
                 if best is None or score < best[0]:
-                    best = score, candidate_xy
+                    best = score, SafeFrontierGoal(point=candidate_xy, seed=seed)
 
     return None if best is None else best[1]
+
+
+def segment_is_obstacle_free(
+    grid: np.ndarray,
+    geometry: GridGeometry,
+    start_xy: Point,
+    end_xy: Point,
+) -> bool:
+    """Return whether a map-bounded segment avoids occupied cells."""
+
+    distance = math.hypot(end_xy[0] - start_xy[0], end_xy[1] - start_xy[1])
+    step = geometry.resolution * 0.5
+    if step <= 0.0:
+        return False
+    sample_count = max(1, int(math.ceil(distance / step)))
+    for index in range(sample_count + 1):
+        ratio = index / sample_count
+        cell = _world_to_grid(
+            (
+                start_xy[0] + (end_xy[0] - start_xy[0]) * ratio,
+                start_xy[1] + (end_xy[1] - start_xy[1]) * ratio,
+            ),
+            geometry,
+        )
+        if cell is None or grid[cell] > 50:
+            return False
+    return True
 
 
 def _sample_frontier_cells(

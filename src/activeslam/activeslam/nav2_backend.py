@@ -49,32 +49,47 @@ def heading_to_target(
     return math.atan2(target_xy[1] - origin_xy[1], target_xy[0] - origin_xy[0])
 
 
+def configure_drive_on_heading_goal(goal, distance: float, speed: float, time_allowance):
+    goal.target.x = float(distance)
+    goal.speed = float(speed)
+    goal.time_allowance = time_allowance
+
+
 class Nav2Backend:
     """Small asynchronous adapter around the Nav2 actions used by exploration."""
 
     def __init__(self, node):
         from rclpy.action import ActionClient
-        from nav2_msgs.action import ComputePathToPose, NavigateToPose, Spin
+        from nav2_msgs.action import ComputePathToPose, DriveOnHeading, NavigateToPose, Spin
 
         self._node = node
         self._compute_action = ComputePathToPose
         self._navigate_action = NavigateToPose
         self._spin_action = Spin
+        self._drive_on_heading_action = DriveOnHeading
         self._compute_client = ActionClient(node, ComputePathToPose, '/compute_path_to_pose')
         self._navigate_client = ActionClient(node, NavigateToPose, '/navigate_to_pose')
         self._spin_client = ActionClient(node, Spin, '/spin')
+        self._drive_on_heading_client = ActionClient(
+            node,
+            DriveOnHeading,
+            '/drive_on_heading',
+        )
         self._path_guard = GenerationGuard()
         self._navigation_guard = GenerationGuard()
         self._spin_guard = GenerationGuard()
+        self._drive_on_heading_guard = GenerationGuard()
         self._path_goal_handle = None
         self._navigation_goal_handle = None
         self._spin_goal_handle = None
+        self._drive_on_heading_goal_handle = None
 
     def servers_ready(self) -> bool:
         return (
             self._compute_client.wait_for_server(timeout_sec=0.0)
             and self._navigate_client.wait_for_server(timeout_sec=0.0)
             and self._spin_client.wait_for_server(timeout_sec=0.0)
+            and self._drive_on_heading_client.wait_for_server(timeout_sec=0.0)
         )
 
     def start_path_batch(self) -> int:
@@ -149,13 +164,42 @@ class Nav2Backend:
         self._spin_goal_handle = None
         return generation
 
+    def drive_on_heading(
+        self,
+        distance: float,
+        speed: float,
+        timeout_seconds: float,
+        callback: Callable[[int], None],
+    ) -> int:
+        generation = self.cancel_drive_on_heading()
+        goal = self._drive_on_heading_action.Goal()
+        configure_drive_on_heading_goal(
+            goal,
+            distance,
+            speed,
+            self._duration(timeout_seconds),
+        )
+        future = self._drive_on_heading_client.send_goal_async(goal)
+        future.add_done_callback(
+            lambda done: self._drive_on_heading_goal_response(done, generation, callback)
+        )
+        return generation
+
+    def cancel_drive_on_heading(self) -> int:
+        generation = self._drive_on_heading_guard.advance()
+        self._cancel_handle(self._drive_on_heading_goal_handle)
+        self._drive_on_heading_goal_handle = None
+        return generation
+
     def destroy(self):
         self.cancel_path_batch()
         self.cancel_navigation()
         self.cancel_spin()
+        self.cancel_drive_on_heading()
         self._compute_client.destroy()
         self._navigate_client.destroy()
         self._spin_client.destroy()
+        self._drive_on_heading_client.destroy()
 
     def _path_goal_response(self, future, generation, goal_xy, callback):
         goal_handle = self._future_result(future)
@@ -237,6 +281,32 @@ class Nav2Backend:
         if not self._spin_guard.is_current(generation):
             return
         self._spin_goal_handle = None
+        wrapped_result = self._future_result(future)
+        status = GOAL_STATUS_ABORTED if wrapped_result is None else wrapped_result.status
+        callback(status)
+
+    def _drive_on_heading_goal_response(self, future, generation, callback):
+        goal_handle = self._future_result(future)
+        if goal_handle is None:
+            if self._drive_on_heading_guard.is_current(generation):
+                callback(GOAL_STATUS_ABORTED)
+            return
+        if not self._drive_on_heading_guard.is_current(generation):
+            self._cancel_handle(goal_handle)
+            return
+        if not goal_handle.accepted:
+            callback(GOAL_STATUS_ABORTED)
+            return
+        self._drive_on_heading_goal_handle = goal_handle
+        future = goal_handle.get_result_async()
+        future.add_done_callback(
+            lambda done: self._drive_on_heading_result(done, generation, callback)
+        )
+
+    def _drive_on_heading_result(self, future, generation, callback):
+        if not self._drive_on_heading_guard.is_current(generation):
+            return
+        self._drive_on_heading_goal_handle = None
         wrapped_result = self._future_result(future)
         status = GOAL_STATUS_ABORTED if wrapped_result is None else wrapped_result.status
         callback(status)
