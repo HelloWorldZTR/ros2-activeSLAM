@@ -12,7 +12,6 @@ set -euo pipefail
 WORKSPACE=${WORKSPACE:-/home/psirobot/projects/ros2_ws}
 SRC_DIR=${SRC_DIR:-${WORKSPACE}/src}
 MAP=${MAP:-slam_rooms}
-PLANNER=${PLANNER:-astar}
 STRATEGY=${STRATEGY:-frontier}
 RUN_SECONDS=${RUN_SECONDS:-90}
 REAL_TIME_UPDATE_RATE=${REAL_TIME_UPDATE_RATE:-5000}
@@ -73,7 +72,6 @@ log_file="${LOG_ROOT}/fast_${MAP}_${STRATEGY}_${stamp}.log"
 
 echo "Fast experiment"
 echo "  map: ${MAP}"
-echo "  planner: ${PLANNER}"
 echo "  strategy: ${STRATEGY}"
 echo "  gazebo real_time_update_rate: ${REAL_TIME_UPDATE_RATE} (0 means uncapped)"
 echo "  gazebo max_step_size: ${MAX_STEP_SIZE}"
@@ -94,9 +92,9 @@ source_ros_setup "${SRC_DIR}/install/setup.zsh"
 
 ros2 launch activeslam slam.launch.py \
   map:="${MAP}" \
-  planner_type:="${PLANNER}" \
   exploration_strategy:="${STRATEGY}" \
   gui:=false \
+  run_rviz:=false \
   run_evaluator:=true \
   plot_live:=false \
   save_plots:=false \

@@ -28,7 +28,7 @@ Changes in progress:
 Planned baseline command on the remote host after sync/build:
 
 ```bash
-timeout 180s ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_evaluator:=true exploration_strategy:=frontier log_root:=logs/frontier_baseline
+timeout 180s ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_rviz:=false run_evaluator:=true plot_live:=false save_plots:=false exploration_strategy:=frontier log_root:=logs/frontier_baseline
 ```
 
 Repeat for:
@@ -79,9 +79,9 @@ Implementation:
 Planned remote smoke commands after sync/build:
 
 ```bash
-timeout 180s ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_evaluator:=true plot_live:=false save_plots:=false exploration_strategy:=frontier log_root:=logs/nav2_frontier
+timeout 180s ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_rviz:=false run_evaluator:=true plot_live:=false save_plots:=false exploration_strategy:=frontier log_root:=logs/nav2_frontier
 ros2 topic info /cmd_vel --verbose
-timeout 180s ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_evaluator:=true plot_live:=false save_plots:=false exploration_strategy:=graph log_root:=logs/nav2_graph
+timeout 180s ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_rviz:=false run_evaluator:=true plot_live:=false save_plots:=false exploration_strategy:=graph log_root:=logs/nav2_graph
 ```
 
 Expected checks:
@@ -220,3 +220,26 @@ Synthetic local benchmark:
 
 Status: local implementation and focused tests pass. Remote frontier and graph
 headless smoke tests pending.
+
+## 2026-05-30 - One-Command Evaluator And RViz Launch
+
+Goal: remove the need for separate terminals when running interactive Active
+SLAM experiments.
+
+Implementation:
+
+- Enabled evaluator and RViz by default from `slam.launch.py`, with
+  `run_evaluator` and `run_rviz` switches for headless execution.
+- Added an Active SLAM RViz profile for `/map`, `/scan`, RobotModel, `/plan`,
+  frontier markers, the current goal, pose graph markers, and a translucent
+  global costmap overlay.
+- Kept precise evaluator metrics limited to `slam_*` worlds with inline box
+  collisions. Other worlds are allowed to run, but evaluator is skipped with a
+  terminal warning and an entry in `logs/evaluator_skipped.log`.
+- Removed the obsolete `planner_type` argument from the headless runner and
+  made it explicitly disable RViz.
+
+Status: Python compilation, diff checks, focused helper tests, RViz YAML
+parsing, and evaluator launch routing checks pass locally. The local host lacks
+the ROS Humble environment and built workspace dependencies, so interactive
+and headless ROS smoke tests remain pending.

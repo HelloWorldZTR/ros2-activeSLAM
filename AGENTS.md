@@ -2,11 +2,11 @@
 
 ## Project Design
 
-This is a ROS 2 Humble workspace for TurtleBot3 active SLAM in Gazebo. The main package, `activeslam`, launches Gazebo, spawns a TurtleBot3, runs `slam_toolbox`, starts Nav2, and starts an exploration coordinator driven by `/map` and TF.
+This is a ROS 2 Humble workspace for TurtleBot3 active SLAM in Gazebo. The main package, `activeslam`, launches Gazebo, spawns a TurtleBot3, runs `slam_toolbox`, starts Nav2, starts an exploration coordinator driven by `/map` and TF, and opens evaluator and RViz helpers by default.
 
 Exploration is coordinated by `activeslam.exploration_coordinator`. It detects frontiers on the occupancy grid, asks Nav2 for candidate paths, sends selected goals to Nav2, and exposes RViz markers for goals, frontiers, and the optional approximate pose graph. Nav2 owns `/cmd_vel`, path following, and recovery behavior. The `frontier` strategy chooses reachable frontiers directly; the `graph` strategy scores Nav2 candidate paths with an approximate weighted pose graph and D-opt style information score.
 
-Evaluation is handled separately by `activeslam.slam_evaluator`. It compares SLAM output against Gazebo ground truth and world geometry, then writes run logs under `logs/run_*` with estimated/ground-truth trajectories, coverage over time, coverage over path length, map IoU, and ATE metrics.
+Evaluation is handled by `activeslam.slam_evaluator`. It compares SLAM output against Gazebo ground truth and inline world geometry, then writes run logs under `logs/run_*` with estimated/ground-truth trajectories, coverage over time, coverage over path length, map IoU, and ATE metrics. Precise evaluation is limited to `slam_*` worlds with inline box collisions. The main launch skips evaluator for `turtlebot3_*` worlds that rely on unparsed `model://` includes.
 
 Simulation assets live in `activeslam_resource` and vendored TurtleBot3 simulation packages. World names passed to launches are basenames only, for example `map:=slam_rooms`, not `slam_rooms.world`.
 
@@ -15,6 +15,7 @@ Simulation assets live in `activeslam_resource` and vendored TurtleBot3 simulati
 - `src/activeslam/launch/slam.launch.py`: main launch file for Gazebo, TurtleBot3 spawn, `slam_toolbox`, and `exploration_coordinator`.
 - `src/activeslam/config/exploration.yaml`: frontier selection and graph-scoring parameters.
 - `src/activeslam/config/nav2_params.yaml`: Nav2 planner, controller, costmap, behavior, and velocity smoother parameters.
+- `src/activeslam/rviz/activeslam.rviz`: default RViz view for map, frontier, global plan, and global costmap debugging.
 - `src/activeslam/activeslam/exploration_coordinator.py`: main active exploration ROS node.
 - `src/activeslam/activeslam/nav2_backend.py`: asynchronous Nav2 action adapter.
 - `src/activeslam/activeslam/frontier_detector.py`: frontier-cell detection and clustering.
@@ -51,7 +52,7 @@ When performing experiments, remember to kill existing processes.
 For headless remote experiments, disable evaluator matplotlib explicitly instead of changing project defaults:
 
 ```bash
-ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_evaluator:=true plot_live:=false save_plots:=false
+ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_rviz:=false run_evaluator:=true plot_live:=false save_plots:=false
 ```
 
 The exploration coordinator must not publish `/cmd_vel`; verify Nav2 ownership with:
@@ -72,4 +73,4 @@ ros2 run activeslam slam_evaluator --ros-args -p plot_live:=false -p save_plots:
 
 - add comments for critical functions and files
 - commit when you think you have reached a temporaly milestone
-- write your experiment log in `EXPERIMENT.MD`, with the corresponding link to the experiement products.
+- write your experiment log in `experiments/experiment_log.md`, with the corresponding link to the experiement products.

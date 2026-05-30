@@ -9,12 +9,12 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=turtlebot3_world exploration_strategy:=frontier
-ros2 run activeslam slam_evaluator --ros-args -p use_sim_time:=true -p world_name:=turtlebot3_world
+ros2 launch activeslam slam.launch.py map:=slam_rooms exploration_strategy:=frontier
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
-并通过 Nav2 导航。Nav2 负责全局规划、局部控制和恢复行为。
+并通过 Nav2 导航。Nav2 负责全局规划、局部控制和恢复行为。主 launch 默认
+同时启动 evaluator、RViz 和 evaluator 实时曲线，无需额外终端。
 
 在bc01执行
 
@@ -23,28 +23,14 @@ cd /home/psirobot/projects/ros2_ws/src
 source setup.sh
 cb
 s
-# in terminal 2
 ros2 launch activeslam slam.launch.py map:=slam_rooms
-# in terminal 1
-ros2 run activeslam slam_evaluator --ros-args -p use_sim_time:=true -p world_name:=slam_rooms
 ```
 
 ## 查看 SLAM 地图
 
-直接启动 RViz（推荐）
-
-在容器里新开终端执行：
-
-```bash
-rviz2
-```
-
-RViz 打开后：
-
-1. 左侧 Displays 点击 Add
-2. 选择 Map
-3. Topic 选 /map
-4. 把 Fixed Frame 设为 map（或 odom，一般 map 更合适）
+主 launch 默认使用项目自带 RViz 配置，直接显示 `/map`、`/scan`、机器人、
+`/plan`、`/goal_point`、`/frontier_markers`、`/pose_graph_markers` 和半透明
+`/global_costmap/costmap`。Fixed Frame 已设为 `map`。
 
 `/map` 只包含 SLAM 当前发布的有限矩形栅格。矩形内部的灰色区域是
 `data == -1` 的 unknown 栅格；矩形外部的深色区域只是 RViz 背景，不属于
@@ -53,6 +39,19 @@ RViz 打开后：
 按局部潜在 unknown 面积和安全落点距离统一排序，再交给 Nav2 检查可达性。
 
 ## 可选参数
+
+远端或无图形界面环境中，显式关闭 Gazebo GUI、RViz 和 evaluator 实时曲线：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms \
+  gui:=false run_rviz:=false plot_live:=false save_plots:=false
+```
+
+如需按需关闭 evaluator 或 RViz：
+
+```bash
+ros2 launch activeslam slam.launch.py run_evaluator:=false run_rviz:=false
+```
 
 如果需要指定 TurtleBot3 型号，例如 `waffle`：
 
@@ -66,6 +65,11 @@ ros2 launch activeslam slam.launch.py turtlebot3_model:=waffle
 ```bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms x_pose:=-2.0 y_pose:=-0.5
 ```
+
+Evaluator 默认随 launch 启动，但只对 `slam_*` 地图生成可信指标。这些地图将
+墙体作为内嵌 box collision 保存。多数 `turtlebot3_*` 地图依赖
+`model://...` include，当前 evaluator 不会递归解析模型目录；选择此类地图
+时会自动跳过 evaluator，并在终端和 `logs/evaluator_skipped.log` 中记录原因。
 
 如果需要启用图评分策略：
 

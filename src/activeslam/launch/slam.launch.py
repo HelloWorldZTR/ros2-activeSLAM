@@ -1,7 +1,12 @@
+import os
+from datetime import datetime
+from pathlib import Path
+
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
+    OpaqueFunction,
     SetEnvironmentVariable,
 )
 from launch.conditions import IfCondition
@@ -10,7 +15,37 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Pyth
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-import os
+
+def _as_bool(value):
+    return str(value).strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def _launch_evaluator(context, *, evaluator_node, map_name, log_root, run_evaluator):
+    """Start precise evaluation only for worlds with inline box geometry."""
+
+    if not _as_bool(context.perform_substitution(run_evaluator)):
+        return []
+
+    world_name = context.perform_substitution(map_name)
+    if world_name.startswith('slam_'):
+        return [evaluator_node]
+
+    reason = (
+        f'Skipping slam_evaluator for map={world_name}: precise coverage and IoU '
+        'require a slam_* world with inline box collisions. This world may use '
+        'model:// includes, which the evaluator does not recursively parse.'
+    )
+    print(f'[slam.launch.py] WARNING: {reason}')
+    try:
+        root = Path(context.perform_substitution(log_root)).expanduser()
+        root.mkdir(parents=True, exist_ok=True)
+        with (root / 'evaluator_skipped.log').open('a') as handle:
+            timestamp = datetime.now().isoformat(timespec='seconds')
+            handle.write(f'{timestamp} {reason}\n')
+    except OSError as exc:
+        print(f'[slam.launch.py] WARNING: Could not write evaluator skip log: {exc}')
+    return []
+
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -22,6 +57,8 @@ def generate_launch_description():
     y_pose = LaunchConfiguration('y_pose')
     gui = LaunchConfiguration('gui')
     run_evaluator = LaunchConfiguration('run_evaluator')
+    run_rviz = LaunchConfiguration('run_rviz')
+    rviz_config_file = LaunchConfiguration('rviz_config_file')
     log_root = LaunchConfiguration('log_root')
     plot_live = LaunchConfiguration('plot_live')
     save_plots = LaunchConfiguration('save_plots')
@@ -121,7 +158,6 @@ def generate_launch_description():
         executable='slam_evaluator',
         name='slam_evaluator',
         output='screen',
-        condition=IfCondition(run_evaluator),
         parameters=[
             {
                 'use_sim_time': use_sim_time,
@@ -132,6 +168,16 @@ def generate_launch_description():
                 'save_plots': save_plots,
             },
         ],
+    )
+
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config_file],
+        parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(run_rviz),
     )
 
     available_maps = [
@@ -177,8 +223,20 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'run_evaluator',
-            default_value='false',
-            description='Start slam_evaluator in the same launch for experiment runs.',
+            default_value='true',
+            description='Start slam_evaluator for supported slam_* worlds.',
+        ),
+        DeclareLaunchArgument(
+            'run_rviz',
+            default_value='true',
+            description='Start RViz with the Active SLAM debug view.',
+        ),
+        DeclareLaunchArgument(
+            'rviz_config_file',
+            default_value=PathJoinSubstitution(
+                [FindPackageShare('activeslam'), 'rviz', 'activeslam.rviz']
+            ),
+            description='Full path to the RViz configuration file.',
         ),
         DeclareLaunchArgument(
             'log_root',
@@ -213,5 +271,14 @@ def generate_launch_description():
         slam_node,
         nav2_launch,
         explorer_node,
-        evaluator_node,
+        OpaqueFunction(
+            function=_launch_evaluator,
+            kwargs={
+                'evaluator_node': evaluator_node,
+                'map_name': map_name,
+                'log_root': log_root,
+                'run_evaluator': run_evaluator,
+            },
+        ),
+        rviz_node,
     ])
