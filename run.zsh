@@ -4,21 +4,40 @@ set -euo pipefail
 # Fast headless experiment runner for the remote ROS 2 Humble workspace.
 # Usage examples:
 #   ./run.zsh
-#   MAP=slam_loop STRATEGY=graph RUN_SECONDS=90 ./run.zsh
+#   MAP=slam_loop STRATEGY=graph ./run.zsh
+#   MAPS="slam_landmarks slam_loop" RUN_SECONDS=600 ./run.zsh
 #   REAL_TIME_UPDATE_RATE=0 MAX_STEP_SIZE=0.001 ./run.zsh
 # Default physics is capped near 5x realtime; set REAL_TIME_UPDATE_RATE=0
 # only for quick smoke tests where controller stability is less important.
 
 WORKSPACE=${WORKSPACE:-/home/psirobot/projects/ros2_ws}
 SRC_DIR=${SRC_DIR:-${WORKSPACE}/src}
-MAP=${MAP:-slam_rooms}
+DEFAULT_MAPS=(slam_landmarks slam_loop slam_rooms slam_rooms_corridor)
 STRATEGY=${STRATEGY:-frontier}
-RUN_SECONDS=${RUN_SECONDS:-90}
+RUN_SECONDS=${RUN_SECONDS:-900}
 REAL_TIME_UPDATE_RATE=${REAL_TIME_UPDATE_RATE:-5000}
 MAX_STEP_SIZE=${MAX_STEP_SIZE:-0.001}
 LOG_ROOT=${LOG_ROOT:-logs}
+RUN_MAPS=()
+launch_pid=""
 
 cd "${SRC_DIR}"
+
+parse_map_list() {
+  if [[ -n "${MAPS:-}" ]]; then
+    local raw_maps="${MAPS//,/ }"
+    RUN_MAPS=(${=raw_maps})
+  elif [[ -n "${MAP:-}" ]]; then
+    RUN_MAPS=("${MAP}")
+  else
+    RUN_MAPS=("${DEFAULT_MAPS[@]}")
+  fi
+
+  if (( ${#RUN_MAPS[@]} == 0 )); then
+    echo "No maps specified. Set MAP=slam_rooms or MAPS=\"slam_rooms slam_loop\"."
+    exit 1
+  fi
+}
 
 deactivate_conda_if_needed() {
   if [[ -z "${CONDA_PREFIX:-}" && -z "${CONDA_DEFAULT_ENV:-}" ]]; then
@@ -55,55 +74,17 @@ source_ros_setup() {
   set -u
 }
 
-deactivate_conda_if_needed
-source_ros_setup /opt/ros/humble/setup.zsh
-
-export MAKEFLAGS=-j1
-export CMAKE_BUILD_PARALLEL_LEVEL=1
-export NINJAFLAGS=-j1
-GAZEBO_ROS_PKGS_SKIP='gazebo_dev gazebo_msgs gazebo_ros gazebo_plugins gazebo_ros_pkgs'
-export GAZEBO_MODEL_PATH=/usr/share/gazebo-11/models:${SRC_DIR}/turtlebot3_simulations/turtlebot3_gazebo/models:${SRC_DIR}/activeslam_resource/models:${SRC_DIR}/install/activeslam_resource/share/activeslam_resource/models:${GAZEBO_MODEL_PATH:-}
-export GAZEBO_MODEL_DATABASE_URI=""
-export TURTLEBOT3_MODEL=burger
-
-mkdir -p "${LOG_ROOT}"
-stamp=$(date +%Y%m%d_%H%M%S)
-log_file="${LOG_ROOT}/fast_${MAP}_${STRATEGY}_${stamp}.log"
-
-echo "Fast experiment"
-echo "  map: ${MAP}"
-echo "  strategy: ${STRATEGY}"
-echo "  gazebo real_time_update_rate: ${REAL_TIME_UPDATE_RATE} (0 means uncapped)"
-echo "  gazebo max_step_size: ${MAX_STEP_SIZE}"
-echo "  log: ${log_file}"
-
-pkill -f "[r]os2 launch activeslam slam.launch.py" 2>/dev/null || true
-pkill -f "[g]zserver" 2>/dev/null || true
-pkill -f "[g]zclient" 2>/dev/null || true
-
-rm -f "${SRC_DIR}/install/activeslam/share/activeslam/launch/slam.launch.py" 2>/dev/null || true
-colcon build \
-  --symlink-install \
-  --executor sequential \
-  --parallel-workers 1 \
-  --packages-skip ${=GAZEBO_ROS_PKGS_SKIP}
-
-source_ros_setup "${SRC_DIR}/install/setup.zsh"
-
-ros2 launch activeslam slam.launch.py \
-  map:="${MAP}" \
-  exploration_strategy:="${STRATEGY}" \
-  gui:=false \
-  run_rviz:=false \
-  run_evaluator:=true \
-  plot_live:=false \
-  save_plots:=false \
-  log_root:="${LOG_ROOT}" \
-  > >(tee "${log_file}") 2>&1 &
-
-launch_pid=$!
+stop_existing_sim() {
+  pkill -f "[r]os2 launch activeslam slam.launch.py" 2>/dev/null || true
+  pkill -f "[g]zserver" 2>/dev/null || true
+  pkill -f "[g]zclient" 2>/dev/null || true
+}
 
 cleanup() {
+  if [[ -z "${launch_pid:-}" ]]; then
+    return
+  fi
+
   echo
   echo "Stopping experiment..."
   kill "${launch_pid}" 2>/dev/null || true
@@ -118,22 +99,87 @@ cleanup() {
   sleep 1
   pkill -KILL -f "[g]zserver" 2>/dev/null || true
   pkill -KILL -f "[g]zclient" 2>/dev/null || true
+
   wait "${launch_pid}" 2>/dev/null || true
+  launch_pid=""
 }
 trap cleanup INT TERM EXIT
 
-sleep 8
+run_experiment() {
+  local map_name="$1"
+  local stamp=$(date +%Y%m%d_%H%M%S)
+  local run_root="${LOG_ROOT}/run_${map_name}_${STRATEGY}_${stamp}"
+  local log_file="${run_root}/launch.log"
 
-if command -v gz >/dev/null 2>&1; then
-  echo "Applying Gazebo fast physics..."
-  gz physics -s "${MAX_STEP_SIZE}" -u "${REAL_TIME_UPDATE_RATE}" || \
-    echo "Warning: gz physics update failed; continuing with world defaults."
-else
-  echo "Warning: gz command not found; continuing with world defaults."
-fi
+  mkdir -p "${run_root}"
 
-if [[ "${RUN_SECONDS}" -gt 0 ]]; then
-  sleep "${RUN_SECONDS}"
-else
-  wait "${launch_pid}"
-fi
+  echo "Fast experiment"
+  echo "  map: ${map_name}"
+  echo "  strategy: ${STRATEGY}"
+  echo "  run seconds: ${RUN_SECONDS}"
+  echo "  gazebo real_time_update_rate: ${REAL_TIME_UPDATE_RATE} (0 means uncapped)"
+  echo "  gazebo max_step_size: ${MAX_STEP_SIZE}"
+  echo "  output: ${run_root}"
+  echo "  log: ${log_file}"
+
+  stop_existing_sim
+
+  ros2 launch activeslam slam.launch.py \
+    map:="${map_name}" \
+    exploration_strategy:="${STRATEGY}" \
+    gui:=false \
+    run_rviz:=false \
+    run_evaluator:=true \
+    plot_live:=false \
+    save_plots:=false \
+    log_root:="${run_root}" \
+    > >(tee "${log_file}") 2>&1 &
+
+  launch_pid=$!
+
+  sleep 8
+
+  if command -v gz >/dev/null 2>&1; then
+    echo "Applying Gazebo fast physics..."
+    gz physics -s "${MAX_STEP_SIZE}" -u "${REAL_TIME_UPDATE_RATE}" || \
+      echo "Warning: gz physics update failed; continuing with world defaults."
+  else
+    echo "Warning: gz command not found; continuing with world defaults."
+  fi
+
+  if [[ "${RUN_SECONDS}" -gt 0 ]]; then
+    sleep "${RUN_SECONDS}"
+  else
+    wait "${launch_pid}"
+  fi
+
+  cleanup
+}
+
+parse_map_list
+deactivate_conda_if_needed
+source_ros_setup /opt/ros/humble/setup.zsh
+
+export MAKEFLAGS=-j1
+export CMAKE_BUILD_PARALLEL_LEVEL=1
+export NINJAFLAGS=-j1
+GAZEBO_ROS_PKGS_SKIP='gazebo_dev gazebo_msgs gazebo_ros gazebo_plugins gazebo_ros_pkgs'
+export GAZEBO_MODEL_PATH=/usr/share/gazebo-11/models:${SRC_DIR}/turtlebot3_simulations/turtlebot3_gazebo/models:${SRC_DIR}/activeslam_resource/models:${SRC_DIR}/install/activeslam_resource/share/activeslam_resource/models:${GAZEBO_MODEL_PATH:-}
+export GAZEBO_MODEL_DATABASE_URI=""
+export TURTLEBOT3_MODEL=burger
+
+mkdir -p "${LOG_ROOT}"
+echo "Maps: ${RUN_MAPS[*]}"
+
+rm -f "${SRC_DIR}/install/activeslam/share/activeslam/launch/slam.launch.py" 2>/dev/null || true
+colcon build \
+  --symlink-install \
+  --executor sequential \
+  --parallel-workers 1 \
+  --packages-skip ${=GAZEBO_ROS_PKGS_SKIP}
+
+source_ros_setup "${SRC_DIR}/install/setup.zsh"
+
+for map_name in "${RUN_MAPS[@]}"; do
+  run_experiment "${map_name}"
+done
