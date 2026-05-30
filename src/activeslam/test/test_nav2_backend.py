@@ -1,0 +1,38 @@
+from types import SimpleNamespace
+
+import pytest
+
+from activeslam.nav2_backend import (
+    GenerationGuard,
+    heading_to_target,
+    path_length,
+    path_to_xy,
+)
+
+
+def _pose(x, y):
+    return SimpleNamespace(
+        pose=SimpleNamespace(position=SimpleNamespace(x=x, y=y)),
+    )
+
+
+def test_path_to_xy_and_length_use_nav_path_positions():
+    path = SimpleNamespace(poses=[_pose(0.0, 0.0), _pose(3.0, 4.0), _pose(6.0, 8.0)])
+
+    points = path_to_xy(path)
+
+    assert points == [(0.0, 0.0), (3.0, 4.0), (6.0, 8.0)]
+    assert path_length(points) == 10.0
+
+
+def test_heading_to_target_faces_frontier_centroid():
+    assert heading_to_target((1.0, 1.0), (1.0, 2.0)) == pytest.approx(1.5707963)
+
+
+def test_generation_guard_rejects_late_callbacks():
+    guard = GenerationGuard()
+    old_generation = guard.advance()
+    current_generation = guard.advance()
+
+    assert not guard.is_current(old_generation)
+    assert guard.is_current(current_generation)

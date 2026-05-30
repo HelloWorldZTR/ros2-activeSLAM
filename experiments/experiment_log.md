@@ -55,3 +55,68 @@ Remote smoke result:
 - The runs also showed the strict known-space planner can reject all early frontiers; permissive fallback was added afterward while keeping known-space plans preferred.
 
 Status: evaluator ground-truth and periodic metrics smoke test passed on `slam_rooms`.
+
+## 2026-05-30 - Nav2 Backend Migration
+
+Goal: replace the local A*/RRT and Pure Pursuit controller with the Nav2 Humble
+navigation stack while retaining frontier and graph-based exploration strategies.
+
+Implementation:
+
+- Added an asynchronous Nav2 adapter for `/compute_path_to_pose`,
+  `/navigate_to_pose`, and `/spin`.
+- The coordinator now performs one initial Nav2 spin, scores reachable frontier
+  goals using Nav2 paths, and sends the selected goal back to Nav2.
+- Removed the local planner, direct `/cmd_vel` publishing, local stuck recovery,
+  and random-walk fallback from the coordinator.
+- Added TurtleBot3-style DWB, Navfn, costmap, behavior server, and velocity
+  smoother parameters in `activeslam/config/nav2_params.yaml`.
+- Configured the global costmap as a `20m x 20m` rolling window. Online SLAM
+  initially publishes a tight map around the robot; a static-size costmap can
+  leave the robot exactly one cell outside its boundary before the next map
+  expansion.
+
+Planned remote smoke commands after sync/build:
+
+```bash
+timeout 180s ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_evaluator:=true plot_live:=false save_plots:=false exploration_strategy:=frontier log_root:=logs/nav2_frontier
+ros2 topic info /cmd_vel --verbose
+timeout 180s ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_evaluator:=true plot_live:=false save_plots:=false exploration_strategy:=graph log_root:=logs/nav2_graph
+```
+
+Expected checks:
+
+- `/compute_path_to_pose`, `/navigate_to_pose`, and `/spin` action servers exist.
+- Startup logs report the initial Nav2 spin and subsequent frontier goals.
+- `/cmd_vel` is published by Nav2's velocity smoother, not by
+  `exploration_coordinator`.
+- Graph mode continues reporting D-opt frontier scores.
+
+Status: implementation complete locally; remote simulation smoke test pending.
+
+## 2026-05-30 - Nav2 Safe Frontier Goals And Failure Cooldown
+
+Goal: retain the event-driven Nav2 backend while improving frontier goal quality
+and avoiding repeated retries of recently failed navigation targets.
+
+Implementation:
+
+- Replaced fixed approach-cell sampling with one safe standoff goal per frontier
+  cluster. The search prefers known-free cells with obstacle clearance and a
+  minimum forward advance toward the frontier.
+- Added a 20 second cooldown for failed path checks, rejected or aborted
+  navigation goals, and navigation timeouts. Nearby targets within 0.6m are
+  excluded before frontier or graph selection.
+- Added a 30 second NavigateToPose timeout. Active goals are no longer canceled
+  merely because online map growth moves or removes the original frontier.
+- Kept the grid frontier detector and Nav2-owned `/cmd_vel` pipeline. The
+  direct-velocity open-boundary probe from `feat/Nav2` was intentionally not
+  ported.
+- Relaxed TurtleBot3 costmap clearance for narrow indoor passages while keeping
+  the rolling global costmap, static layer, unknown tracking, and Navfn unknown
+  traversal.
+
+Status: Python compilation, focused helper tests, and diff checks pass locally.
+Full `pytest` collection is blocked because the host is missing the ROS
+`ament_copyright`, `ament_flake8`, and `ament_pep257` Python modules.
+`colcon test` is also blocked until the local ROS workspace is rebuilt.

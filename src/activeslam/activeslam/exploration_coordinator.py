@@ -1,27 +1,36 @@
 import math
 import time
 from collections import deque
-from random import random as _random
 from typing import List, Optional, Tuple
 
 import numpy as np
 import rclpy
-from geometry_msgs.msg import PoseStamped, Twist
-from nav_msgs.msg import OccupancyGrid, Path
+from nav_msgs.msg import OccupancyGrid
 from rclpy.duration import Duration
 from rclpy.node import Node
-from sensor_msgs.msg import LaserScan
 from tf2_ros import Buffer, TransformListener
 from visualization_msgs.msg import Marker, MarkerArray
 
 from .frontier_detector import FrontierCluster, FrontierDetector
+from .frontier_goal_utils import (
+    FailedGoalCooldown,
+    GridGeometry,
+    SafeGoalSearchConfig,
+    navigation_timed_out,
+    select_safe_frontier_goal,
+)
 from .graph_exploration import (
     ApproximatePoseGraphTracker,
     GraphBasedFrontierScorer,
     graph_to_marker_array,
     make_information_matrix,
 )
-from .path_planner import create_planner
+from .nav2_backend import (
+    GOAL_STATUS_SUCCEEDED,
+    Nav2Backend,
+    PlannedPath,
+    heading_to_target,
+)
 
 
 def _yaw_from_quaternion(q):
@@ -30,51 +39,71 @@ def _yaw_from_quaternion(q):
     return math.atan2(siny, cosy)
 
 
-def _as_bool(value) -> bool:
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        return value.strip().lower() in ('1', 'true', 'yes', 'on')
-    return bool(value)
-
-
 class ExplorationCoordinator(Node):
+    """Select exploration goals while Nav2 owns planning, control, and recovery."""
+
+    WAITING_FOR_NAV2 = 'waiting_for_nav2'
+    INITIAL_SPIN = 'initial_spin'
+    IDLE = 'idle'
+    SELECTING = 'selecting'
+    NAVIGATING = 'navigating'
+    COMPLETE = 'complete'
+
     def __init__(self):
         super().__init__('exploration_coordinator')
 
         # --- Parameters ---
-        self.planner_type = self.declare_parameter('planner_type', 'astar').value
-        self.target_linear_speed = self.declare_parameter('target_linear_speed', 0.08).value
-        self.lookahead_distance = self.declare_parameter('lookahead_distance', 0.5).value
-        self.kp_angular = self.declare_parameter('kp_angular', 1.2).value
-        self.max_angular_speed = self.declare_parameter('max_angular_speed', 0.6).value
-        self.replan_interval = self.declare_parameter('replan_interval', 3.0).value
-        self.goal_tolerance = self.declare_parameter('goal_tolerance', 0.5).value
         self.stability_duration = self.declare_parameter('stability_duration', 10.0).value
         self.stability_threshold = self.declare_parameter('stability_threshold', 0.02).value
         self.min_frontier_size = self.declare_parameter('min_frontier_size', 5).value
-        self.obstacle_distance = self.declare_parameter('obstacle_distance', 0.4).value
-        self.obstacle_inflation = self.declare_parameter('obstacle_inflation', 0.3).value
-        self.rrt_step_size = self.declare_parameter('rrt_step_size', 0.3).value
-        self.exploration_strategy = self.declare_parameter('exploration_strategy', 'frontier').value
+        self.exploration_strategy = self.declare_parameter(
+            'exploration_strategy', 'frontier'
+        ).value
         self.frontier_planning_attempts = int(
             self.declare_parameter('frontier_planning_attempts', 3).value
         )
-        self.frontier_goal_sample_count = int(
-            self.declare_parameter('frontier_goal_sample_count', 5).value
-        )
-        self.frontier_approach_distance = self.declare_parameter(
-            'frontier_approach_distance', 0.45
+        self.frontier_goal_search_radius = self.declare_parameter(
+            'frontier_goal_search_radius', 1.2
         ).value
-        self.frontier_min_goal_distance = self.declare_parameter(
-            'frontier_min_goal_distance', 0.35
+        self.frontier_goal_clearance = self.declare_parameter(
+            'frontier_goal_clearance', 0.20
         ).value
-        self.planner_allow_unknown = _as_bool(
-            self.declare_parameter('planner_allow_unknown', False).value
+        self.frontier_goal_standoff = self.declare_parameter(
+            'frontier_goal_standoff', 0.45
+        ).value
+        self.frontier_goal_map_edge_clearance = self.declare_parameter(
+            'frontier_goal_map_edge_clearance', 0.0
+        ).value
+        self.frontier_goal_min_advance = self.declare_parameter(
+            'frontier_goal_min_advance', 0.35
+        ).value
+        self.frontier_goal_point_sample_limit = int(
+            self.declare_parameter('frontier_goal_point_sample_limit', 40).value
         )
-        self.planner_unknown_fallback = _as_bool(
-            self.declare_parameter('planner_unknown_fallback', True).value
-        )
+        self.nav2_goal_reach_radius = self.declare_parameter(
+            'nav2_goal_reach_radius', 0.25
+        ).value
+        self.failed_goal_cooldown = self.declare_parameter(
+            'failed_goal_cooldown', 20.0
+        ).value
+        self.failed_goal_radius = self.declare_parameter(
+            'failed_goal_radius', 0.6
+        ).value
+        self.frontier_retry_interval = self.declare_parameter(
+            'frontier_retry_interval', 3.0
+        ).value
+        self.nav2_request_timeout = self.declare_parameter(
+            'nav2_request_timeout', 5.0
+        ).value
+        self.initial_spin_yaw = self.declare_parameter(
+            'initial_spin_yaw', 2.0 * math.pi
+        ).value
+        self.initial_spin_timeout = self.declare_parameter(
+            'initial_spin_timeout', 30.0
+        ).value
+        self.nav2_goal_timeout = self.declare_parameter(
+            'nav2_goal_timeout', 30.0
+        ).value
         self.graph_max_frontier_candidates = int(
             self.declare_parameter('graph_max_frontier_candidates', 8).value
         )
@@ -109,44 +138,26 @@ class ExplorationCoordinator(Node):
         self.graph_odom_cov_y = self.declare_parameter('graph_odom_cov_y', 0.04).value
         self.graph_odom_cov_yaw = self.declare_parameter('graph_odom_cov_yaw', 0.008).value
 
-        # --- Publishers ---
-        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.path_pub = self.create_publisher(Path, '/planned_path', 10)
-        self.goal_pub = self.create_publisher(Marker, '/goal_point', 10)
-        self.frontier_pub = self.create_publisher(MarkerArray, '/frontier_markers', 10)
-        self.pose_graph_pub = self.create_publisher(MarkerArray, '/pose_graph_markers', 10)
-
-        # --- Subscribers ---
-        self.map_sub = self.create_subscription(OccupancyGrid, '/map', self._map_callback, 10)
-        self.scan_sub = self.create_subscription(LaserScan, '/scan', self._scan_callback, 10)
-
-        # --- TF ---
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
-
-        # --- Components ---
-        self.frontier_detector = FrontierDetector(min_frontier_size=self.min_frontier_size)
-        self.planner = create_planner(
-            self.planner_type,
-            goal_tolerance=self.goal_tolerance,
-            obstacle_inflation=self.obstacle_inflation,
-            rrt_step_size=self.rrt_step_size,
-            allow_unknown=self.planner_allow_unknown,
-        )
-        self.unknown_fallback_planner = create_planner(
-            self.planner_type,
-            goal_tolerance=self.goal_tolerance,
-            obstacle_inflation=self.obstacle_inflation,
-            rrt_step_size=self.rrt_step_size,
-            allow_unknown=True,
-        )
         if self.exploration_strategy not in ('frontier', 'graph', 'graph_based'):
             self.get_logger().warn(
-                f'Unknown exploration_strategy={self.exploration_strategy}. Falling back to frontier.'
+                f'Unknown exploration_strategy={self.exploration_strategy}. '
+                'Falling back to frontier.'
             )
             self.exploration_strategy = 'frontier'
         if self.exploration_strategy == 'graph_based':
             self.exploration_strategy = 'graph'
+
+        # --- Publishers and subscribers ---
+        self.goal_pub = self.create_publisher(Marker, '/goal_point', 10)
+        self.frontier_pub = self.create_publisher(MarkerArray, '/frontier_markers', 10)
+        self.pose_graph_pub = self.create_publisher(MarkerArray, '/pose_graph_markers', 10)
+        self.map_sub = self.create_subscription(OccupancyGrid, '/map', self._map_callback, 10)
+
+        # --- TF and components ---
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.frontier_detector = FrontierDetector(min_frontier_size=self.min_frontier_size)
+        self.nav2 = Nav2Backend(self)
 
         graph_odom_information = make_information_matrix(
             self.graph_odom_cov_x,
@@ -175,30 +186,35 @@ class ExplorationCoordinator(Node):
             odom_information=graph_odom_information,
         )
 
-        # --- State ---
+        # --- Exploration state ---
         self.latest_map: Optional[OccupancyGrid] = None
         self.frontier_clusters: List[FrontierCluster] = []
-        self.current_path: List[Tuple[float, float]] = []
         self.current_goal: Optional[Tuple[float, float]] = None
         self.target_cluster: Optional[FrontierCluster] = None
-        self.last_replan_time = self.get_clock().now()
-        self.front_obstacle_distance = float('inf')
-        self.safety_turn_deadline = self.get_clock().now()
-        self.safety_turn_direction = 0.0
-        self.recovery_reverse_speed = -0.05
         self.explored_history = deque()
-        self.exploration_complete = False
-        self.random_walk_deadline = self.get_clock().now()
-        self.last_progress_pose: Optional[Tuple[float, float]] = None
-        self.last_progress_wall_time = time.monotonic()
-        self.stuck_recovery_wall_deadline = 0.0
+        self.state = self.WAITING_FOR_NAV2
+        self.next_retry_wall_time = 0.0
+        self.selection_generation = 0
+        self.selection_start_xy = (0.0, 0.0)
+        self.selection_clusters = []
+        self.selection_cluster_index = 0
+        self.selection_goal_index = 0
+        self.selection_best: Optional[PlannedPath] = None
+        self.graph_candidates = []
+        self.selection_request_wall_time: Optional[float] = None
+        self.selection_request_goal: Optional[Tuple[float, float]] = None
+        self.navigation_start_wall_time: Optional[float] = None
+        self.failed_goals = FailedGoalCooldown(
+            self.failed_goal_cooldown,
+            self.failed_goal_radius,
+        )
+        self.last_wait_log_wall_time = 0.0
 
-        # --- Timers ---
-        self.control_timer = self.create_timer(0.1, self._control_loop)
+        self.control_timer = self.create_timer(0.2, self._control_loop)
 
         self.get_logger().info(
-            f'Exploration coordinator started. Planner: {self.planner_type}, '
-            f'strategy: {self.exploration_strategy}'
+            f'Exploration coordinator started with Nav2 backend. '
+            f'Strategy: {self.exploration_strategy}'
         )
         self.get_logger().info(
             'Pose graph source: approximate TF trajectory. slam_toolbox can serialize '
@@ -206,7 +222,7 @@ class ExplorationCoordinator(Node):
         )
 
     # ------------------------------------------------------------------
-    # Callbacks
+    # Main callbacks
     # ------------------------------------------------------------------
 
     def _map_callback(self, msg: OccupancyGrid):
@@ -214,450 +230,263 @@ class ExplorationCoordinator(Node):
         self.frontier_clusters, _ = self.frontier_detector.detect(msg)
         self._update_explored_history(msg)
 
-    def _scan_callback(self, msg: LaserScan):
-        front = list(msg.ranges[:20]) + list(msg.ranges[-20:])
-        valid = [d for d in front if msg.range_min < d < msg.range_max]
-        self.front_obstacle_distance = min(valid) if valid else float('inf')
-
-    # ------------------------------------------------------------------
-    # Main control loop (10 Hz)
-    # ------------------------------------------------------------------
-
     def _control_loop(self):
-        if self.exploration_complete:
-            self._publish_cmd_vel(0.0, 0.0)
-            return
-
-        if self.latest_map is None:
-            self._publish_cmd_vel(0.0, 0.1)  # rotate to build initial map
-            return
-
-        # --- Safety override ---
-        if self._handle_safety():
-            return
-
-        # --- Get robot pose ---
+        self._publish_visualizations()
         pose = self._get_robot_pose()
-        if pose is None:
-            self._publish_cmd_vel(0.0, 0.1)
+        if pose is not None:
+            self.pose_graph_tracker.update(pose)
+
+        if self.state == self.COMPLETE:
             return
-        rx, ry, ryaw = pose
-        self.pose_graph_tracker.update((rx, ry, ryaw))
-
-        if self._handle_stuck_recovery(rx, ry):
+        if not self.nav2.servers_ready():
+            self._log_waiting_for_nav2()
             return
+        if self.state == self.WAITING_FOR_NAV2:
+            if self.latest_map is not None:
+                self._start_initial_spin()
+            return
+        if self.state == self.INITIAL_SPIN:
+            return
+        if self.state == self.NAVIGATING:
+            if navigation_timed_out(
+                self.navigation_start_wall_time,
+                self.nav2_goal_timeout,
+                time.monotonic(),
+            ):
+                self.get_logger().warn(
+                    f'Nav2 goal timed out after {self.nav2_goal_timeout:.1f}s; '
+                    'canceling and selecting another frontier.'
+                )
+                self._mark_goal_failed(self.current_goal)
+                self.nav2.cancel_navigation()
+                self._clear_navigation()
+                self._schedule_retry(0.0)
+            return
+        if self.state == self.SELECTING:
+            if (
+                self.selection_request_wall_time is not None
+                and time.monotonic() - self.selection_request_wall_time > self.nav2_request_timeout
+            ):
+                self.get_logger().warn('Nav2 path request timed out; retrying frontier selection.')
+                self._mark_goal_failed(self.selection_request_goal)
+                self.nav2.cancel_path_batch()
+                self.selection_request_goal = None
+                self._schedule_retry(0.0)
+            return
+        if time.monotonic() < self.next_retry_wall_time or pose is None:
+            return
+        self._start_selection(pose[0], pose[1])
 
-        # --- Publish visualizations ---
-        self._publish_frontier_markers()
-        self._publish_goal_marker()
-        if self.exploration_strategy == 'graph':
-            self._publish_pose_graph_markers()
+    # ------------------------------------------------------------------
+    # Nav2 action orchestration
+    # ------------------------------------------------------------------
 
-        # --- Check if replan needed ---
-        now = self.get_clock().now()
-        elapsed = (now - self.last_replan_time).nanoseconds / 1e9
-        near_goal = (
-            self.current_goal is not None
-            and math.hypot(rx - self.current_goal[0], ry - self.current_goal[1])
-            < self.goal_tolerance
+    def _start_initial_spin(self):
+        self.state = self.INITIAL_SPIN
+        self.get_logger().info('Nav2 is ready. Starting initial 360 degree scan.')
+        self.nav2.spin_once(
+            self.initial_spin_yaw,
+            self.initial_spin_timeout,
+            self._initial_spin_finished,
         )
-        frontier_shrunk = self._target_frontier_shrunk()
 
-        need_replan = (
-            len(self.current_path) == 0
-            or near_goal
-            or frontier_shrunk
-            or elapsed > self.replan_interval
-        )
-
-        if need_replan and elapsed > 1.0:
-            self._replan(rx, ry)
-
-        # --- Execute path ---
-        if len(self.current_path) > 0:
-            self._follow_path(rx, ry, ryaw)
+    def _initial_spin_finished(self, status: int):
+        if self.state != self.INITIAL_SPIN:
+            return
+        if status == GOAL_STATUS_SUCCEEDED:
+            self.get_logger().info('Initial Nav2 spin completed.')
         else:
-            self._random_walk()
-
-    # ------------------------------------------------------------------
-    # Safety (ported from random_walker)
-    # ------------------------------------------------------------------
-
-    def _handle_safety(self) -> bool:
-        if self.front_obstacle_distance < self.obstacle_distance:
-            now = self.get_clock().now()
-            if now > self.safety_turn_deadline:
-                self.safety_turn_direction = -1.0 if self.safety_turn_direction >= 0 else 1.0
-                duration = 0.8 + np.random.random() * 1.0
-                self.safety_turn_deadline = now + Duration(seconds=duration)
-            self._publish_cmd_vel(
-                self.recovery_reverse_speed,
-                self.safety_turn_direction * 0.8,
+            self.get_logger().warn(
+                f'Initial Nav2 spin ended with status={status}; continuing exploration.'
             )
-            self.current_path.clear()
-            self.current_goal = None
-            self.target_cluster = None
-            self.stuck_recovery_wall_deadline = time.monotonic() + 0.8
-            return True
-        return False
+        self._schedule_retry(0.0)
 
-    # ------------------------------------------------------------------
-    # Exploration logic
-    # ------------------------------------------------------------------
-
-    def _replan(self, rx: float, ry: float):
-        if len(self.frontier_clusters) == 0:
+    def _start_selection(self, rx: float, ry: float):
+        if not self.frontier_clusters:
             if self._is_map_stable():
-                self.exploration_complete = True
+                self.state = self.COMPLETE
                 self.get_logger().info(
                     f'Exploration complete. Map stable for {self.stability_duration}s.'
                 )
-            self.current_path.clear()
-            self.current_goal = None
-            self.target_cluster = None
+            else:
+                self._schedule_retry()
             return
 
-        if self.exploration_strategy == 'graph':
-            planned = self._select_graph_based_plan(rx, ry)
+        scored = self._score_frontiers_by_size_distance(rx, ry)
+        limit = (
+            self.graph_max_frontier_candidates
+            if self.exploration_strategy == 'graph'
+            else self.frontier_planning_attempts
+        )
+        self.selection_start_xy = (rx, ry)
+        now = time.monotonic()
+        self.failed_goals.expire(now)
+        self.selection_clusters = [
+            (cluster, self._selectable_goal_for_cluster(cluster, rx, ry, now))
+            for _, cluster in scored[:limit]
+        ]
+        self.selection_generation = self.nav2.start_path_batch()
+        self.selection_cluster_index = 0
+        self.selection_goal_index = 0
+        self.selection_best = None
+        self.graph_candidates = []
+        self.selection_request_wall_time = None
+        self.state = self.SELECTING
+        self._request_next_path()
+
+    def _request_next_path(self):
+        while self.selection_cluster_index < len(self.selection_clusters):
+            cluster, goal_candidates = self.selection_clusters[self.selection_cluster_index]
+            if self.selection_goal_index < len(goal_candidates):
+                goal_xy = goal_candidates[self.selection_goal_index]
+                self.selection_request_wall_time = time.monotonic()
+                self.selection_request_goal = goal_xy
+                self.nav2.compute_path(
+                    self.selection_generation,
+                    self.selection_start_xy,
+                    goal_xy,
+                    self._path_computed,
+                )
+                return
+            if self.selection_best is not None:
+                if self.exploration_strategy == 'frontier':
+                    self._dispatch_navigation(cluster, self.selection_best)
+                    return
+                score = self.graph_scorer.score(
+                    self.pose_graph_tracker.graph,
+                    self.latest_map,
+                    self.selection_best.points,
+                    cluster.size,
+                )
+                if np.isfinite(score):
+                    self.graph_candidates.append((score, cluster, self.selection_best))
+            self.selection_cluster_index += 1
+            self.selection_goal_index = 0
+            self.selection_best = None
+
+        if self.graph_candidates:
+            self.graph_candidates.sort(key=lambda item: item[0], reverse=True)
+            score, cluster, planned_path = self.graph_candidates[0]
+            self.get_logger().info(
+                f'Graph-based selected frontier score={score:.3f}, size={cluster.size}'
+            )
+            self._dispatch_navigation(cluster, planned_path)
+            return
+
+        self.get_logger().info(
+            f'No reachable frontier among {len(self.frontier_clusters)} clusters. '
+            f'Retrying in {self.frontier_retry_interval:.1f}s.'
+        )
+        self.nav2.cancel_path_batch()
+        self._schedule_retry()
+
+    def _path_computed(self, planned_path: Optional[PlannedPath]):
+        if self.state != self.SELECTING:
+            return
+        self.selection_request_wall_time = None
+        if planned_path is None:
+            self._mark_goal_failed(self.selection_request_goal)
+        self.selection_request_goal = None
+        if (
+            planned_path is not None
+            and (self.selection_best is None or planned_path.cost < self.selection_best.cost)
+        ):
+            self.selection_best = planned_path
+        self.selection_goal_index += 1
+        self._request_next_path()
+
+    def _dispatch_navigation(self, cluster: FrontierCluster, planned_path: PlannedPath):
+        self.nav2.cancel_path_batch()
+        self.current_goal = planned_path.goal_xy
+        self.target_cluster = cluster
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        self.state = self.NAVIGATING
+        self.navigation_start_wall_time = time.monotonic()
+        yaw = heading_to_target(planned_path.goal_xy, (cluster.centroid_x, cluster.centroid_y))
+        self.get_logger().info(
+            f'Navigating to frontier goal=({planned_path.goal_xy[0]:.2f}, '
+            f'{planned_path.goal_xy[1]:.2f}), size={cluster.size}, cost={planned_path.cost:.2f}'
+        )
+        self.nav2.navigate(planned_path.goal_xy, yaw, self._navigation_finished)
+
+    def _navigation_finished(self, status: int):
+        if self.state != self.NAVIGATING:
+            return
+        if status == GOAL_STATUS_SUCCEEDED:
+            self.get_logger().info('Nav2 reached the active frontier goal.')
         else:
-            planned = self._select_frontier_plan(rx, ry)
+            self.get_logger().warn(f'Nav2 navigation ended with status={status}; retrying.')
+            self._mark_goal_failed(self.current_goal)
+        self._clear_navigation()
+        self._schedule_retry(0.0)
 
-        if planned:
-            return
-
-        self.current_path.clear()
+    def _clear_navigation(self):
         self.current_goal = None
         self.target_cluster = None
-        self.last_replan_time = self.get_clock().now()
-        self.get_logger().info(
-            f'No reachable frontier among {len(self.frontier_clusters)} clusters. Random walking.'
+        self.navigation_start_wall_time = None
+
+    def _schedule_retry(self, delay: Optional[float] = None):
+        self.state = self.IDLE
+        self.next_retry_wall_time = time.monotonic() + (
+            self.frontier_retry_interval if delay is None else delay
         )
+
+    # ------------------------------------------------------------------
+    # Frontier candidate generation
+    # ------------------------------------------------------------------
 
     def _score_frontiers_by_size_distance(self, rx: float, ry: float):
         scored = []
-        for c in self.frontier_clusters:
-            dist = math.hypot(c.centroid_x - rx, c.centroid_y - ry)
-            utility = c.size / (dist + 0.1)
-            scored.append((utility, c))
-        scored.sort(key=lambda x: x[0], reverse=True)
+        for cluster in self.frontier_clusters:
+            dist = math.hypot(cluster.centroid_x - rx, cluster.centroid_y - ry)
+            scored.append((cluster.size / (dist + 0.1), cluster))
+        scored.sort(key=lambda item: item[0], reverse=True)
         return scored
 
-    def _select_frontier_plan(self, rx: float, ry: float) -> bool:
-        scored = self._score_frontiers_by_size_distance(rx, ry)
-        for _, cluster in scored[:self.frontier_planning_attempts]:
-            path, _, success, goal_xy = self._plan_to_frontier_cluster(
-                cluster,
-                rx,
-                ry,
-            )
-            if success and len(path) >= 2:
-                self._set_plan(path, cluster, goal_xy)
-                return True
-        return False
-
-    def _select_graph_based_plan(self, rx: float, ry: float) -> bool:
-        scored = self._score_frontiers_by_size_distance(rx, ry)
-        candidates = []
-        for _, cluster in scored[:self.graph_max_frontier_candidates]:
-            path, _, success, goal_xy = self._plan_to_frontier_cluster(
-                cluster,
-                rx,
-                ry,
-            )
-            if not success or len(path) < 2:
-                continue
-            graph_score = self.graph_scorer.score(
-                self.pose_graph_tracker.graph,
-                self.latest_map,
-                path,
-                cluster.size,
-            )
-            candidates.append((graph_score, cluster, path, goal_xy))
-
-        if not candidates:
-            return False
-
-        candidates.sort(key=lambda item: item[0], reverse=True)
-        score, cluster, path, goal_xy = candidates[0]
-        if not np.isfinite(score):
-            return False
-
-        self.get_logger().info(
-            f'Graph-based selected frontier score={score:.3f}, size={cluster.size}'
-        )
-        self._set_plan(path, cluster, goal_xy)
-        return True
-
-    def _plan_to_frontier_cluster(
+    def _selectable_goal_for_cluster(
         self,
         cluster: FrontierCluster,
         rx: float,
         ry: float,
-    ):
-        best = ([], float('inf'), False, (cluster.centroid_x, cluster.centroid_y))
-        for goal_xy in self._frontier_goal_candidates(cluster, rx, ry):
-            path, cost, success = self.planner.plan(
-                self.latest_map,
-                (rx, ry),
-                goal_xy,
-            )
-            if success and len(path) >= 2 and cost < best[1]:
-                best = (path, cost, success, goal_xy)
-        if best[2] or self.planner_allow_unknown or not self.planner_unknown_fallback:
-            return best
-
-        for goal_xy in self._frontier_goal_candidates(cluster, rx, ry):
-            path, cost, success = self.unknown_fallback_planner.plan(
-                self.latest_map,
-                (rx, ry),
-                goal_xy,
-            )
-            if success and len(path) >= 2 and cost < best[1]:
-                best = (path, cost, success, goal_xy)
-        return best
-
-    def _frontier_goal_candidates(
-        self,
-        cluster: FrontierCluster,
-        rx: float,
-        ry: float,
+        now: float,
     ) -> List[Tuple[float, float]]:
         info = self.latest_map.info
-        origin_x = info.origin.position.x
-        origin_y = info.origin.position.y
-        res = info.resolution
         data = np.array(self.latest_map.data, dtype=np.int8).reshape(
             info.height,
             info.width,
         )
-
-        def to_world(cell):
-            i, j = cell
-            return origin_x + (j + 0.5) * res, origin_y + (i + 0.5) * res
-
-        def to_grid(point):
-            x, y = point
-            j = int((x - origin_x) / res)
-            i = int((y - origin_y) / res)
-            return i, j
-
-        if not cluster.cells:
-            return [(cluster.centroid_x, cluster.centroid_y)]
-
-        cells = list(cluster.cells)
-        centroid_cell = min(
-            cells,
-            key=lambda cell: math.hypot(
-                to_world(cell)[0] - cluster.centroid_x,
-                to_world(cell)[1] - cluster.centroid_y,
+        goal = select_safe_frontier_goal(
+            data,
+            GridGeometry(
+                origin_x=info.origin.position.x,
+                origin_y=info.origin.position.y,
+                resolution=info.resolution,
+                width=info.width,
+                height=info.height,
+            ),
+            cluster.cells,
+            (rx, ry),
+            SafeGoalSearchConfig(
+                search_radius=self.frontier_goal_search_radius,
+                clearance=self.frontier_goal_clearance,
+                standoff=self.frontier_goal_standoff,
+                map_edge_clearance=self.frontier_goal_map_edge_clearance,
+                min_advance=self.frontier_goal_min_advance,
+                reach_radius=self.nav2_goal_reach_radius,
+                point_sample_limit=self.frontier_goal_point_sample_limit,
             ),
         )
-        nearest_cell = min(
-            cells,
-            key=lambda cell: math.hypot(to_world(cell)[0] - rx, to_world(cell)[1] - ry),
-        )
-        ordered = sorted(
-            cells,
-            key=lambda cell: math.hypot(to_world(cell)[0] - rx, to_world(cell)[1] - ry),
-        )
+        if goal is None or self.failed_goals.contains(goal, now):
+            return []
+        return [goal]
 
-        sample_count = max(1, self.frontier_goal_sample_count)
-        if len(ordered) <= sample_count:
-            sampled = ordered
-        elif sample_count == 1:
-            sampled = [ordered[0]]
-        else:
-            step = (len(ordered) - 1) / float(sample_count - 1)
-            sampled = [ordered[int(round(k * step))] for k in range(sample_count)]
-
-        frontier_cells = [centroid_cell, nearest_cell] + sampled
-        deduped = []
-        seen = set()
-
-        # Prefer known-free approach cells set back from the frontier boundary.
-        # Frontier cells themselves are still retained as a last resort.
-        approach_distances = (
-            max(res, self.frontier_approach_distance),
-            max(res, self.frontier_approach_distance * 0.65),
-            max(res, self.frontier_approach_distance * 1.35),
-        )
-        for cell in frontier_cells:
-            fx, fy = to_world(cell)
-            vx = rx - fx
-            vy = ry - fy
-            norm = math.hypot(vx, vy)
-            if norm < 1e-6:
-                continue
-            ux, uy = vx / norm, vy / norm
-            for distance in approach_distances:
-                candidate = (fx + ux * distance, fy + uy * distance)
-                i, j = to_grid(candidate)
-                if not self._is_safe_goal_cell(data, i, j, res):
-                    continue
-                if (
-                    math.hypot(candidate[0] - rx, candidate[1] - ry)
-                    < self.frontier_min_goal_distance
-                ):
-                    continue
-                key = (i, j)
-                if key in seen:
-                    continue
-                seen.add(key)
-                deduped.append(to_world(key))
-
-        for cell in frontier_cells:
-            if cell in seen:
-                continue
-            seen.add(cell)
-            deduped.append(to_world(cell))
-        return deduped
-
-    def _is_safe_goal_cell(
-        self,
-        data: np.ndarray,
-        i: int,
-        j: int,
-        resolution: float,
-    ) -> bool:
-        height, width = data.shape
-        if not (0 <= i < height and 0 <= j < width):
-            return False
-        if data[i, j] != 0:
-            return False
-
-        radius = max(1, int((self.obstacle_inflation * 0.75) / resolution))
-        ilo, ihi = max(0, i - radius), min(height, i + radius + 1)
-        jlo, jhi = max(0, j - radius), min(width, j + radius + 1)
-        return not np.any(data[ilo:ihi, jlo:jhi] > 50)
-
-    def _set_plan(
-        self,
-        path: List[Tuple[float, float]],
-        cluster: FrontierCluster,
-        goal_xy: Optional[Tuple[float, float]] = None,
-    ):
-        self.current_path = path
-        self.current_goal = goal_xy or (cluster.centroid_x, cluster.centroid_y)
-        self.target_cluster = cluster
-        self.last_replan_time = self.get_clock().now()
-        self._publish_path()
-
-    def _target_frontier_shrunk(self) -> bool:
-        if self.target_cluster is None:
-            return False
-        for c in self.frontier_clusters:
-            d = math.hypot(
-                c.centroid_x - self.target_cluster.centroid_x,
-                c.centroid_y - self.target_cluster.centroid_y,
-            )
-            if d < 0.5 and c.size < self.target_cluster.size * 0.5:
-                return True
-        return False
+    def _mark_goal_failed(self, goal: Optional[Tuple[float, float]]):
+        if goal is not None:
+            self.failed_goals.mark(goal, time.monotonic())
 
     # ------------------------------------------------------------------
-    # Path following (Pure Pursuit)
-    # ------------------------------------------------------------------
-
-    def _follow_path(self, rx: float, ry: float, ryaw: float):
-        path = self.current_path
-
-        closest_idx = 0
-        closest_dist = float('inf')
-        for i, (wx, wy) in enumerate(path):
-            d = math.hypot(wx - rx, wy - ry)
-            if d < closest_dist:
-                closest_dist = d
-                closest_idx = i
-
-        lookahead_idx = closest_idx
-        forward_found = False
-        for i in range(closest_idx, len(path)):
-            dx = path[i][0] - rx
-            dy = path[i][1] - ry
-            forward_proj = dx * math.cos(ryaw) + dy * math.sin(ryaw)
-            if forward_proj < 0.0:
-                continue
-            if math.hypot(dx, dy) >= self.lookahead_distance:
-                lookahead_idx = i
-                forward_found = True
-                break
-        if not forward_found:
-            lookahead_idx = len(path) - 1
-
-        tx, ty = path[lookahead_idx]
-        target_angle = math.atan2(ty - ry, tx - rx)
-        angle_error = target_angle - ryaw
-        angle_error = math.atan2(math.sin(angle_error), math.cos(angle_error))
-
-        angular_z = self.kp_angular * angle_error
-        angular_z = max(-self.max_angular_speed, min(self.max_angular_speed, angular_z))
-        speed_scale = max(0.0, 1.0 - abs(angular_z) / self.max_angular_speed)
-        linear_x = self.target_linear_speed * speed_scale
-
-        dist_to_end = math.hypot(path[-1][0] - rx, path[-1][1] - ry)
-        if dist_to_end < 0.5:
-            linear_x *= max(0.1, dist_to_end / 0.5)
-
-        self._publish_cmd_vel(linear_x, angular_z)
-
-    def _handle_stuck_recovery(self, rx: float, ry: float) -> bool:
-        now = self.get_clock().now()
-        wall_now = time.monotonic()
-        if wall_now < self.stuck_recovery_wall_deadline:
-            self._publish_cmd_vel(
-                self.recovery_reverse_speed,
-                self.safety_turn_direction * 0.8,
-            )
-            return True
-
-        if self.last_progress_pose is None:
-            self.last_progress_pose = (rx, ry)
-            self.last_progress_wall_time = wall_now
-            return False
-
-        moved = math.hypot(rx - self.last_progress_pose[0], ry - self.last_progress_pose[1])
-        elapsed = wall_now - self.last_progress_wall_time
-        if moved > 0.20:
-            self.last_progress_pose = (rx, ry)
-            self.last_progress_wall_time = wall_now
-            return False
-
-        if elapsed < 8.0:
-            return False
-
-        self.get_logger().warn(
-            'Robot appears stuck; backing away and forcing a new frontier plan.'
-        )
-        self.current_path.clear()
-        self.current_goal = None
-        self.target_cluster = None
-        self.last_replan_time = now - Duration(seconds=max(1.1, self.replan_interval))
-        self.safety_turn_direction = -1.0 if self.safety_turn_direction >= 0 else 1.0
-        self.stuck_recovery_wall_deadline = wall_now + 1.5
-        self.last_progress_pose = (rx, ry)
-        self.last_progress_wall_time = wall_now
-        self._publish_cmd_vel(
-            self.recovery_reverse_speed,
-            self.safety_turn_direction * 0.8,
-        )
-        return True
-
-    # ------------------------------------------------------------------
-    # Random walk (fallback when no path available)
-    # ------------------------------------------------------------------
-
-    def _random_walk(self):
-        now = self.get_clock().now()
-        if now > self.random_walk_deadline:
-            linear_x = 0.03 + _random() * 0.05
-            angular_z = -0.25 + _random() * 0.5
-            duration = 1.5 + _random() * 2.5
-            self.random_walk_deadline = now + Duration(seconds=duration)
-            self._publish_cmd_vel(linear_x, angular_z)
-        # On non-deadline ticks, repeat the last cmd_vel to keep moving
-
-    # ------------------------------------------------------------------
-    # Map stability
+    # Map stability and visualization
     # ------------------------------------------------------------------
 
     def _update_explored_history(self, msg: OccupancyGrid):
@@ -685,77 +514,65 @@ class ExplorationCoordinator(Node):
             return False
         return abs(latest_known - earliest_known) / earliest_known < self.stability_threshold
 
-    # ------------------------------------------------------------------
-    # Visualization publishers
-    # ------------------------------------------------------------------
+    def _publish_visualizations(self):
+        if self.latest_map is None:
+            return
+        self._publish_frontier_markers()
+        self._publish_goal_marker()
+        if self.exploration_strategy == 'graph':
+            markers = graph_to_marker_array(
+                self.pose_graph_tracker.graph,
+                'map',
+                self.get_clock().now().to_msg(),
+            )
+            self.pose_graph_pub.publish(markers)
 
     def _publish_frontier_markers(self):
-        ma = MarkerArray()
+        marker_array = MarkerArray()
         delete = Marker()
         delete.action = Marker.DELETEALL
-        ma.markers.append(delete)
+        marker_array.markers.append(delete)
 
-        for i, c in enumerate(self.frontier_clusters):
-            m = Marker()
-            m.header.frame_id = 'map'
-            m.header.stamp = self.get_clock().now().to_msg()
-            m.ns = 'frontiers'
-            m.id = i
-            m.type = Marker.SPHERE
-            m.action = Marker.ADD
-            m.pose.position.x = c.centroid_x
-            m.pose.position.y = c.centroid_y
-            m.pose.position.z = 0.1
-            s = min(1.2, max(0.15, c.size * 0.002))
-            m.scale.x = m.scale.y = m.scale.z = s
-            m.color.a = 0.6
-            m.color.g = 1.0
-            m.color.b = 0.3
-            ma.markers.append(m)
+        for index, cluster in enumerate(self.frontier_clusters):
+            marker = Marker()
+            marker.header.frame_id = 'map'
+            marker.header.stamp = self.get_clock().now().to_msg()
+            marker.ns = 'frontiers'
+            marker.id = index
+            marker.type = Marker.SPHERE
+            marker.action = Marker.ADD
+            marker.pose.position.x = cluster.centroid_x
+            marker.pose.position.y = cluster.centroid_y
+            marker.pose.position.z = 0.1
+            scale = min(1.2, max(0.15, cluster.size * 0.002))
+            marker.scale.x = marker.scale.y = marker.scale.z = scale
+            marker.color.a = 0.6
+            marker.color.g = 1.0
+            marker.color.b = 0.3
+            marker_array.markers.append(marker)
 
-        self.frontier_pub.publish(ma)
+        self.frontier_pub.publish(marker_array)
 
     def _publish_goal_marker(self):
-        m = Marker()
-        m.header.frame_id = 'map'
-        m.header.stamp = self.get_clock().now().to_msg()
-        m.ns = 'goal'
-        m.id = 0
-        m.type = Marker.SPHERE
+        marker = Marker()
+        marker.header.frame_id = 'map'
+        marker.header.stamp = self.get_clock().now().to_msg()
+        marker.ns = 'goal'
+        marker.id = 0
+        marker.type = Marker.SPHERE
 
         if self.current_goal is not None:
-            m.action = Marker.ADD
-            m.pose.position.x = self.current_goal[0]
-            m.pose.position.y = self.current_goal[1]
-            m.pose.position.z = 0.2
-            m.scale.x = m.scale.y = m.scale.z = 0.25
-            m.color.a = 1.0
-            m.color.r = 1.0
+            marker.action = Marker.ADD
+            marker.pose.position.x = self.current_goal[0]
+            marker.pose.position.y = self.current_goal[1]
+            marker.pose.position.z = 0.2
+            marker.scale.x = marker.scale.y = marker.scale.z = 0.25
+            marker.color.a = 1.0
+            marker.color.r = 1.0
         else:
-            m.action = Marker.DELETE
+            marker.action = Marker.DELETE
 
-        self.goal_pub.publish(m)
-
-    def _publish_path(self):
-        path_msg = Path()
-        path_msg.header.frame_id = 'map'
-        path_msg.header.stamp = self.get_clock().now().to_msg()
-        for x, y in self.current_path:
-            ps = PoseStamped()
-            ps.header = path_msg.header
-            ps.pose.position.x = x
-            ps.pose.position.y = y
-            ps.pose.orientation.w = 1.0
-            path_msg.poses.append(ps)
-        self.path_pub.publish(path_msg)
-
-    def _publish_pose_graph_markers(self):
-        markers = graph_to_marker_array(
-            self.pose_graph_tracker.graph,
-            'map',
-            self.get_clock().now().to_msg(),
-        )
-        self.pose_graph_pub.publish(markers)
+        self.goal_pub.publish(marker)
 
     # ------------------------------------------------------------------
     # Helpers
@@ -763,28 +580,28 @@ class ExplorationCoordinator(Node):
 
     def _get_robot_pose(self) -> Optional[Tuple[float, float, float]]:
         try:
-            t = self.tf_buffer.lookup_transform(
-                'map', 'base_footprint', rclpy.time.Time(),
+            transform = self.tf_buffer.lookup_transform(
+                'map',
+                'base_footprint',
+                rclpy.time.Time(),
                 timeout=Duration(seconds=0.5),
             )
-            x = t.transform.translation.x
-            y = t.transform.translation.y
-            yaw = _yaw_from_quaternion(t.transform.rotation)
-            return x, y, yaw
+            return (
+                transform.transform.translation.x,
+                transform.transform.translation.y,
+                _yaw_from_quaternion(transform.transform.rotation),
+            )
         except Exception:
             return None
 
-    def _publish_cmd_vel(self, linear_x: float, angular_z: float):
-        twist = Twist()
-        twist.linear.x = linear_x
-        twist.angular.z = angular_z
-        self.cmd_pub.publish(twist)
+    def _log_waiting_for_nav2(self):
+        now = time.monotonic()
+        if now - self.last_wait_log_wall_time > 5.0:
+            self.get_logger().info('Waiting for Nav2 action servers.')
+            self.last_wait_log_wall_time = now
 
     def destroy_node(self):
-        try:
-            self._publish_cmd_vel(0.0, 0.0)
-        except Exception:
-            pass
+        self.nav2.destroy()
         super().destroy_node()
 
 

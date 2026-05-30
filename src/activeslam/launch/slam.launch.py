@@ -15,8 +15,8 @@ import os
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     turtlebot3_model = LaunchConfiguration('turtlebot3_model')
-    planner_type = LaunchConfiguration('planner_type')
     exploration_strategy = LaunchConfiguration('exploration_strategy')
+    nav2_params_file = LaunchConfiguration('nav2_params_file')
     map_name = LaunchConfiguration('map')
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
@@ -84,6 +84,20 @@ def generate_launch_description():
         parameters=[{'use_sim_time': use_sim_time}],
     )
 
+    nav2_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [FindPackageShare('nav2_bringup'), 'launch', 'navigation_launch.py']
+            )
+        ),
+        launch_arguments={
+            'use_sim_time': use_sim_time,
+            'autostart': 'true',
+            'use_composition': 'False',
+            'params_file': nav2_params_file,
+        }.items(),
+    )
+
     config_path = PathJoinSubstitution(
         [FindPackageShare('activeslam'), 'config', 'exploration.yaml']
     )
@@ -97,7 +111,6 @@ def generate_launch_description():
             config_path,
             {
                 'use_sim_time': use_sim_time,
-                'planner_type': planner_type,
                 'exploration_strategy': exploration_strategy,
             },
         ],
@@ -139,16 +152,17 @@ def generate_launch_description():
             description='TurtleBot3 model to spawn in Gazebo.',
         ),
         DeclareLaunchArgument(
-            'planner_type',
-            default_value='astar',
-            choices=['astar', 'rrt'],
-            description='Path planning algorithm: astar or rrt.',
-        ),
-        DeclareLaunchArgument(
             'exploration_strategy',
             default_value='frontier',
             choices=['frontier', 'graph'],
             description='Exploration target selection strategy.',
+        ),
+        DeclareLaunchArgument(
+            'nav2_params_file',
+            default_value=PathJoinSubstitution(
+                [FindPackageShare('activeslam'), 'config', 'nav2_params.yaml']
+            ),
+            description='Full path to the Nav2 parameters file.',
         ),
         DeclareLaunchArgument(
             'map',
@@ -197,6 +211,7 @@ def generate_launch_description():
         robot_state_publisher_launch,
         spawn_turtlebot_launch,
         slam_node,
+        nav2_launch,
         explorer_node,
         evaluator_node,
     ])

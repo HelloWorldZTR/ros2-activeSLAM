@@ -2,9 +2,9 @@
 
 ## Project Design
 
-This is a ROS 2 Humble workspace for TurtleBot3 active SLAM in Gazebo. The main package, `activeslam`, launches Gazebo, spawns a TurtleBot3, runs `slam_toolbox`, and starts an exploration controller that drives the robot from `/map`, `/scan`, and TF.
+This is a ROS 2 Humble workspace for TurtleBot3 active SLAM in Gazebo. The main package, `activeslam`, launches Gazebo, spawns a TurtleBot3, runs `slam_toolbox`, starts Nav2, and starts an exploration coordinator driven by `/map` and TF.
 
-Exploration is coordinated by `activeslam.exploration_coordinator`. It detects frontiers on the occupancy grid, plans paths with A* or RRT, publishes `/cmd_vel`, and exposes RViz markers for goals, frontiers, planned paths, and the optional approximate pose graph. The `frontier` strategy chooses reachable frontiers directly; the `graph` strategy scores candidate paths with an approximate weighted pose graph and D-opt style information score.
+Exploration is coordinated by `activeslam.exploration_coordinator`. It detects frontiers on the occupancy grid, asks Nav2 for candidate paths, sends selected goals to Nav2, and exposes RViz markers for goals, frontiers, and the optional approximate pose graph. Nav2 owns `/cmd_vel`, path following, and recovery behavior. The `frontier` strategy chooses reachable frontiers directly; the `graph` strategy scores Nav2 candidate paths with an approximate weighted pose graph and D-opt style information score.
 
 Evaluation is handled separately by `activeslam.slam_evaluator`. It compares SLAM output against Gazebo ground truth and world geometry, then writes run logs under `logs/run_*` with estimated/ground-truth trajectories, coverage over time, coverage over path length, map IoU, and ATE metrics.
 
@@ -13,10 +13,11 @@ Simulation assets live in `activeslam_resource` and vendored TurtleBot3 simulati
 ## Important Files
 
 - `src/activeslam/launch/slam.launch.py`: main launch file for Gazebo, TurtleBot3 spawn, `slam_toolbox`, and `exploration_coordinator`.
-- `src/activeslam/config/exploration.yaml`: controller, planner, frontier, and graph-scoring parameters.
+- `src/activeslam/config/exploration.yaml`: frontier selection and graph-scoring parameters.
+- `src/activeslam/config/nav2_params.yaml`: Nav2 planner, controller, costmap, behavior, and velocity smoother parameters.
 - `src/activeslam/activeslam/exploration_coordinator.py`: main active exploration ROS node.
+- `src/activeslam/activeslam/nav2_backend.py`: asynchronous Nav2 action adapter.
 - `src/activeslam/activeslam/frontier_detector.py`: frontier-cell detection and clustering.
-- `src/activeslam/activeslam/path_planner.py`: A* and RRT planners plus obstacle inflation.
 - `src/activeslam/activeslam/graph_exploration.py`: approximate pose graph tracking, graph scoring, and graph visualization.
 - `src/activeslam/activeslam/slam_evaluator.py`: ROS node for SLAM coverage, trajectory, ATE, and IoU logging.
 - `src/activeslam/activeslam/slam_evaluator_utils.py`: testable evaluator geometry and metric helpers.
@@ -51,6 +52,12 @@ For headless remote experiments, disable evaluator matplotlib explicitly instead
 
 ```bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms gui:=false run_evaluator:=true plot_live:=false save_plots:=false
+```
+
+The exploration coordinator must not publish `/cmd_vel`; verify Nav2 ownership with:
+
+```bash
+ros2 topic info /cmd_vel --verbose
 ```
 
 For standalone evaluator runs, pass:

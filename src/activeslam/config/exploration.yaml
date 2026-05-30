@@ -1,25 +1,24 @@
 exploration_coordinator:
   ros__parameters:
-    planner_type: "astar"
-    target_linear_speed: 0.18
-    lookahead_distance: 0.45
-    kp_angular: 1.0
-    max_angular_speed: 1.0
-    replan_interval: 4.0
-    goal_tolerance: 0.25
     stability_duration: 10.0
     stability_threshold: 0.02
     min_frontier_size: 5
-    obstacle_distance: 0.25
-    obstacle_inflation: 0.22
-    rrt_step_size: 0.45
     exploration_strategy: "frontier"  # frontier or graph
     frontier_planning_attempts: 12
-    frontier_goal_sample_count: 6
-    frontier_approach_distance: 0.45
-    frontier_min_goal_distance: 0.35
-    planner_allow_unknown: false
-    planner_unknown_fallback: true
+    frontier_goal_search_radius: 1.2
+    frontier_goal_clearance: 0.20
+    frontier_goal_standoff: 0.45
+    frontier_goal_map_edge_clearance: 0.0
+    frontier_goal_min_advance: 0.35
+    frontier_goal_point_sample_limit: 40
+    nav2_goal_reach_radius: 0.25  # Keep in sync with Nav2 xy_goal_tolerance.
+    failed_goal_cooldown: 20.0
+    failed_goal_radius: 0.6
+    frontier_retry_interval: 3.0
+    nav2_request_timeout: 5.0
+    initial_spin_yaw: 6.283185307
+    initial_spin_timeout: 30.0
+    nav2_goal_timeout: 30.0
     graph_max_frontier_candidates: 8
     graph_info_radius: 1.5
     graph_node_spacing: 0.5

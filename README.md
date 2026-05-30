@@ -9,9 +9,12 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_rooms
+ros2 launch activeslam slam.launch.py map:=turtlebot3_world
 ros2 run activeslam slam_evaluator --ros-args -p use_sim_time:=true -p world_name:=slam_rooms
 ```
+
+探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
+并通过 Nav2 导航。Nav2 负责全局规划、局部控制和恢复行为。
 
 在bc01执行
 
@@ -52,8 +55,20 @@ ros2 launch activeslam slam.launch.py turtlebot3_model:=waffle
 ```
 
 如果需要选择 Gazebo 地图，例如 TurtleBot3 house：
-不许加入world后缀
+无需加入world后缀
 
 ```bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms x_pose:=-2.0 y_pose:=-0.5
+```
+
+如果需要启用图评分策略：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms exploration_strategy:=graph
+```
+
+Nav2 参数默认读取 `activeslam/config/nav2_params.yaml`。如需使用其他配置：
+
+```bash
+ros2 launch activeslam slam.launch.py nav2_params_file:=/path/to/nav2_params.yaml
 ```
