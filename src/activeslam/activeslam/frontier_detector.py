@@ -72,9 +72,23 @@ class FrontierDetector:
                     while queue:
                         ci, cj = queue.popleft()
                         cluster.append((ci, cj))
-                        for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                        for di, dj in (
+                            (-1, -1),
+                            (-1, 0),
+                            (-1, 1),
+                            (0, -1),
+                            (0, 1),
+                            (1, -1),
+                            (1, 0),
+                            (1, 1),
+                        ):
                             ni, nj = ci + di, cj + dj
-                            if 0 <= ni < height and 0 <= nj < width and mask[ni, nj] and not visited[ni, nj]:
+                            if (
+                                0 <= ni < height
+                                and 0 <= nj < width
+                                and mask[ni, nj]
+                                and not visited[ni, nj]
+                            ):
                                 visited[ni, nj] = True
                                 queue.append((ni, nj))
                     clusters.append(cluster)

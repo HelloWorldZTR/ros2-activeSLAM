@@ -3,7 +3,7 @@ exploration_coordinator:
     stability_duration: 10.0
     stability_threshold: 0.02
     min_frontier_size: 5
-    exploration_strategy: "frontier"  # frontier or graph
+    exploration_strategy: "graph"  # frontier or graph
     frontier_planning_attempts: 12
     frontier_goal_search_radius: 1.2
     frontier_goal_clearance: 0.20

@@ -9,7 +9,7 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=turtlebot3_world
+ros2 launch activeslam slam.launch.py map:=slam_rooms
 ros2 run activeslam slam_evaluator --ros-args -p use_sim_time:=true -p world_name:=slam_rooms
 ```
 
