@@ -9,8 +9,8 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_rooms
-ros2 run activeslam slam_evaluator --ros-args -p use_sim_time:=true -p world_name:=slam_rooms
+ros2 launch activeslam slam.launch.py map:=turtlebot3_world exploration_strategy:=frontier
+ros2 run activeslam slam_evaluator --ros-args -p use_sim_time:=true -p world_name:=turtlebot3_world
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier

@@ -9,6 +9,7 @@ from activeslam.frontier_goal_utils import (
     navigation_timed_out,
     open_edge_outward_normal,
     potential_unknown_area,
+    prepare_safe_goal_grid,
     segment_is_obstacle_free,
     select_safe_frontier_goal,
 )
@@ -51,6 +52,46 @@ def test_safe_goal_search_selects_standoff_cell():
 
     assert goal.point == pytest.approx((1.15, 1.05))
     assert goal.seed == (10, 15)
+
+
+def test_safe_goal_search_reuses_prepared_grid_without_changing_goal():
+    grid = np.zeros((20, 20), dtype=np.int8)
+    geometry = _geometry()
+    config = _config()
+
+    implicit_goal = select_safe_frontier_goal(
+        grid,
+        geometry,
+        frontier_cells=[(10, 15)],
+        robot_xy=(0.55, 1.05),
+        config=config,
+    )
+    prepared_goal = select_safe_frontier_goal(
+        grid,
+        geometry,
+        frontier_cells=[(10, 15)],
+        robot_xy=(0.55, 1.05),
+        config=config,
+        prepared_grid=prepare_safe_goal_grid(grid, geometry, config),
+    )
+
+    assert prepared_goal == implicit_goal
+
+
+def test_prepared_grid_applies_obstacle_clearance_and_map_margin():
+    grid = np.zeros((20, 20), dtype=np.int8)
+    grid[10, 10] = 100
+
+    prepared = prepare_safe_goal_grid(
+        grid,
+        _geometry(),
+        _config(clearance=0.2, map_edge_clearance=0.3),
+    )
+
+    assert not prepared.valid_goal_mask[10, 12]
+    assert prepared.valid_goal_mask[10, 13]
+    assert not prepared.valid_goal_mask[2, 10]
+    assert prepared.valid_goal_mask[3, 10]
 
 
 def test_safe_goal_search_rejects_obstacles_clearance_and_map_edge():
@@ -189,3 +230,11 @@ def test_potential_unknown_area_honors_radius():
     area = potential_unknown_area(grid, _geometry(size=3), (1, 1), radius=0.09)
 
     assert area == 0.0
+
+
+def test_potential_unknown_area_clips_circle_at_map_edge():
+    grid = np.full((6, 6), -1, dtype=np.int8)
+
+    area = potential_unknown_area(grid, _geometry(size=6), (3, 0), radius=0.35)
+
+    assert area == pytest.approx(0.20)

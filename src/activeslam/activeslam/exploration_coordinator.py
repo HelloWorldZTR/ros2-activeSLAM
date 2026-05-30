@@ -15,12 +15,14 @@ from .frontier_detector import FrontierCluster, FrontierDetector
 from .frontier_goal_utils import (
     FailedGoalCooldown,
     GridGeometry,
+    PreparedSafeGoalGrid,
     SafeFrontierGoal,
     SafeGoalSearchConfig,
     navigation_timed_out,
     normalize_angle,
     open_edge_outward_normal,
     potential_unknown_area,
+    prepare_safe_goal_grid,
     select_safe_frontier_goal,
 )
 from .frontier_selection import (
@@ -229,6 +231,7 @@ class ExplorationCoordinator(Node):
 
         # --- Exploration state ---
         self.latest_map: Optional[OccupancyGrid] = None
+        self.latest_grid: Optional[np.ndarray] = None
         self.frontier_clusters: List[FrontierCluster] = []
         self.current_goal: Optional[Tuple[float, float]] = None
         self.current_safe_goal: Optional[SafeFrontierGoal] = None
@@ -269,8 +272,12 @@ class ExplorationCoordinator(Node):
 
     def _map_callback(self, msg: OccupancyGrid):
         self.latest_map = msg
-        self.frontier_clusters, _ = self.frontier_detector.detect(msg)
-        self._update_explored_history(msg)
+        self.latest_grid = np.asarray(msg.data, dtype=np.int8).reshape(
+            msg.info.height,
+            msg.info.width,
+        )
+        self.frontier_clusters, _ = self.frontier_detector.detect(msg, self.latest_grid)
+        self._update_explored_history(self.latest_grid)
 
     def _control_loop(self):
         self._publish_visualizations()
@@ -382,7 +389,9 @@ class ExplorationCoordinator(Node):
         self.selection_start_xy = (rx, ry)
         now = time.monotonic()
         self.failed_goals.expire(now)
+        local_filter_start = time.monotonic()
         self.selection_candidates = self._ranked_frontier_candidates(rx, ry, now, limit)
+        local_filter_ms = (time.monotonic() - local_filter_start) * 1000.0
         self.selection_generation = self.nav2.start_path_batch()
         self.selection_cluster_index = 0
         self.graph_candidates = []
@@ -398,7 +407,8 @@ class ExplorationCoordinator(Node):
         }
         self.get_logger().info(
             f'Shared frontier pool has {len(self.selection_candidates)} candidates: '
-            f'unknown={source_counts["unknown"]}, open_edge={source_counts[OPEN_EDGE_FRONTIER]}.'
+            f'unknown={source_counts["unknown"]}, open_edge={source_counts[OPEN_EDGE_FRONTIER]}, '
+            f'local_filter_ms={local_filter_ms:.1f}.'
         )
         self._request_next_path()
 
@@ -454,6 +464,7 @@ class ExplorationCoordinator(Node):
                 self.pose_graph_tracker.graph,
                 self.latest_map,
                 planned_path.points,
+                self.latest_grid,
             )
             if np.isfinite(score):
                 self.graph_candidates.append((score, candidate, planned_path))
@@ -615,11 +626,10 @@ class ExplorationCoordinator(Node):
         now: float,
         limit: int,
     ) -> List[FrontierCandidate]:
+        if self.latest_grid is None:
+            return []
         info = self.latest_map.info
-        data = np.array(self.latest_map.data, dtype=np.int8).reshape(
-            info.height,
-            info.width,
-        )
+        data = self.latest_grid
         geometry = GridGeometry(
             origin_x=info.origin.position.x,
             origin_y=info.origin.position.y,
@@ -627,6 +637,16 @@ class ExplorationCoordinator(Node):
             width=info.width,
             height=info.height,
         )
+        search_config = SafeGoalSearchConfig(
+            search_radius=self.frontier_goal_search_radius,
+            clearance=self.frontier_goal_clearance,
+            standoff=self.frontier_goal_standoff,
+            map_edge_clearance=self.frontier_goal_map_edge_clearance,
+            min_advance=self.frontier_goal_min_advance,
+            reach_radius=self.nav2_goal_reach_radius,
+            point_sample_limit=self.frontier_goal_point_sample_limit,
+        )
+        prepared_grid = prepare_safe_goal_grid(data, geometry, search_config)
         candidates = [
             candidate
             for cluster in self.frontier_clusters
@@ -638,6 +658,8 @@ class ExplorationCoordinator(Node):
                     now,
                     data,
                     geometry,
+                    search_config,
+                    prepared_grid,
                 )
             ) is not None
         ]
@@ -651,21 +673,16 @@ class ExplorationCoordinator(Node):
         now: float,
         data: np.ndarray,
         geometry: GridGeometry,
+        search_config: SafeGoalSearchConfig,
+        prepared_grid: PreparedSafeGoalGrid,
     ) -> Optional[FrontierCandidate]:
         goal = select_safe_frontier_goal(
             data,
             geometry,
             cluster.cells,
             (rx, ry),
-            SafeGoalSearchConfig(
-                search_radius=self.frontier_goal_search_radius,
-                clearance=self.frontier_goal_clearance,
-                standoff=self.frontier_goal_standoff,
-                map_edge_clearance=self.frontier_goal_map_edge_clearance,
-                min_advance=self.frontier_goal_min_advance,
-                reach_radius=self.nav2_goal_reach_radius,
-                point_sample_limit=self.frontier_goal_point_sample_limit,
-            ),
+            search_config,
+            prepared_grid,
         )
         if goal is None:
             return None
@@ -694,9 +711,9 @@ class ExplorationCoordinator(Node):
     # Map stability and visualization
     # ------------------------------------------------------------------
 
-    def _update_explored_history(self, msg: OccupancyGrid):
+    def _update_explored_history(self, data: np.ndarray):
         now = self.get_clock().now()
-        known = int(np.sum(np.array(msg.data, dtype=np.int8) != -1))
+        known = int(np.count_nonzero(data != -1))
         self.explored_history.append((now, known))
         stability_window = Duration(seconds=self.stability_duration)
         if now.nanoseconds < stability_window.nanoseconds:

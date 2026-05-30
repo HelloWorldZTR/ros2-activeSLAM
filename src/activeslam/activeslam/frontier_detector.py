@@ -26,33 +26,41 @@ class FrontierDetector:
         self.min_frontier_size = min_frontier_size
         self.include_open_map_edges = include_open_map_edges
 
-    def detect(self, grid_msg: OccupancyGrid) -> Tuple[List[FrontierCluster], np.ndarray]:
+    def detect(
+        self,
+        grid_msg: OccupancyGrid,
+        data: np.ndarray = None,
+    ) -> Tuple[List[FrontierCluster], np.ndarray]:
         width = grid_msg.info.width
         height = grid_msg.info.height
         resolution = grid_msg.info.resolution
         origin_x = grid_msg.info.origin.position.x
         origin_y = grid_msg.info.origin.position.y
 
-        data = np.array(grid_msg.data, dtype=np.int8).reshape(height, width)
+        if data is None:
+            data = np.asarray(grid_msg.data, dtype=np.int8).reshape(height, width)
+        elif data.shape != (height, width):
+            raise ValueError('Cached occupancy grid shape does not match OccupancyGrid info.')
 
-        unknown_mask = np.zeros((height, width), dtype=bool)
+        free_mask = data == 0
+        has_unknown_neighbor = np.zeros((height, width), dtype=bool)
+        has_unknown_neighbor[1:, :] |= data[:-1, :] == -1
+        has_unknown_neighbor[:-1, :] |= data[1:, :] == -1
+        has_unknown_neighbor[:, 1:] |= data[:, :-1] == -1
+        has_unknown_neighbor[:, :-1] |= data[:, 1:] == -1
+        unknown_mask = np.logical_and(free_mask, has_unknown_neighbor)
+
         open_edge_mask = np.zeros((height, width), dtype=bool)
-        for i in range(height):
-            for j in range(width):
-                if data[i, j] != 0:
-                    continue
-                has_unknown_neighbor = False
-                has_outside_neighbor = False
-                for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-                    ni, nj = i + di, j + dj
-                    if not (0 <= ni < height and 0 <= nj < width):
-                        has_outside_neighbor = True
-                    elif data[ni, nj] == -1:
-                        has_unknown_neighbor = True
-                if has_unknown_neighbor:
-                    unknown_mask[i, j] = True
-                elif self.include_open_map_edges and has_outside_neighbor:
-                    open_edge_mask[i, j] = True
+        if self.include_open_map_edges and height > 0 and width > 0:
+            has_outside_neighbor = np.zeros((height, width), dtype=bool)
+            has_outside_neighbor[0, :] = True
+            has_outside_neighbor[-1, :] = True
+            has_outside_neighbor[:, 0] = True
+            has_outside_neighbor[:, -1] = True
+            open_edge_mask = np.logical_and(
+                free_mask,
+                np.logical_and(has_outside_neighbor, np.logical_not(unknown_mask)),
+            )
 
         result = self._make_clusters(
             unknown_mask,

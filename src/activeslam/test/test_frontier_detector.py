@@ -111,3 +111,20 @@ def test_open_map_edge_detection_can_be_disabled():
     ]))
 
     assert clusters == []
+
+
+def test_detect_reuses_cached_grid_without_changing_clusters():
+    msg = _grid([
+        [100, 100, 100, 100, 100],
+        [100, -1, -1, -1, 100],
+        [100, 0, 0, 0, 100],
+        [100, 100, 100, 100, 100],
+    ])
+    data = np.asarray(msg.data, dtype=np.int8).reshape(msg.info.height, msg.info.width)
+    detector = FrontierDetector(min_frontier_size=3)
+
+    uncached_clusters, uncached_mask = detector.detect(msg)
+    cached_clusters, cached_mask = detector.detect(msg, data)
+
+    assert cached_clusters == uncached_clusters
+    assert np.array_equal(cached_mask, uncached_mask)

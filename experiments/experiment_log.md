@@ -181,3 +181,42 @@ Implementation:
 
 Status: Python compilation, YAML parsing, diff checks, and focused helper tests
 pass locally. Remote simulation smoke test pending.
+
+## 2026-05-30 - Frontier Detection And Selection Cache Optimization
+
+Goal: reduce frontier detection and local candidate-filter latency without
+changing frontier definitions, candidate ordering, or Nav2 planning behavior.
+
+Implementation:
+
+- Vectorized ordinary and open-map-edge frontier masks while retaining the
+  existing eight-connected cluster traversal.
+- Cached each received occupancy grid as one NumPy array for detection,
+  stability tracking, local candidate selection, and graph scoring.
+- Added a prepared safe-goal grid built once per selection round. A summed-area
+  table precomputes obstacle-clearance validity before clusters are evaluated.
+- Vectorized local unknown-area and graph cell-information counting.
+- Added `local_filter_ms` to shared frontier-pool logs for remote observation.
+
+Local checks:
+
+- Focused helper tests: `34 passed`.
+- Randomized equivalence check: `200` generated grids matched the previous
+  unknown-area and safe-goal helper results.
+- Python compilation and `git diff --check`: passed.
+- Full pytest collection remains blocked locally by missing ROS
+  `ament_copyright`, `ament_flake8`, and `ament_pep257` Python modules.
+- `colcon test --packages-select activeslam` remains blocked until the local
+  workspace is rebuilt.
+
+Synthetic local benchmark:
+
+- Map size: `400 x 400`, resolution: `0.05m`.
+- Previous Python four-neighbor mask scan: `414.45ms`.
+- Vectorized detector including clustering: `17.97ms`.
+- Detector speedup is at least `23.1x`; the old number excludes clustering.
+- Prepared-grid construction once per selection round: `5.25ms`.
+- Prepared safe-goal search for one long cluster: `5.68ms`.
+
+Status: local implementation and focused tests pass. Remote frontier and graph
+headless smoke tests pending.

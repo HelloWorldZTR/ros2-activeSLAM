@@ -189,6 +189,7 @@ class GraphBasedFrontierScorer:
         base_graph: WeightedPoseGraph,
         grid_msg: OccupancyGrid,
         path: Sequence[Tuple[float, float]],
+        grid: Optional[np.ndarray] = None,
     ) -> float:
         if len(path) < 2:
             return -float('inf')
@@ -203,7 +204,13 @@ class GraphBasedFrontierScorer:
         for x, y in self._sample_path(path):
             assert previous is not None
             yaw = math.atan2(y - previous.y, x - previous.x)
-            unknown_ratio, occupied_ratio = cell_information(grid_msg, x, y, self.info_radius)
+            unknown_ratio, occupied_ratio = cell_information(
+                grid_msg,
+                x,
+                y,
+                self.info_radius,
+                grid,
+            )
             node = graph.add_node(x, y, yaw)
             odom_info = self.odom_information * (1.0 + unknown_ratio)
             graph.add_edge(previous.node_id, node.node_id, 0, odom_info)
@@ -250,7 +257,13 @@ def make_information_matrix(cov_x: float, cov_y: float, cov_yaw: float) -> np.nd
     return np.linalg.inv(cov) / 2.0
 
 
-def cell_information(grid_msg: OccupancyGrid, x: float, y: float, radius: float) -> Tuple[float, float]:
+def cell_information(
+    grid_msg: OccupancyGrid,
+    x: float,
+    y: float,
+    radius: float,
+    data: Optional[np.ndarray] = None,
+) -> Tuple[float, float]:
     width = grid_msg.info.width
     height = grid_msg.info.height
     resolution = grid_msg.info.resolution
@@ -260,30 +273,27 @@ def cell_information(grid_msg: OccupancyGrid, x: float, y: float, radius: float)
     if width == 0 or height == 0 or resolution <= 0.0:
         return 0.0, 0.0
 
-    data = np.array(grid_msg.data, dtype=np.int8).reshape(height, width)
+    if data is None:
+        data = np.asarray(grid_msg.data, dtype=np.int8).reshape(height, width)
+    elif data.shape != (height, width):
+        raise ValueError('Cached occupancy grid shape does not match OccupancyGrid info.')
     center_i = int((y - origin_y) / resolution)
     center_j = int((x - origin_x) / resolution)
     radius_cells = max(1, int(math.ceil(radius / resolution)))
 
-    total = 0
-    unknown = 0
-    occupied = 0
-    for i in range(center_i - radius_cells, center_i + radius_cells + 1):
-        if i < 0 or i >= height:
-            continue
-        for j in range(center_j - radius_cells, center_j + radius_cells + 1):
-            if j < 0 or j >= width:
-                continue
-            wx = origin_x + (j + 0.5) * resolution
-            wy = origin_y + (i + 0.5) * resolution
-            if math.hypot(wx - x, wy - y) > radius:
-                continue
-            total += 1
-            value = data[i, j]
-            if value == -1:
-                unknown += 1
-            elif value > 50:
-                occupied += 1
+    min_i = max(0, center_i - radius_cells)
+    max_i = min(height, center_i + radius_cells + 1)
+    min_j = max(0, center_j - radius_cells)
+    max_j = min(width, center_j + radius_cells + 1)
+    rows = np.arange(min_i, max_i)
+    cols = np.arange(min_j, max_j)
+    wx = origin_x + (cols + 0.5) * resolution
+    wy = origin_y + (rows + 0.5) * resolution
+    circle_mask = np.hypot(wx[None, :] - x, wy[:, None] - y) <= radius
+    local_grid = data[min_i:max_i, min_j:max_j]
+    total = int(np.count_nonzero(circle_mask))
+    unknown = int(np.count_nonzero(np.logical_and(circle_mask, local_grid == -1)))
+    occupied = int(np.count_nonzero(np.logical_and(circle_mask, local_grid > 50)))
 
     if total == 0:
         return 0.0, 0.0

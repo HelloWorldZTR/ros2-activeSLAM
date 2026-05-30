@@ -36,6 +36,15 @@ class SafeFrontierGoal:
 
 
 @dataclass(frozen=True)
+class PreparedSafeGoalGrid:
+    """Cache cells which can be used as known-free frontier goals."""
+
+    valid_goal_mask: np.ndarray
+    clearance_cells: int
+    edge_cells: int
+
+
+@dataclass(frozen=True)
 class FailedGoal:
     x: float
     y: float
@@ -136,19 +145,62 @@ def potential_unknown_area(
     if geometry.resolution <= 0.0 or radius < 0.0:
         return 0.0
 
-    center_i, center_j = center
     radius_cells = int(math.ceil(radius / geometry.resolution))
+    center_i, center_j = center
+    rows = np.arange(center_i - radius_cells, center_i + radius_cells + 1)
+    cols = np.arange(center_j - radius_cells, center_j + radius_cells + 1)
+    circle_mask = (
+        np.hypot(rows[:, None] - center_i, cols[None, :] - center_j)
+        * geometry.resolution
+        <= radius
+    )
+    inside_rows = np.logical_and(rows >= 0, rows < geometry.height)
+    inside_cols = np.logical_and(cols >= 0, cols < geometry.width)
+    inside_mask = np.logical_and(inside_rows[:, None], inside_cols[None, :])
     unknown_cells = 0
-    for i in range(center_i - radius_cells, center_i + radius_cells + 1):
-        for j in range(center_j - radius_cells, center_j + radius_cells + 1):
-            if math.hypot(i - center_i, j - center_j) * geometry.resolution > radius:
-                continue
-            if i < 0 or j < 0 or i >= geometry.height or j >= geometry.width:
-                if include_outside_map:
-                    unknown_cells += 1
-            elif grid[i, j] == -1:
-                unknown_cells += 1
+    if np.any(inside_rows) and np.any(inside_cols):
+        row_indices = np.flatnonzero(inside_rows)
+        col_indices = np.flatnonzero(inside_cols)
+        local_grid = grid[np.ix_(rows[row_indices], cols[col_indices])]
+        local_circle = circle_mask[np.ix_(row_indices, col_indices)]
+        unknown_cells = int(np.count_nonzero(np.logical_and(local_circle, local_grid == -1)))
+    if include_outside_map:
+        unknown_cells += int(np.count_nonzero(np.logical_and(circle_mask, ~inside_mask)))
     return unknown_cells * geometry.resolution * geometry.resolution
+
+
+def prepare_safe_goal_grid(
+    grid: np.ndarray,
+    geometry: GridGeometry,
+    config: SafeGoalSearchConfig,
+) -> PreparedSafeGoalGrid:
+    """Precompute known-free cells with the requested obstacle clearance."""
+
+    clearance_cells = max(0, int(math.ceil(config.clearance / geometry.resolution)))
+    edge_cells = max(0, int(math.ceil(config.map_edge_clearance / geometry.resolution)))
+    occupied = grid > 50
+    prefix = np.pad(occupied.astype(np.int32), ((1, 0), (1, 0))).cumsum(0).cumsum(1)
+    rows = np.arange(geometry.height)
+    cols = np.arange(geometry.width)
+    row0 = np.maximum(0, rows - clearance_cells)
+    row1 = np.minimum(geometry.height, rows + clearance_cells + 1)
+    col0 = np.maximum(0, cols - clearance_cells)
+    col1 = np.minimum(geometry.width, cols + clearance_cells + 1)
+    occupied_counts = (
+        prefix[row1[:, None], col1[None, :]]
+        - prefix[row0[:, None], col1[None, :]]
+        - prefix[row1[:, None], col0[None, :]]
+        + prefix[row0[:, None], col0[None, :]]
+    )
+    inside_margin = np.logical_and(
+        np.logical_and(rows[:, None] >= edge_cells, rows[:, None] < geometry.height - edge_cells),
+        np.logical_and(cols[None, :] >= edge_cells, cols[None, :] < geometry.width - edge_cells),
+    )
+    return PreparedSafeGoalGrid(
+        valid_goal_mask=np.logical_and.reduce((grid == 0, occupied_counts == 0, inside_margin)),
+        clearance_cells=clearance_cells,
+        edge_cells=edge_cells,
+    )
 
 
 def select_safe_frontier_goal(
@@ -157,6 +209,7 @@ def select_safe_frontier_goal(
     frontier_cells: Sequence[GridCell],
     robot_xy: Point,
     config: SafeGoalSearchConfig,
+    prepared_grid: Optional[PreparedSafeGoalGrid] = None,
 ) -> Optional[SafeFrontierGoal]:
     """Find the best known-free standoff cell for a frontier cluster."""
 
@@ -166,6 +219,13 @@ def select_safe_frontier_goal(
     search_cells = max(1, int(math.ceil(config.search_radius / geometry.resolution)))
     clearance_cells = max(0, int(math.ceil(config.clearance / geometry.resolution)))
     edge_cells = max(0, int(math.ceil(config.map_edge_clearance / geometry.resolution)))
+    if (
+        prepared_grid is None
+        or prepared_grid.valid_goal_mask.shape != grid.shape
+        or prepared_grid.clearance_cells != clearance_cells
+        or prepared_grid.edge_cells != edge_cells
+    ):
+        prepared_grid = prepare_safe_goal_grid(grid, geometry, config)
     seeds = _sample_frontier_cells(frontier_cells, robot_xy, geometry, config.point_sample_limit)
     best = None
 
@@ -188,51 +248,49 @@ def select_safe_frontier_goal(
             continue
         nominal_i, nominal_j = nominal_cell
 
-        for di in range(-search_cells, search_cells + 1):
-            for dj in range(-search_cells, search_cells + 1):
-                cell = nominal_i + di, nominal_j + dj
-                if not _is_known_free_with_clearance(grid, cell, clearance_cells):
-                    continue
-                if not _inside_map_with_margin(cell, geometry, edge_cells):
-                    continue
+        min_i = max(0, nominal_i - search_cells)
+        max_i = min(geometry.height, nominal_i + search_cells + 1)
+        min_j = max(0, nominal_j - search_cells)
+        max_j = min(geometry.width, nominal_j + search_cells + 1)
+        local_valid = prepared_grid.valid_goal_mask[min_i:max_i, min_j:max_j]
+        local_rows, local_cols = np.nonzero(local_valid)
+        if local_rows.size == 0:
+            continue
 
-                candidate_xy = _grid_to_world(cell, geometry)
-                if not segment_is_obstacle_free(grid, geometry, frontier_xy, candidate_xy):
-                    continue
-                if not is_goal_outside_reach_radius(
-                    robot_xy,
-                    candidate_xy,
-                    config.reach_radius,
-                ):
-                    continue
-                advance = (
-                    (candidate_xy[0] - robot_xy[0]) * direction_x
-                    + (candidate_xy[1] - robot_xy[1]) * direction_y
-                )
-                if advance < config.min_advance:
-                    continue
+        rows = local_rows + min_i
+        cols = local_cols + min_j
+        xs = geometry.origin_x + (cols + 0.5) * geometry.resolution
+        ys = geometry.origin_y + (rows + 0.5) * geometry.resolution
+        robot_dx = xs - robot_xy[0]
+        robot_dy = ys - robot_xy[1]
+        distance_to_robot = np.hypot(robot_dx, robot_dy)
+        advance = robot_dx * direction_x + robot_dy * direction_y
+        valid = np.logical_and(
+            distance_to_robot > config.reach_radius,
+            advance >= config.min_advance,
+        )
+        if not np.any(valid):
+            continue
 
-                distance_to_frontier = math.hypot(
-                    candidate_xy[0] - frontier_xy[0],
-                    candidate_xy[1] - frontier_xy[1],
-                )
-                distance_to_robot = math.hypot(
-                    candidate_xy[0] - robot_xy[0],
-                    candidate_xy[1] - robot_xy[1],
-                )
-                standoff_error = abs(distance_to_frontier - config.standoff)
-                lateral_error = abs(
-                    (candidate_xy[0] - robot_xy[0]) * direction_y
-                    - (candidate_xy[1] - robot_xy[1]) * direction_x
-                )
-                score = (
-                    standoff_error
-                    + 0.1 * lateral_error
-                    - 0.02 * advance
-                    + 0.005 * distance_to_robot
-                )
+        rows = rows[valid]
+        cols = cols[valid]
+        xs = xs[valid]
+        ys = ys[valid]
+        distance_to_robot = distance_to_robot[valid]
+        advance = advance[valid]
+        scores = (
+            np.abs(np.hypot(xs - frontier_xy[0], ys - frontier_xy[1]) - config.standoff)
+            + 0.1 * np.abs(robot_dx[valid] * direction_y - robot_dy[valid] * direction_x)
+            - 0.02 * advance
+            + 0.005 * distance_to_robot
+        )
+        for index in np.argsort(scores, kind='stable'):
+            candidate_xy = float(xs[index]), float(ys[index])
+            if segment_is_obstacle_free(grid, geometry, frontier_xy, candidate_xy):
+                score = float(scores[index])
                 if best is None or score < best[0]:
                     best = score, SafeFrontierGoal(point=candidate_xy, seed=seed)
+                break
 
     return None if best is None else best[1]
 
@@ -302,21 +360,3 @@ def _grid_to_world(cell: GridCell, geometry: GridGeometry) -> Point:
         geometry.origin_x + (j + 0.5) * geometry.resolution,
         geometry.origin_y + (i + 0.5) * geometry.resolution,
     )
-
-
-def _inside_map_with_margin(cell: GridCell, geometry: GridGeometry, margin: int) -> bool:
-    i, j = cell
-    return (
-        margin <= i < geometry.height - margin
-        and margin <= j < geometry.width - margin
-    )
-
-
-def _is_known_free_with_clearance(grid: np.ndarray, cell: GridCell, clearance: int) -> bool:
-    i, j = cell
-    height, width = grid.shape
-    if i < 0 or j < 0 or i >= height or j >= width or grid[i, j] != 0:
-        return False
-    i0, i1 = max(0, i - clearance), min(height, i + clearance + 1)
-    j0, j1 = max(0, j - clearance), min(width, j + clearance + 1)
-    return not np.any(grid[i0:i1, j0:j1] > 50)
