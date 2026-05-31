@@ -9,7 +9,7 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
+ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gvd_gbsae
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
@@ -93,6 +93,9 @@ ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
 - `frontier`：按 frontier 信息增益和安全落点距离排序。
 - `approx_graph`：使用 TF 轨迹近似 pose graph，并用 D-opt 风格评分选择 frontier。
 - `gbsae`：使用先验拓扑度量图、frontier 分配、路线推进和谱分析 loop revisit。
+- `gvd_gbsae`：先基于雷达已观测障碍构建在线 GVD 骨架并快速扫掠，再切换到
+  由实时骨架生成的 GBSAE 路线。第一阶段将 unknown 和 free 都视为可通行区域，
+  但仍由 Nav2 做最终路径规划、DWB 控制和恢复。
 
 启用近似图评分策略：
 
@@ -107,6 +110,17 @@ GBSAE 当前为 `slam_rooms` 提供手工校对的先验图，并为 `slam_offic
 ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gbsae
 MAP=slam_rooms SLAM_MODE=gbsae RUN_SECONDS=120 ./run.zsh
 ```
+
+无需手工先验图的在线 GVD + GBSAE 模式：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gvd_gbsae
+```
+
+该模式使用 `config/gvd_worlds.yaml` 中不含墙体结构的粗矩形边界。GVD 快速扫掠
+目标综合考虑尚未扫过的边框方向、距离、与历史轨迹管道的重叠面积以及当前朝向；
+局部 A* 只把已观测障碍视为墙。若新扫描出的障碍切断当前路径，探索节点会立即
+取消 Nav2 目标并重新选点。轨迹扫掠面积达到粗矩形的 `50%` 后切换到实时 GBSAE。
 
 选择其他地图并启用 `gbsae` 会在启动早期报告缺少对应
 `<world>.gbsae.json`。旧命令中的 `exploration_strategy:=frontier|graph`

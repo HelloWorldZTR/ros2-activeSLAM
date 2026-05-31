@@ -48,6 +48,20 @@ from .gbsae_exploration import (
     resolve_prior_graph_path,
     vertex_point,
 )
+from .gvd_exploration import (
+    GVDGoal,
+    GVDTopology,
+    GVDWeights,
+    TrajectorySweepTracker,
+    build_obstacle_gvd_topology,
+    build_obstacle_traversability,
+    gvd_to_marker_array,
+    load_world_bounds,
+    path_crosses_traversability,
+    rank_gvd_goals,
+    resolve_gvd_bounds_path,
+    robot_component_graph,
+)
 from .nav2_backend import (
     GOAL_STATUS_SUCCEEDED,
     Nav2Backend,
@@ -197,8 +211,45 @@ class ExplorationCoordinator(Node):
         self.gbsae_loop_path_cost_weight = self.declare_parameter(
             'gbsae_loop_path_cost_weight', 0.01
         ).value
+        self.gvd_sweep_switch_ratio = self.declare_parameter(
+            'gvd_sweep_switch_ratio', 0.50
+        ).value
+        self.gvd_raster_resolution = self.declare_parameter(
+            'gvd_raster_resolution', 0.15
+        ).value
+        self.gvd_sweep_radius = self.declare_parameter('gvd_sweep_radius', 2.0).value
+        self.gvd_overlap_radius = self.declare_parameter('gvd_overlap_radius', 0.35).value
+        self.gvd_obstacle_clearance = self.declare_parameter(
+            'gvd_obstacle_clearance', 0.25
+        ).value
+        self.gvd_boundary_margin = self.declare_parameter('gvd_boundary_margin', 0.20).value
+        self.gvd_support_vertex_spacing = self.declare_parameter(
+            'gvd_support_vertex_spacing', 1.0
+        ).value
+        self.gvd_min_goal_distance = self.declare_parameter(
+            'gvd_min_goal_distance', 1.0
+        ).value
+        self.gvd_max_goal_distance = self.declare_parameter(
+            'gvd_max_goal_distance', 6.0
+        ).value
+        self.gvd_candidate_limit = int(self.declare_parameter('gvd_candidate_limit', 24).value)
+        self.gvd_nav2_planning_attempts = int(
+            self.declare_parameter('gvd_nav2_planning_attempts', 8).value
+        )
+        self.gvd_skeleton_cost = self.declare_parameter('gvd_skeleton_cost', 1.0).value
+        self.gvd_off_skeleton_cost = self.declare_parameter(
+            'gvd_off_skeleton_cost', 2.5
+        ).value
+        self.gvd_weights = GVDWeights(
+            boundary_unknown=self.declare_parameter('gvd_boundary_unknown_weight', 2.0).value,
+            goal_distance=self.declare_parameter('gvd_goal_distance_weight', 1.0).value,
+            path_overlap_penalty=self.declare_parameter(
+                'gvd_path_overlap_penalty_weight', 2.0
+            ).value,
+            straightness=self.declare_parameter('gvd_straightness_weight', 1.0).value,
+        )
 
-        if self.slam_mode not in ('frontier', 'approx_graph', 'gbsae'):
+        if self.slam_mode not in ('frontier', 'approx_graph', 'gbsae', 'gvd_gbsae'):
             self.get_logger().warn(
                 f'Unknown slam_mode={self.slam_mode}. '
                 'Falling back to frontier.'
@@ -247,6 +298,8 @@ class ExplorationCoordinator(Node):
         )
         self.gbsae_prior_graph = None
         self.gbsae_planner: Optional[GBSAEPlanner] = None
+        self.gvd_bounds = None
+        self.gvd_sweep: Optional[TrajectorySweepTracker] = None
         if self.slam_mode == 'gbsae':
             prior_graph_path = resolve_prior_graph_path(self.world_name)
             self.gbsae_prior_graph = load_prior_graph(prior_graph_path, self.world_name)
@@ -254,6 +307,19 @@ class ExplorationCoordinator(Node):
                 f'Loaded GBSAE prior graph for world={self.world_name}: '
                 f'{self.gbsae_prior_graph.number_of_nodes()} nodes, '
                 f'{self.gbsae_prior_graph.number_of_edges()} edges from {prior_graph_path}.'
+            )
+        elif self.slam_mode == 'gvd_gbsae':
+            self.gvd_bounds = load_world_bounds(resolve_gvd_bounds_path(), self.world_name)
+            self.gvd_sweep = TrajectorySweepTracker(
+                self.gvd_bounds,
+                self.gvd_raster_resolution,
+                self.gvd_sweep_radius,
+                self.gvd_overlap_radius,
+            )
+            self.get_logger().info(
+                f'Loaded coarse GVD bounds for world={self.world_name}: '
+                f'[{self.gvd_bounds.min_x:.1f}, {self.gvd_bounds.max_x:.1f}] x '
+                f'[{self.gvd_bounds.min_y:.1f}, {self.gvd_bounds.max_y:.1f}].'
             )
 
         # --- Exploration state ---
@@ -283,6 +349,13 @@ class ExplorationCoordinator(Node):
             self.failed_goal_radius,
         )
         self.last_wait_log_wall_time = 0.0
+        self.gvd_phase = 'bootstrap'
+        self.gvd_topology: Optional[GVDTopology] = None
+        self.gvd_candidates: List[GVDGoal] = []
+        self.gvd_candidate_index = 0
+        self.gvd_active_path: Tuple[Tuple[float, float], ...] = ()
+        self.gvd_map_generation = 0
+        self.gvd_checked_map_generation = -1
 
         self.control_timer = self.create_timer(0.2, self._control_loop)
 
@@ -308,6 +381,8 @@ class ExplorationCoordinator(Node):
         )
         self.frontier_clusters, _ = self.frontier_detector.detect(msg, self.latest_grid)
         self._update_explored_history(self.latest_grid)
+        if self.slam_mode == 'gvd_gbsae':
+            self.gvd_map_generation += 1
 
     def _control_loop(self):
         self._publish_visualizations()
@@ -315,6 +390,8 @@ class ExplorationCoordinator(Node):
         if pose is not None:
             self.pose_graph_tracker.update(pose)
             self._initialize_gbsae(pose)
+            if self.gvd_sweep is not None:
+                self.gvd_sweep.mark_pose((pose[0], pose[1]))
 
         if self.state == self.COMPLETE:
             return
@@ -328,6 +405,15 @@ class ExplorationCoordinator(Node):
         if self.state == self.INITIAL_SPIN:
             return
         if self.state == self.NAVIGATING:
+            if self.current_navigation_kind == 'gvd_goal' and self._gvd_path_obstructed():
+                self.get_logger().warn(
+                    'Observed a new obstacle on the active GVD path; canceling and reselecting.'
+                )
+                self.nav2.cancel_navigation()
+                self._mark_goal_failed(self.current_goal)
+                self._clear_navigation()
+                self._schedule_retry(0.0)
+                return
             if navigation_timed_out(
                 self.navigation_start_wall_time,
                 self.nav2_goal_timeout,
@@ -420,10 +506,182 @@ class ExplorationCoordinator(Node):
         self._schedule_retry(0.0)
 
     def _start_selection(self, rx: float, ry: float):
+        if self.slam_mode == 'gvd_gbsae':
+            if self.gvd_phase == 'bootstrap':
+                if (
+                    self.gvd_sweep is not None
+                    and self.gvd_sweep.ratio >= self.gvd_sweep_switch_ratio
+                    and self._switch_gvd_to_gbsae(rx, ry)
+                ):
+                    self._start_gbsae_selection(rx, ry)
+                else:
+                    self._start_gvd_selection(rx, ry)
+                return
+            if self.gbsae_planner is not None:
+                self._start_gbsae_selection(rx, ry)
+                return
         if self.slam_mode == 'gbsae' and self.gbsae_planner is not None:
             self._start_gbsae_selection(rx, ry)
             return
         self._start_standard_selection(rx, ry)
+
+    def _start_gvd_selection(self, rx: float, ry: float):
+        if self.latest_map is None or self.latest_grid is None or self.gvd_sweep is None:
+            self._schedule_retry()
+            return
+        pose = self._get_robot_pose()
+        if pose is None:
+            self._schedule_retry()
+            return
+        topology = self._build_gvd_topology()
+        self.gvd_topology = topology
+        now = time.monotonic()
+        self.failed_goals.expire(now)
+        self.gvd_candidates = rank_gvd_goals(
+            topology,
+            (rx, ry),
+            pose[2],
+            self.gvd_sweep,
+            self.gvd_weights,
+            min_goal_distance=self.gvd_min_goal_distance,
+            max_goal_distance=self.gvd_max_goal_distance,
+            candidate_limit=self.gvd_candidate_limit,
+            skeleton_cost=self.gvd_skeleton_cost,
+            off_skeleton_cost=self.gvd_off_skeleton_cost,
+            failed=lambda goal: self.failed_goals.contains(goal, now),
+        )[:self.gvd_nav2_planning_attempts]
+        self.selection_start_xy = (rx, ry)
+        self.selection_generation = self.nav2.start_path_batch()
+        self.gvd_candidate_index = 0
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        self.selection_kind = 'gvd_goal'
+        self.state = self.SELECTING
+        self.get_logger().info(
+            f'GVD bootstrap swept={self.gvd_sweep.ratio:.1%}; '
+            f'topology={topology.graph.number_of_nodes()} nodes/'
+            f'{topology.graph.number_of_edges()} edges; '
+            f'checking {len(self.gvd_candidates)} A*-reachable candidates.'
+        )
+        self._request_next_gvd_path()
+
+    def _request_next_gvd_path(self):
+        if self.gvd_candidate_index >= len(self.gvd_candidates):
+            self.get_logger().info(
+                f'GVD bootstrap found no Nav2-reachable goal; retrying in '
+                f'{self.frontier_retry_interval:.1f}s.'
+            )
+            self.nav2.cancel_path_batch()
+            self._schedule_retry()
+            return
+        candidate = self.gvd_candidates[self.gvd_candidate_index]
+        self.selection_request_wall_time = time.monotonic()
+        self.selection_request_goal = candidate.point
+        self.get_logger().info(
+            f'Checking GVD goal=({candidate.point[0]:.2f}, {candidate.point[1]:.2f}), '
+            f'utility={candidate.utility:.3f}, border={candidate.boundary_unknown:.2f}, '
+            f'distance={candidate.goal_distance:.2f}, overlap={candidate.path_overlap:.2f}, '
+            f'straight={candidate.straightness:.2f}.'
+        )
+        self.nav2.compute_path(
+            self.selection_generation,
+            self.selection_start_xy,
+            candidate.point,
+            self._gvd_path_computed,
+        )
+
+    def _gvd_path_computed(self, planned_path: Optional[PlannedPath]):
+        if self.state != self.SELECTING or self.selection_kind != 'gvd_goal':
+            return
+        self.selection_request_wall_time = None
+        candidate = self.gvd_candidates[self.gvd_candidate_index]
+        if planned_path is not None:
+            self._dispatch_gvd_navigation(candidate, planned_path)
+            return
+        self._mark_goal_failed(self.selection_request_goal)
+        self.selection_request_goal = None
+        self.gvd_candidate_index += 1
+        self._request_next_gvd_path()
+
+    def _dispatch_gvd_navigation(self, candidate: GVDGoal, planned_path: PlannedPath):
+        self.nav2.cancel_path_batch()
+        self.current_goal = planned_path.goal_xy
+        self.current_safe_goal = None
+        self.target_cluster = None
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        self.current_navigation_kind = 'gvd_goal'
+        self.gvd_active_path = tuple(planned_path.points)
+        self.gvd_checked_map_generation = self.gvd_map_generation
+        self.state = self.NAVIGATING
+        self.navigation_start_wall_time = time.monotonic()
+        yaw = heading_to_target(planned_path.points[-2], planned_path.goal_xy) if (
+            len(planned_path.points) >= 2
+        ) else 0.0
+        self.get_logger().info(
+            f'Navigating to GVD bootstrap goal=({planned_path.goal_xy[0]:.2f}, '
+            f'{planned_path.goal_xy[1]:.2f}), cost={planned_path.cost:.2f}, '
+            f'utility={candidate.utility:.3f}.'
+        )
+        self.nav2.navigate(planned_path.goal_xy, yaw, self._navigation_finished)
+
+    def _switch_gvd_to_gbsae(self, rx: float, ry: float) -> bool:
+        topology = self._build_gvd_topology()
+        component = robot_component_graph(topology.graph, (rx, ry))
+        self.gvd_topology = topology
+        if component.number_of_nodes() < 2 or component.number_of_edges() == 0:
+            self.get_logger().warn(
+                'GVD sweep threshold reached, but live skeleton graph is too small; '
+                'continuing bootstrap.'
+            )
+            return False
+        self.gbsae_planner = GBSAEPlanner(
+            component,
+            (rx, ry),
+            self.gbsae_loop_path_cost_weight,
+        )
+        self.gvd_phase = 'gbsae'
+        route = [step.vertex_id for step in self.gbsae_planner.route]
+        self.get_logger().info(
+            f'Switching GVD bootstrap to live GBSAE at swept={self.gvd_sweep.ratio:.1%}: '
+            f'{component.number_of_nodes()} nodes, {component.number_of_edges()} edges, '
+            f'route={route}.'
+        )
+        return True
+
+    def _build_gvd_topology(self) -> GVDTopology:
+        assert self.latest_map is not None
+        assert self.latest_grid is not None
+        assert self.gvd_bounds is not None
+        return build_obstacle_gvd_topology(
+            self.latest_grid,
+            self._latest_map_geometry(),
+            self.gvd_bounds,
+            resolution=self.gvd_raster_resolution,
+            clearance=self.gvd_obstacle_clearance,
+            boundary_margin=self.gvd_boundary_margin,
+            support_vertex_spacing=self.gvd_support_vertex_spacing,
+        )
+
+    def _gvd_path_obstructed(self) -> bool:
+        if (
+            not self.gvd_active_path
+            or self.latest_map is None
+            or self.latest_grid is None
+            or self.gvd_checked_map_generation == self.gvd_map_generation
+        ):
+            return False
+        assert self.gvd_bounds is not None
+        geometry, traversable = build_obstacle_traversability(
+            self.latest_grid,
+            self._latest_map_geometry(),
+            self.gvd_bounds,
+            resolution=self.gvd_raster_resolution,
+            clearance=self.gvd_obstacle_clearance,
+            boundary_margin=self.gvd_boundary_margin,
+        )
+        self.gvd_checked_map_generation = self.gvd_map_generation
+        return path_crosses_traversability(self.gvd_active_path, geometry, traversable)
 
     def _start_standard_selection(self, rx: float, ry: float):
         if not self.frontier_clusters:
@@ -718,6 +976,17 @@ class ExplorationCoordinator(Node):
     def _navigation_finished(self, status: int):
         if self.state != self.NAVIGATING:
             return
+        if self.current_navigation_kind == 'gvd_goal':
+            if status == GOAL_STATUS_SUCCEEDED:
+                self.get_logger().info('Nav2 reached the active GVD bootstrap goal.')
+            else:
+                self.get_logger().warn(
+                    f'Nav2 GVD bootstrap navigation ended with status={status}; retrying.'
+                )
+                self._mark_goal_failed(self.current_goal)
+            self._clear_navigation()
+            self._schedule_retry(0.0)
+            return
         if self.current_navigation_kind == 'gbsae_vertex':
             if status == GOAL_STATUS_SUCCEEDED:
                 planner = self.gbsae_planner
@@ -857,6 +1126,7 @@ class ExplorationCoordinator(Node):
         self.navigation_start_wall_time = None
         self.frontier_probe_normal = None
         self.frontier_probe_action_start_wall_time = None
+        self.gvd_active_path = ()
         self.current_navigation_kind = 'frontier'
 
     def _handle_navigation_failure(self, reason: str):
@@ -866,7 +1136,7 @@ class ExplorationCoordinator(Node):
         self._mark_goal_failed(self.current_goal)
 
     def _skip_unreachable_loop_revisit(self, reason: str) -> bool:
-        if self.slam_mode != 'gbsae' or self.gbsae_planner is None:
+        if self.slam_mode not in ('gbsae', 'gvd_gbsae') or self.gbsae_planner is None:
             return False
         step = self.gbsae_planner.active_step
         if step is None or not step.loop_revisit:
@@ -1046,7 +1316,21 @@ class ExplorationCoordinator(Node):
                 self.get_clock().now().to_msg(),
             )
             self.pose_graph_pub.publish(markers)
-        elif self.slam_mode == 'gbsae' and self.gbsae_planner is not None:
+        elif (
+            self.slam_mode == 'gvd_gbsae'
+            and self.gvd_phase == 'bootstrap'
+            and self.gvd_topology is not None
+            and self.gvd_bounds is not None
+        ):
+            markers = gvd_to_marker_array(
+                self.gvd_topology,
+                self.gvd_bounds,
+                self.gvd_active_path,
+                'map',
+                self.get_clock().now().to_msg(),
+            )
+            self.pose_graph_pub.publish(markers)
+        elif self.slam_mode in ('gbsae', 'gvd_gbsae') and self.gbsae_planner is not None:
             markers = gbsae_to_marker_array(
                 self.gbsae_planner,
                 'map',
@@ -1104,6 +1388,16 @@ class ExplorationCoordinator(Node):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _latest_map_geometry(self) -> GridGeometry:
+        info = self.latest_map.info
+        return GridGeometry(
+            origin_x=info.origin.position.x,
+            origin_y=info.origin.position.y,
+            resolution=info.resolution,
+            width=info.width,
+            height=info.height,
+        )
 
     def _get_robot_pose(self) -> Optional[Tuple[float, float, float]]:
         try:

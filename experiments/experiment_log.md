@@ -385,3 +385,20 @@ frontier, graph, Nav2 adapter, and evaluator helper tests passed (`42 passed`).
 - Increased global-costmap `inflation_radius` from `0.35m` to `0.45m` after
   observing U-shaped wall-following plans. Local-costmap inflation remains
   `0.22m` so DWB retains doorway maneuvering room.
+
+## 2026-05-31 - Online GVD Bootstrap for GBSAE
+
+- Added `slam_mode:=gvd_gbsae` without changing the existing static `gbsae`
+  baseline. The first phase projects only laser-observed occupied cells into a
+  coarse raster; unknown and free cells are both treated as traversable.
+- Added pure NumPy Zhang-Suen thinning, skeleton compression, and a local A*
+  selector. Candidate utility combines unswept rectangle-boundary direction,
+  distance, historical trajectory-tube overlap, and straight-line heading.
+- Nav2 still owns actual planning, control, and recovery. A new obstacle on the
+  selected Nav2 path triggers immediate cancel and reselection.
+- Added trajectory-sweep coverage switching. At `50%` swept coarse-bound area,
+  the robot-connected live skeleton component initializes the existing GBSAE
+  route planner.
+
+Status: local Python compilation and focused GVD helper tests passed
+(`7 passed`). Remote ROS smoke validation is pending.

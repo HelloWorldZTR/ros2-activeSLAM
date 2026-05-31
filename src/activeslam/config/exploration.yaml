@@ -4,7 +4,7 @@ exploration_coordinator:
     stability_threshold: 0.02
     min_frontier_size: 5
     frontier_include_open_map_edges: true
-    slam_mode: "frontier"  # frontier, approx_graph, or gbsae
+    slam_mode: "frontier"  # frontier, approx_graph, gbsae, or gvd_gbsae
     frontier_planning_attempts: 12
     frontier_goal_search_radius: 1.2
     frontier_goal_clearance: 0.20
@@ -46,3 +46,20 @@ exploration_coordinator:
     graph_odom_cov_y: 0.04
     graph_odom_cov_yaw: 0.008
     gbsae_loop_path_cost_weight: 0.01
+    gvd_sweep_switch_ratio: 0.50
+    gvd_raster_resolution: 0.15
+    gvd_sweep_radius: 2.0
+    gvd_overlap_radius: 0.35
+    gvd_obstacle_clearance: 0.25
+    gvd_boundary_margin: 0.20
+    gvd_support_vertex_spacing: 1.0
+    gvd_min_goal_distance: 1.0
+    gvd_max_goal_distance: 6.0
+    gvd_candidate_limit: 24
+    gvd_nav2_planning_attempts: 8
+    gvd_skeleton_cost: 1.0
+    gvd_off_skeleton_cost: 2.5
+    gvd_boundary_unknown_weight: 2.0
+    gvd_goal_distance_weight: 1.0
+    gvd_path_overlap_penalty_weight: 2.0
+    gvd_straightness_weight: 1.0
