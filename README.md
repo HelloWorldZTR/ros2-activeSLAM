@@ -9,7 +9,7 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
+ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=online_gbsae
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
@@ -93,6 +93,8 @@ ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
 - `frontier`：按 frontier 信息增益和安全落点距离排序。
 - `approx_graph`：使用 TF 轨迹近似 pose graph，并用 D-opt 风格评分选择 frontier。
 - `gbsae`：使用先验拓扑度量图、frontier 分配、路线推进和谱分析 loop revisit。
+- `online_gbsae`：先用偏向外扩的 frontier 启发式粗探，再从 SLAM map 在线提取
+  骨架拓扑图并运行 GBSAE。该模式不读取房间结构先验。
 
 启用近似图评分策略：
 
@@ -106,6 +108,29 @@ GBSAE 当前为 `slam_rooms` 提供手工校对的先验图，并为 `slam_offic
 ```bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gbsae
 MAP=slam_rooms SLAM_MODE=gbsae RUN_SECONDS=120 ./run.zsh
+```
+
+在线自举拓扑模式仅使用每张地图的粗矩形边界。边界保存在
+`activeslam/config/online_gbsae_worlds.yaml`，用于估算粗探比例和剩余 unknown
+方向，不包含墙、门或房间结构。已知面积达到 `50%` 后，节点使用纯 NumPy
+thinning 从已知 free 区域提取；高质量未选 frontier 会保留为有限距离的虚拟
+branch 叶节点。bootstrap 评分不奖励远距离目标，也不使用 pose graph novelty。
+Nav2 返回路径穿越已知区域的长度占比越高，扣分越多。bootstrap 到达 frontier
+后默认使用 Nav2 `Spin + DriveOnHeading` 前探 `2.0m`，执行期碰撞检查仍由
+Behavior Server 负责：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms_corridor slam_mode:=online_gbsae
+MAP=slam_rooms_corridor SLAM_MODE=online_gbsae RUN_SECONDS=180 ./run.zsh
+```
+
+在线模式默认提供三个 ablation 开关：
+
+```yaml
+online_gbsae_directional_prior_enabled: true
+online_gbsae_branch_hypotheses_enabled: true
+online_gbsae_explored_migration_enabled: true
+online_gbsae_bootstrap_probe_enabled: true
 ```
 
 选择其他地图并启用 `gbsae` 会在启动早期报告缺少对应

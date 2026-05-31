@@ -142,12 +142,25 @@ def shortest_path_expansion(graph: nx.Graph, vertices: Sequence[int]) -> List[in
     return expanded
 
 
-def greedy_visit_route(graph: nx.Graph, start_vertex: int) -> List[int]:
-    """Build a deterministic nearest-unvisited route over the prior graph."""
+def greedy_visit_route(
+    graph: nx.Graph,
+    start_vertex: int,
+    target_vertices: Optional[Iterable[int]] = None,
+) -> List[int]:
+    """Build a deterministic nearest-unvisited route over selected graph targets."""
     if start_vertex not in graph:
         raise ValueError(f'Unknown GBSAE start vertex: {start_vertex}.')
+    if target_vertices is None:
+        unvisited = set(graph.nodes)
+    else:
+        unvisited = set(target_vertices)
+        unknown = unvisited - set(graph.nodes)
+        if unknown:
+            raise ValueError(f'Unknown GBSAE target vertices: {sorted(unknown)}.')
+        if not unvisited:
+            return []
     route = [start_vertex]
-    unvisited = set(graph.nodes) - {start_vertex}
+    unvisited.discard(start_vertex)
     while unvisited:
         current = route[-1]
         target = min(
@@ -202,10 +215,14 @@ def insert_spectral_loop_revisits(
     loop_edges = []
 
     for source, target in zip(route, route[1:]):
-        _copy_edge(graph, observed, source, target)
-        observed.add_node(target)
+        attributes = graph.edges[source, target]
+        if not attributes.get('virtual', False):
+            _copy_edge(graph, observed, source, target)
+            observed.add_node(target)
         visited.add(target)
         steps.append(RouteStep(target))
+        if attributes.get('virtual', False):
+            continue
 
         baseline = weighted_spanning_tree_d_opt(observed)
         candidates = []
@@ -213,6 +230,8 @@ def insert_spectral_loop_revisits(
             if revisit == target or not graph.has_edge(target, revisit):
                 continue
             edge = _edge_key(target, revisit)
+            if graph.edges[edge].get('virtual', False):
+                continue
             if observed.has_edge(*edge):
                 continue
             expected = observed.copy()
@@ -241,10 +260,22 @@ class GBSAEPlanner:
         graph: nx.Graph,
         initial_pose: Point,
         loop_path_cost_weight: float,
+        target_vertices: Optional[Iterable[int]] = None,
+        explored_vertices: Optional[Iterable[int]] = None,
     ):
         self.graph = graph
         self.start_vertex = nearest_vertex(graph, initial_pose)
-        greedy_route = greedy_visit_route(graph, self.start_vertex)
+        self.target_vertices = (
+            set(graph.nodes) if target_vertices is None else set(target_vertices)
+        )
+        self._completed_vertices = (
+            set() if explored_vertices is None else set(explored_vertices)
+        )
+        greedy_route = greedy_visit_route(
+            graph,
+            self.start_vertex,
+            self.target_vertices - self._completed_vertices,
+        )
         self.route, self.loop_edges = insert_spectral_loop_revisits(
             graph,
             greedy_route,
@@ -262,7 +293,7 @@ class GBSAEPlanner:
 
     @property
     def completed_vertices(self):
-        return set(self.visited_prefix)
+        return self._completed_vertices | set(self.visited_prefix)
 
     def advance_active_step(self) -> Optional[RouteStep]:
         step = self.active_step
@@ -292,7 +323,7 @@ class GBSAEPlanner:
     def allocate_frontiers(self, frontiers: Iterable[object]) -> Dict[int, List[object]]:
         """Assign frontiers to nearest uncompleted prior vertices."""
         active = self.active_step
-        candidates = set(self.graph.nodes) - self.completed_vertices
+        candidates = self.target_vertices - self.completed_vertices
         if active is not None:
             candidates.add(active.vertex_id)
         assignments: Dict[int, List[object]] = {node_id: [] for node_id in candidates}
@@ -340,7 +371,7 @@ def point_is_known_free(grid_msg, data: np.ndarray, point: Point) -> bool:
     )
 
 
-def gbsae_to_marker_array(planner: GBSAEPlanner, frame_id: str, stamp):
+def gbsae_to_marker_array(planner: GBSAEPlanner, frame_id: str, stamp, bounds=None):
     """Build RViz markers for the prior graph, route, active vertex, and loops."""
     from geometry_msgs.msg import Point as MarkerPoint
     from visualization_msgs.msg import Marker, MarkerArray
@@ -355,6 +386,8 @@ def gbsae_to_marker_array(planner: GBSAEPlanner, frame_id: str, stamp):
     nodes.color.a = 0.9
     nodes.color.b = 1.0
     for node_id in sorted(planner.graph.nodes):
+        if planner.graph.nodes[node_id].get('kind') == 'branch':
+            continue
         nodes.points.append(_marker_point(MarkerPoint, vertex_point(planner.graph, node_id), 0.08))
     markers.markers.append(nodes)
 
@@ -364,9 +397,47 @@ def gbsae_to_marker_array(planner: GBSAEPlanner, frame_id: str, stamp):
     edges.color.g = 0.7
     edges.color.b = 1.0
     for source, target in planner.graph.edges:
+        if planner.graph.edges[source, target].get('virtual', False):
+            continue
         edges.points.append(_marker_point(MarkerPoint, vertex_point(planner.graph, source), 0.04))
         edges.points.append(_marker_point(MarkerPoint, vertex_point(planner.graph, target), 0.04))
     markers.markers.append(edges)
+
+    virtual_edges = _marker(Marker, frame_id, stamp, 'gbsae_branch_edges', 5, Marker.LINE_LIST)
+    virtual_edges.scale.x = 0.045
+    virtual_edges.color.a = 0.75
+    virtual_edges.color.r = 0.95
+    virtual_edges.color.g = 0.45
+    for source, target in planner.graph.edges:
+        if not planner.graph.edges[source, target].get('virtual', False):
+            continue
+        virtual_edges.points.append(
+            _marker_point(MarkerPoint, vertex_point(planner.graph, source), 0.06)
+        )
+        virtual_edges.points.append(
+            _marker_point(MarkerPoint, vertex_point(planner.graph, target), 0.06)
+        )
+    markers.markers.append(virtual_edges)
+
+    for namespace, marker_id, blocked, red, green in (
+        ('gbsae_pending_branches', 6, False, 1.0, 0.55),
+        ('gbsae_blocked_branches', 7, True, 1.0, 0.05),
+    ):
+        branch_nodes = _marker(Marker, frame_id, stamp, namespace, marker_id, Marker.SPHERE_LIST)
+        branch_nodes.scale.x = branch_nodes.scale.y = branch_nodes.scale.z = 0.20
+        branch_nodes.color.a = 0.95
+        branch_nodes.color.r = red
+        branch_nodes.color.g = green
+        for node_id, attributes in planner.graph.nodes(data=True):
+            if attributes.get('kind') != 'branch' or attributes.get('blocked', False) != blocked:
+                continue
+            branch_nodes.points.append(
+                _marker_point(MarkerPoint, vertex_point(planner.graph, node_id), 0.12)
+            )
+        markers.markers.append(branch_nodes)
+
+    if bounds is not None:
+        markers.markers.append(_bounds_marker(Marker, MarkerPoint, frame_id, stamp, bounds))
 
     route = _marker(Marker, frame_id, stamp, 'gbsae_route', 2, Marker.LINE_STRIP)
     route.scale.x = 0.06
@@ -404,6 +475,19 @@ def gbsae_to_marker_array(planner: GBSAEPlanner, frame_id: str, stamp):
     return markers
 
 
+def online_bounds_marker_array(bounds, frame_id: str, stamp):
+    """Publish the online prior rectangle before the first topology is available."""
+    from geometry_msgs.msg import Point as MarkerPoint
+    from visualization_msgs.msg import Marker, MarkerArray
+
+    markers = MarkerArray()
+    delete = Marker()
+    delete.action = Marker.DELETEALL
+    markers.markers.append(delete)
+    markers.markers.append(_bounds_marker(Marker, MarkerPoint, frame_id, stamp, bounds))
+    return markers
+
+
 def _shortest_path(graph: nx.Graph, source: int, target: int) -> List[int]:
     paths = nx.all_shortest_paths(graph, source, target, weight='weight')
     return list(min(tuple(path) for path in paths))
@@ -426,6 +510,31 @@ def _marker(marker_class, frame_id: str, stamp, namespace: str, marker_id: int, 
     marker.type = marker_type
     marker.action = marker.ADD
     marker.pose.orientation.w = 1.0
+    return marker
+
+
+def _bounds_marker(marker_class, point_class, frame_id: str, stamp, bounds):
+    marker = _marker(
+        marker_class,
+        frame_id,
+        stamp,
+        'online_gbsae_bounds',
+        8,
+        marker_class.LINE_STRIP,
+    )
+    marker.scale.x = 0.06
+    marker.color.a = 0.8
+    marker.color.r = 0.8
+    marker.color.b = 1.0
+    corners = (
+        (bounds.min_x, bounds.min_y),
+        (bounds.max_x, bounds.min_y),
+        (bounds.max_x, bounds.max_y),
+        (bounds.min_x, bounds.max_y),
+        (bounds.min_x, bounds.min_y),
+    )
+    for point in corners:
+        marker.points.append(_marker_point(point_class, point, 0.03))
     return marker
 
 

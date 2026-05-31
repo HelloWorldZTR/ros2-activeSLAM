@@ -17,7 +17,7 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
     ],
-    install_requires=['networkx', 'setuptools'],
+    install_requires=['networkx', 'PyYAML', 'setuptools'],
     zip_safe=True,
     maintainer='ubuntu',
     maintainer_email='2279429006@qq.com',

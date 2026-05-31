@@ -173,6 +173,21 @@ def test_route_progression_advances_reached_prefix():
     assert planner.active_step.vertex_id == 1
 
 
+def test_online_target_subset_uses_explored_nodes_only_as_transit():
+    graph = _graph([(0, 1, 1.0), (1, 2, 1.0), (1, 3, 1.0)])
+
+    planner = GBSAEPlanner(
+        graph,
+        (0.0, 0.0),
+        loop_path_cost_weight=10.0,
+        target_vertices={2, 3},
+        explored_vertices={0, 1},
+    )
+
+    assert planner.completed_vertices == {0, 1}
+    assert [step.vertex_id for step in planner.route] == [0, 1, 2, 1, 3]
+
+
 def test_known_free_grid_check_rejects_unknown_and_outside_points():
     grid = np.asarray([[0, -1], [100, 0]], dtype=np.int8)
     msg = SimpleNamespace(

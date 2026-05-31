@@ -385,3 +385,65 @@ frontier, graph, Nav2 adapter, and evaluator helper tests passed (`42 passed`).
 - Increased global-costmap `inflation_radius` from `0.35m` to `0.45m` after
   observing U-shaped wall-following plans. Local-costmap inflation remains
   `0.22m` so DWB retains doorway maneuvering room.
+
+## 2026-05-31 - Online Bootstrap GBSAE
+
+- Added `slam_mode:=online_gbsae` while preserving static-prior `gbsae` as a
+  baseline.
+- Bootstrap exploration compares up to six Nav2 paths using frontier-normal
+  unknown depth, capped goal distance, TF pose-graph novelty, and remaining
+  unknown area in the goal-facing coarse-prior sector.
+- Added per-world coarse rectangular priors for `slam_rooms`,
+  `slam_rooms_corridor`, and `slam_office`. These priors contain no wall,
+  doorway, or room structure.
+- Added pure NumPy Zhang-Suen thinning and skeleton compression. The online
+  graph keeps `0.20m` obstacle clearance, prunes spurs shorter than `0.50m`,
+  and inserts support vertices at most `2.0m` apart.
+- Added virtual branch hypotheses for unselected high-quality bootstrap
+  frontiers. Branch goals project `1.0m` along the unknown normal, require
+  Nav2 `ComputePathToPose` preflight, cool down after failures, and become
+  blocked after three failed attempts.
+- Added ablation switches for directional priors, branch hypotheses, and
+  explored-state migration across topology rebuilds.
+
+Status: local Python compilation and `git diff --check` passed. The local
+generic environment lacks `networkx` and cannot collect GBSAE helper tests.
+Remote ROS build, package tests, RViz review, and `online_gbsae` smoke runs are
+pending.
+
+## 2026-05-31 - Online Bootstrap Expansion Retune
+
+- Removed the explicit capped-distance reward from online bootstrap scoring.
+  Farther goals are no longer preferred merely because they are farther away.
+- Added a normalized known-space travel penalty computed from each Nav2
+  preflight path. The first `1.0m` is ignored; subsequent travel through
+  observed cells is accumulated and capped at `6.0m`.
+- Added a dedicated Nav2-owned bootstrap probe, enabled by default. During the
+  online bootstrap phase, both ordinary and open-edge frontiers use
+  `Spin -> DriveOnHeading` with `2.0m`, `0.12m/s`, and `20s` defaults.
+- Kept collision handling in the Nav2 Behavior Server. The exploration
+  coordinator still does not publish `/cmd_vel`.
+
+Status: local Python compilation, `git diff --check`, and the available helper
+suite passed (`66 passed`). Remote ROS build and smoke runs remain pending.
+
+### Aggressive bootstrap weights
+
+- Increased `online_gbsae_normal_unknown_depth_weight` from `1.0` to `2.0`.
+- Increased `online_gbsae_path_known_distance_penalty_weight` from `1.0` to
+  `2.0`.
+- The bootstrap policy now favors frontier normals with deeper unknown space
+  and more strongly rejects Nav2 paths that spend too long crossing observed
+  regions.
+
+### Known-path ratio simplification
+
+- Removed the bootstrap pose-graph novelty feature and its history-radius
+  parameters.
+- Replaced capped known-space travel with the direct ratio
+  `known_space_path_length / total_path_length`.
+- Removed the ignored path prefix and distance cap. The ratio is already
+  bounded by its definition and is used directly by the penalty term.
+- Synchronized the aggressive experiment defaults: frontier-normal depth
+  weight `5.0`, known-path ratio penalty `100.0`, and bootstrap probe speed
+  `0.2m/s`.

@@ -4,7 +4,7 @@
 
 This is a ROS 2 Humble workspace for TurtleBot3 active SLAM in Gazebo. The main package, `activeslam`, launches Gazebo, spawns a TurtleBot3, runs `slam_toolbox`, starts Nav2, starts an exploration coordinator driven by `/map` and TF, and opens evaluator and RViz helpers by default.
 
-Exploration is coordinated by `activeslam.exploration_coordinator`. It detects frontiers on the occupancy grid, asks Nav2 for candidate paths, sends selected goals to Nav2, and exposes RViz markers for goals, frontiers, and pose-graph helpers. Nav2 owns `/cmd_vel`, path following, and recovery behavior. The `slam_mode` parameter selects `frontier`, `approx_graph`, or `gbsae`. `frontier` chooses reachable frontiers directly. `approx_graph` scores Nav2 candidate paths with an approximate weighted pose graph and D-opt style information score. `gbsae` loads a per-world topo-metric prior graph, follows a deterministic route, allocates frontiers to prior vertices, and inserts optional spectral loop revisits. `slam_toolbox` itself is unchanged.
+Exploration is coordinated by `activeslam.exploration_coordinator`. It detects frontiers on the occupancy grid, asks Nav2 for candidate paths, sends selected goals to Nav2, and exposes RViz markers for goals, frontiers, and pose-graph helpers. Nav2 owns `/cmd_vel`, path following, and recovery behavior. The `slam_mode` parameter selects `frontier`, `approx_graph`, `gbsae`, or `online_gbsae`. `frontier` chooses reachable frontiers directly. `approx_graph` scores Nav2 candidate paths with an approximate weighted pose graph and D-opt style information score. `gbsae` loads a per-world topo-metric prior graph, follows a deterministic route, allocates frontiers to prior vertices, and inserts optional spectral loop revisits. `online_gbsae` bootstraps with outward frontier expansion, penalizes Nav2 paths that spend too long in known space, uses a Nav2-owned aggressive frontier probe, extracts a NumPy-thinned skeleton graph from the live SLAM map, records virtual branch hypotheses, and then reuses GBSAE routing. `slam_toolbox` itself is unchanged.
 
 Evaluation is handled by `activeslam.slam_evaluator`. It compares SLAM output against Gazebo ground truth and inline world geometry, then writes run logs under `logs/run_*` with estimated/ground-truth trajectories, coverage over time, coverage over path length, map IoU, and ATE metrics. Precise evaluation is limited to `slam_*` worlds with inline box collisions. The main launch skips evaluator for `turtlebot3_*` worlds that rely on unparsed `model://` includes.
 
@@ -15,12 +15,14 @@ Simulation assets live in `activeslam_resource` and vendored TurtleBot3 simulati
 - `src/activeslam/launch/slam.launch.py`: main launch file for Gazebo, TurtleBot3 spawn, `slam_toolbox`, and `exploration_coordinator`.
 - `src/activeslam/config/exploration.yaml`: frontier selection and graph-scoring parameters.
 - `src/activeslam/config/nav2_params.yaml`: Nav2 planner, controller, costmap, behavior, and velocity smoother parameters.
+- `src/activeslam/config/online_gbsae_worlds.yaml`: coarse rectangular per-world priors for online GBSAE.
 - `src/activeslam/rviz/activeslam.rviz`: default RViz view for map, frontier, global plan, and global costmap debugging.
 - `src/activeslam/activeslam/exploration_coordinator.py`: main active exploration ROS node.
 - `src/activeslam/activeslam/nav2_backend.py`: asynchronous Nav2 action adapter.
 - `src/activeslam/activeslam/frontier_detector.py`: frontier-cell detection and clustering.
 - `src/activeslam/activeslam/graph_exploration.py`: approximate pose graph tracking, graph scoring, and graph visualization.
 - `src/activeslam/activeslam/gbsae_exploration.py`: prior-graph loading, greedy routing, spectral loop insertion, GBSAE state, frontier allocation, and visualization.
+- `src/activeslam/activeslam/online_gbsae.py`: bootstrap scoring, branch hypotheses, NumPy thinning, online topology extraction, and explored-state migration.
 - `src/activeslam/activeslam/slam_evaluator.py`: ROS node for SLAM coverage, trajectory, ATE, and IoU logging.
 - `src/activeslam/activeslam/slam_evaluator_utils.py`: testable evaluator geometry and metric helpers.
 - `src/activeslam_resource/maps/`: Gazebo worlds used by `slam.launch.py` and `slam_evaluator`.
@@ -64,6 +66,12 @@ For a GBSAE headless smoke run:
 
 ```bash
 MAP=slam_rooms SLAM_MODE=gbsae RUN_SECONDS=120 ./run.zsh
+```
+
+For an online GBSAE headless smoke run:
+
+```bash
+MAP=slam_rooms_corridor SLAM_MODE=online_gbsae RUN_SECONDS=180 ./run.zsh
 ```
 
 The exploration coordinator must not publish `/cmd_vel`; verify Nav2 ownership with:

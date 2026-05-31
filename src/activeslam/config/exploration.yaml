@@ -4,7 +4,7 @@ exploration_coordinator:
     stability_threshold: 0.02
     min_frontier_size: 5
     frontier_include_open_map_edges: true
-    slam_mode: "frontier"  # frontier, approx_graph, or gbsae
+    slam_mode: "frontier"  # frontier, approx_graph, gbsae, or online_gbsae
     frontier_planning_attempts: 12
     frontier_goal_search_radius: 1.2
     frontier_goal_clearance: 0.20
@@ -46,3 +46,27 @@ exploration_coordinator:
     graph_odom_cov_y: 0.04
     graph_odom_cov_yaw: 0.008
     gbsae_loop_path_cost_weight: 0.01
+    online_gbsae_bootstrap_known_ratio: 0.50
+    online_gbsae_bootstrap_shortlist: 6
+    online_gbsae_unknown_depth_max: 2.0
+    online_gbsae_direction_half_angle: 0.785398163
+    online_gbsae_normal_unknown_depth_weight: 5.0
+    online_gbsae_directional_remaining_unknown_weight: 1.5
+    online_gbsae_path_known_ratio_penalty_weight: 100.0
+    online_gbsae_bootstrap_probe_enabled: true
+    online_gbsae_bootstrap_probe_distance: 2.0
+    online_gbsae_bootstrap_probe_speed: 0.2
+    online_gbsae_bootstrap_probe_timeout: 20.0
+    online_gbsae_directional_prior_enabled: true
+    online_gbsae_branch_hypotheses_enabled: true
+    online_gbsae_explored_migration_enabled: true
+    online_gbsae_branch_score_ratio: 0.70
+    online_gbsae_branch_min_angle: 0.785398163
+    online_gbsae_branch_merge_radius: 1.0
+    online_gbsae_branch_projection_distance: 1.0
+    online_gbsae_branch_failure_limit: 3
+    online_gbsae_topology_clearance: 0.20
+    online_gbsae_spur_prune_length: 0.50
+    online_gbsae_support_vertex_spacing: 2.0
+    online_gbsae_migration_radius: 1.0
+    online_gbsae_migration_overlap: 0.50
