@@ -78,6 +78,35 @@ def test_safe_goal_search_reuses_prepared_grid_without_changing_goal():
     assert prepared_goal == implicit_goal
 
 
+def test_safe_goal_search_uses_region_mask_to_keep_goal_inside_local_cleanup():
+    grid = np.zeros((20, 20), dtype=np.int8)
+    allowed_goal_mask = np.zeros_like(grid, dtype=bool)
+    allowed_goal_mask[10, 10] = True
+
+    goal = select_safe_frontier_goal(
+        grid,
+        _geometry(),
+        frontier_cells=[(10, 15)],
+        robot_xy=(0.55, 1.05),
+        config=_config(clearance=0.0),
+        allowed_goal_mask=allowed_goal_mask,
+    )
+
+    assert goal.point == pytest.approx((1.05, 1.05))
+
+
+def test_safe_goal_search_rejects_region_mask_shape_mismatch():
+    with pytest.raises(ValueError, match='Allowed goal mask shape'):
+        select_safe_frontier_goal(
+            np.zeros((20, 20), dtype=np.int8),
+            _geometry(),
+            frontier_cells=[(10, 15)],
+            robot_xy=(0.55, 1.05),
+            config=_config(),
+            allowed_goal_mask=np.ones((19, 20), dtype=bool),
+        )
+
+
 def test_prepared_grid_applies_obstacle_clearance_and_map_margin():
     grid = np.zeros((20, 20), dtype=np.int8)
     grid[10, 10] = 100

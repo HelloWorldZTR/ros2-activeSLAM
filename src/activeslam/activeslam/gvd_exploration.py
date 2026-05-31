@@ -2,9 +2,11 @@
 
 import heapq
 import math
+from collections import OrderedDict
 from dataclasses import dataclass
+from itertools import permutations
 from pathlib import Path
-from typing import Callable, List, Optional, Sequence, Tuple
+from typing import Callable, List, Optional, Sequence, Set, Tuple
 
 import networkx as nx
 import numpy as np
@@ -60,6 +62,133 @@ class GVDTopology:
     skeleton: np.ndarray
     traversable: np.ndarray
     centerline_distance: Optional[np.ndarray] = None
+    repair_stats: Optional['TopologyRepairStats'] = None
+
+
+@dataclass(frozen=True)
+class TopologyConnection:
+    """A collision-free bridge supplied by the GVD layer or grid A* fallback."""
+
+    mode: str
+    path: Tuple[GridCell, ...]
+    length: float
+
+
+@dataclass(frozen=True)
+class TopologyRepairStats:
+    """Summary of switching connections added while repairing a topology."""
+
+    gvd_edges: int = 0
+    astar_edges: int = 0
+    unresolved_components: int = 0
+
+
+@dataclass(frozen=True)
+class _CachedTopologyConnection:
+    connection: Optional[TopologyConnection]
+    revision: object
+
+
+class TopologyConnectionCache:
+    """LRU cache for GVD-first, bidirectional-A*-fallback connectivity queries."""
+
+    def __init__(self, maxsize: int = 4096):
+        self.maxsize = max(1, int(maxsize))
+        self._entries = OrderedDict()
+        self.hits = 0
+        self.misses = 0
+        self.invalidations = 0
+
+    def revision_for(self, traversable: np.ndarray, revision=None):
+        """Return a stable revision token for negative cache entries."""
+        if revision is not None:
+            return revision
+        return traversable.shape, hash(np.asarray(traversable, dtype=bool).tobytes())
+
+    def connection(
+        self,
+        traversable: np.ndarray,
+        skeleton: np.ndarray,
+        start: GridCell,
+        goal: GridCell,
+        *,
+        resolution: float,
+        revision=None,
+    ) -> Optional[TopologyConnection]:
+        """Return a cached collision-free connection, preferring the GVD layer."""
+        key = cell_edge(start, goal)
+        reverse = key != (start, goal)
+        revision = self.revision_for(traversable, revision)
+        cached = self._entries.get(key)
+        if cached is not None and self._cache_entry_valid(
+            cached,
+            traversable,
+            skeleton,
+            revision,
+        ):
+            self.hits += 1
+            self._entries.move_to_end(key)
+            return self._orient_connection(cached.connection, reverse)
+        if cached is not None:
+            self.invalidations += 1
+            del self._entries[key]
+
+        self.misses += 1
+        path = bidirectional_astar_path(
+            np.logical_and(traversable, skeleton),
+            key[0],
+            key[1],
+            prevent_corner_cutting=False,
+        )
+        mode = 'gvd'
+        if not path:
+            path = bidirectional_astar_path(traversable, key[0], key[1])
+            mode = 'astar'
+        connection = None
+        if path:
+            connection = TopologyConnection(
+                mode,
+                tuple(path),
+                _chain_length(path, resolution),
+            )
+        self._entries[key] = _CachedTopologyConnection(connection, revision)
+        self._entries.move_to_end(key)
+        while len(self._entries) > self.maxsize:
+            self._entries.popitem(last=False)
+        return self._orient_connection(connection, reverse)
+
+    @staticmethod
+    def _cache_entry_valid(
+        cached: _CachedTopologyConnection,
+        traversable: np.ndarray,
+        skeleton: np.ndarray,
+        revision,
+    ) -> bool:
+        connection = cached.connection
+        if connection is None:
+            return cached.revision == revision
+        mask = traversable if connection.mode == 'astar' else np.logical_and(
+            traversable,
+            skeleton,
+        )
+        return _path_cells_traversable(
+            connection.path,
+            mask,
+            prevent_corner_cutting=connection.mode == 'astar',
+        )
+
+    @staticmethod
+    def _orient_connection(
+        connection: Optional[TopologyConnection],
+        reverse: bool,
+    ) -> Optional[TopologyConnection]:
+        if connection is None or not reverse:
+            return connection
+        return TopologyConnection(
+            connection.mode,
+            tuple(reversed(connection.path)),
+            connection.length,
+        )
 
 
 @dataclass(frozen=True)
@@ -69,6 +198,172 @@ class RandomRecoveryMotion:
     yaw_delta: float
     distance: float
     speed: float
+
+
+@dataclass(frozen=True)
+class HierarchicalGVDTarget:
+    """One unexplored macro GVD vertex selected for a coarse exploration step."""
+
+    vertex_id: int
+    point: Point
+    unknown_area: float
+    travel_cost: float
+    utility: float
+
+
+class HierarchicalGVDTracker:
+    """Track macro exploration and local-cleanup state across live GVD rebuilds."""
+
+    def __init__(self, migration_radius: float):
+        self.migration_radius = max(0.0, migration_radius)
+        self.graph = nx.Graph()
+        self.explored_points: List[Point] = []
+        self.cleared_points: List[Point] = []
+        self.explored_vertices: Set[int] = set()
+        self.cleared_vertices: Set[int] = set()
+        self.previous_vertex: Optional[int] = None
+        self.active_vertex: Optional[int] = None
+        self.previous_point: Optional[Point] = None
+        self.active_point: Optional[Point] = None
+
+    def update_graph(self, graph: nx.Graph):
+        """Install a rebuilt graph while migrating states by nearby world positions."""
+        self.graph = graph.copy()
+        self.explored_vertices = self._matching_vertices(self.explored_points)
+        self.cleared_vertices = self._matching_vertices(self.cleared_points)
+        self.previous_vertex = self._nearest_vertex(self.previous_point)
+        self.active_vertex = self._nearest_vertex(self.active_point)
+
+    def select_macro_target(
+        self,
+        robot_xy: Point,
+        grid: np.ndarray,
+        geometry: GridGeometry,
+        unknown_radius: float,
+        failed: Optional[Callable[[Point], bool]] = None,
+    ) -> Optional[HierarchicalGVDTarget]:
+        """Greedily choose a nearby unexplored vertex with substantial local unknown."""
+        if self.graph.number_of_nodes() == 0:
+            return None
+        start = min(
+            self.graph.nodes,
+            key=lambda node_id: (
+                math.dist(robot_xy, _graph_node_point(self.graph, node_id)),
+                node_id,
+            ),
+        )
+        candidates = []
+        for node_id in sorted(set(self.graph.nodes) - self.explored_vertices):
+            point = _graph_node_point(self.graph, node_id)
+            if failed is not None and failed(point):
+                continue
+            unknown_area = local_unknown_area(
+                grid,
+                geometry,
+                point,
+                unknown_radius,
+                include_outside_map=True,
+            )
+            try:
+                travel_cost = nx.shortest_path_length(
+                    self.graph,
+                    start,
+                    node_id,
+                    weight='weight',
+                )
+            except nx.NetworkXNoPath:
+                continue
+            travel_cost += math.dist(robot_xy, _graph_node_point(self.graph, start))
+            utility = unknown_area / (travel_cost + 0.1)
+            candidates.append(
+                HierarchicalGVDTarget(
+                    node_id,
+                    point,
+                    unknown_area,
+                    travel_cost,
+                    utility,
+                )
+            )
+        if not candidates:
+            return None
+        return max(
+            candidates,
+            key=lambda target: (
+                target.utility,
+                target.unknown_area,
+                -target.travel_cost,
+                -target.vertex_id,
+            ),
+        )
+
+    def mark_reached(self, vertex_id: int):
+        """Mark a reached macro vertex and its incoming edge as explored."""
+        if vertex_id not in self.graph:
+            return
+        if self.previous_vertex in self.graph and self.graph.has_edge(
+            self.previous_vertex,
+            vertex_id,
+        ):
+            self.graph.edges[self.previous_vertex, vertex_id]['explored'] = True
+        self.graph.nodes[vertex_id]['explored'] = True
+        self.explored_vertices.add(vertex_id)
+        self._append_unique_point(self.explored_points, _graph_node_point(self.graph, vertex_id))
+        self.previous_vertex = vertex_id
+        self.active_vertex = vertex_id
+        self.previous_point = _graph_node_point(self.graph, vertex_id)
+        self.active_point = self.previous_point
+
+    def should_clear_local(self, vertex_id: int) -> bool:
+        """Return whether *vertex_id* is locally ready for frontier cleanup.
+
+        Topological leaves qualify immediately.  Branch vertices qualify once
+        at most one neighboring branch remains unexplored, inserting a local
+        cleanup pass before macro traversal continues through the last exit.
+        """
+        if vertex_id not in self.graph or vertex_id in self.cleared_vertices:
+            return False
+        unexplored = set(self.graph.neighbors(vertex_id)) - self.explored_vertices
+        return self.graph.degree(vertex_id) <= 1 or len(unexplored) <= 1
+
+    def mark_local_cleared(self, vertex_id: Optional[int]):
+        if vertex_id is None or vertex_id not in self.graph:
+            return
+        self.graph.nodes[vertex_id]['cleared'] = True
+        self.cleared_vertices.add(vertex_id)
+        self._append_unique_point(self.cleared_points, _graph_node_point(self.graph, vertex_id))
+
+    @property
+    def has_unexplored_vertices(self) -> bool:
+        return bool(set(self.graph.nodes) - self.explored_vertices)
+
+    def _matching_vertices(self, points: Sequence[Point]) -> Set[int]:
+        return {
+            node_id
+            for node_id in self.graph.nodes
+            if any(
+                math.dist(_graph_node_point(self.graph, node_id), point)
+                <= self.migration_radius
+                for point in points
+            )
+        }
+
+    def _nearest_vertex(self, point: Optional[Point]) -> Optional[int]:
+        if point is None or self.graph.number_of_nodes() == 0:
+            return None
+        vertex_id = min(
+            self.graph.nodes,
+            key=lambda node_id: (
+                math.dist(_graph_node_point(self.graph, node_id), point),
+                node_id,
+            ),
+        )
+        if math.dist(_graph_node_point(self.graph, vertex_id), point) <= self.migration_radius:
+            return vertex_id
+        return None
+
+    def _append_unique_point(self, points: List[Point], point: Point):
+        if not any(math.dist(existing, point) <= self.migration_radius for existing in points):
+            points.append(point)
 
 
 class TrajectorySweepTracker:
@@ -130,6 +425,11 @@ def build_obstacle_gvd_topology(
     clearance: float,
     boundary_margin: float,
     support_vertex_spacing: float,
+    min_vertex_spacing: float = 1.0,
+    connection_cache: Optional[TopologyConnectionCache] = None,
+    repair_connectivity: bool = True,
+    connection_neighbor_limit: int = 10,
+    map_revision=None,
 ) -> GVDTopology:
     """Build a thinned medial skeleton while treating unknown and free as flat ground."""
     geometry, traversable = build_obstacle_traversability(
@@ -142,12 +442,30 @@ def build_obstacle_gvd_topology(
     )
     skeleton = zhang_suen_thinning(traversable)
     graph = skeleton_to_graph(skeleton, geometry, support_vertex_spacing)
+    repair_stats = TopologyRepairStats(
+        unresolved_components=nx.number_connected_components(graph)
+        if graph.number_of_nodes()
+        else 0
+    )
+    if repair_connectivity and graph.number_of_nodes() > 1:
+        graph, repair_stats = repair_topology_connectivity(
+            graph,
+            skeleton,
+            traversable,
+            geometry,
+            connection_cache or TopologyConnectionCache(),
+            neighbor_limit=connection_neighbor_limit,
+            map_revision=map_revision,
+        )
+    if min_vertex_spacing > 0.0 and graph.number_of_nodes() > 1:
+        graph = _merge_close_vertices(graph, min_vertex_spacing)
     return GVDTopology(
         graph,
         geometry,
         skeleton,
         traversable,
         distance_to_mask(skeleton, geometry.resolution),
+        repair_stats,
     )
 
 
@@ -312,6 +630,263 @@ def path_overlap_ratio(
     return float(np.count_nonzero(np.logical_and(path_mask, sweep.trajectory_mask))) / area
 
 
+def local_unknown_area(
+    grid: np.ndarray,
+    geometry: GridGeometry,
+    point: Point,
+    radius: float,
+    *,
+    include_outside_map: bool = False,
+) -> float:
+    """Measure unknown SLAM-map area inside a metric disk around a macro vertex."""
+    if (
+        radius < 0.0
+        or geometry.resolution <= 0.0
+        or grid.shape != (geometry.height, geometry.width)
+    ):
+        return 0.0
+    cell = (
+        int(math.floor((point[1] - geometry.origin_y) / geometry.resolution)),
+        int(math.floor((point[0] - geometry.origin_x) / geometry.resolution)),
+    )
+    radius_cells = int(math.ceil(radius / geometry.resolution))
+    rows = np.arange(cell[0] - radius_cells, cell[0] + radius_cells + 1)
+    cols = np.arange(cell[1] - radius_cells, cell[1] + radius_cells + 1)
+    inside = (
+        np.hypot(rows[:, None] - cell[0], cols[None, :] - cell[1])
+        * geometry.resolution
+        <= radius
+    )
+    inside_rows = np.logical_and(rows >= 0, rows < geometry.height)
+    inside_cols = np.logical_and(cols >= 0, cols < geometry.width)
+    inside_map = np.logical_and(inside_rows[:, None], inside_cols[None, :])
+    unknown_cells = 0
+    if np.any(inside_rows) and np.any(inside_cols):
+        row_indices = np.flatnonzero(inside_rows)
+        col_indices = np.flatnonzero(inside_cols)
+        local_grid = grid[np.ix_(rows[row_indices], cols[col_indices])]
+        local_disk = inside[np.ix_(row_indices, col_indices)]
+        unknown_cells = int(np.count_nonzero(np.logical_and(local_disk, local_grid == -1)))
+    if include_outside_map:
+        unknown_cells += int(np.count_nonzero(np.logical_and(inside, ~inside_map)))
+    return unknown_cells * geometry.resolution * geometry.resolution
+
+
+def local_free_flood_mask(
+    grid: np.ndarray,
+    geometry: GridGeometry,
+    center: Point,
+    half_extent: float,
+    bounds: Optional[WorldBounds] = None,
+    excluded_points: Sequence[Point] = (),
+) -> np.ndarray:
+    """Grow a room-approximating rectangle from *center*.
+
+    Starting from the centre cell, multiple greedy strategies expand one
+    rectangle edge at a time while the new edge has no occupied cell
+    (``grid <= 50``).  Unknown cells are allowed because the Region is a
+    local exploration envelope rather than a collision-free path.  Expansion
+    is bounded by the coarse map prior and stops as soon as a strategy
+    encounters another GVD vertex.  The most square candidate is selected,
+    using area as the tie-breaker.
+    """
+    mask = np.zeros((geometry.height, geometry.width), dtype=bool)
+    if (
+        half_extent < 0.0
+        or geometry.resolution <= 0.0
+        or grid.shape != mask.shape
+    ):
+        return mask
+
+    allowed = grid <= 50
+    if bounds is not None:
+        allowed = np.logical_and(allowed, _cells_inside_world_bounds(geometry, bounds))
+    excluded_vertices = np.zeros(mask.shape, dtype=bool)
+    for point in excluded_points:
+        cell = world_to_grid(point, geometry)
+        if cell is not None:
+            excluded_vertices[cell] = True
+
+    # Locate the seed cell nearest to the active vertex without borrowing
+    # another macro vertex's cell.
+    seed = nearest_value_cell(
+        np.logical_and(allowed, ~excluded_vertices),
+        geometry,
+        center,
+    )
+    if seed is None:
+        return mask
+    cr, cc = seed
+
+    max_radius = int(math.ceil(half_extent / geometry.resolution))
+    directions = ('up', 'down', 'left', 'right')
+    candidates = [
+        _grow_room_rect(
+            allowed,
+            excluded_vertices,
+            cr,
+            cc,
+            max_radius,
+            strategy,
+        )
+        for strategy in (None, *permutations(directions))
+    ]
+
+    # Pick the rectangle closest to square; on ties the larger area wins.
+    def _score(rect):
+        top, bottom, left, right = rect
+        h = float(bottom - top + 1)
+        w = float(right - left + 1)
+        if h <= 0 or w <= 0:
+            return (float('inf'), 0.0)
+        ratio = max(h, w) / min(h, w)
+        return (ratio, -(h * w))
+
+    best = min(candidates, key=_score)
+    top, bottom, left, right = best
+    mask[top:bottom + 1, left:right + 1] = True
+    return mask
+
+
+def _grow_room_rect(
+    allowed: np.ndarray,
+    excluded_vertices: np.ndarray,
+    cr: int,
+    cc: int,
+    max_radius: int,
+    strategy: Optional[Tuple[str, ...]],
+) -> Tuple[int, int, int, int]:
+    """Greedily expand a free-space rectangle from (cr, cc).
+
+    ``strategy=None`` prefers the shorter rectangle axis and approaches a
+    square.  A direction tuple is a fixed greedy priority.  Trying all
+    cardinal permutations gives distinct maximal candidates around walls,
+    doors, and nearby macro vertices without an exhaustive rectangle search.
+    """
+    top = bottom = cr
+    left = right = cc
+
+    while True:
+        expanded = False
+        h = bottom - top + 1
+        w = right - left + 1
+
+        if strategy is None:
+            if h <= w:
+                directions = ('up', 'down', 'left', 'right')
+            else:
+                directions = ('left', 'right', 'up', 'down')
+        else:
+            directions = strategy
+
+        for direction in directions:
+            expansion = _expanded_room_rect(
+                top,
+                bottom,
+                left,
+                right,
+                cr,
+                cc,
+                max_radius,
+                allowed.shape,
+                direction,
+            )
+            if expansion is None:
+                continue
+            next_rect, edge = expansion
+            if np.any(excluded_vertices[edge]):
+                return top, bottom, left, right
+            if np.all(allowed[edge]):
+                top, bottom, left, right = next_rect
+                expanded = True
+                break
+
+        if not expanded:
+            break
+
+    return top, bottom, left, right
+
+
+def _expanded_room_rect(
+    top: int,
+    bottom: int,
+    left: int,
+    right: int,
+    cr: int,
+    cc: int,
+    max_radius: int,
+    shape: Tuple[int, int],
+    direction: str,
+):
+    """Return one-edge rectangle expansion and its new edge slice."""
+    row_max, col_max = shape
+    if direction == 'up' and top > 0 and top - 1 >= cr - max_radius:
+        return (top - 1, bottom, left, right), (slice(top - 1, top), slice(left, right + 1))
+    if direction == 'down' and bottom < row_max - 1 and bottom + 1 <= cr + max_radius:
+        return (top, bottom + 1, left, right), (slice(bottom + 1, bottom + 2), slice(left, right + 1))
+    if direction == 'left' and left > 0 and left - 1 >= cc - max_radius:
+        return (top, bottom, left - 1, right), (slice(top, bottom + 1), slice(left - 1, left))
+    if direction == 'right' and right < col_max - 1 and right + 1 <= cc + max_radius:
+        return (top, bottom, left, right + 1), (slice(top, bottom + 1), slice(right + 1, right + 2))
+    return None
+
+
+def _cells_inside_world_bounds(
+    geometry: GridGeometry,
+    bounds: WorldBounds,
+) -> np.ndarray:
+    """Return cells whose complete footprint stays inside the coarse prior."""
+    rows = np.arange(geometry.height, dtype=float)
+    cols = np.arange(geometry.width, dtype=float)
+    min_x = geometry.origin_x + cols * geometry.resolution
+    min_y = geometry.origin_y + rows * geometry.resolution
+    max_x = min_x + geometry.resolution
+    max_y = min_y + geometry.resolution
+    epsilon = max(1e-9, geometry.resolution * 1e-9)
+    inside_x = np.logical_and(
+        min_x >= bounds.min_x - epsilon,
+        max_x <= bounds.max_x + epsilon,
+    )
+    inside_y = np.logical_and(
+        min_y >= bounds.min_y - epsilon,
+        max_y <= bounds.max_y + epsilon,
+    )
+    return np.logical_and(inside_y[:, None], inside_x[None, :])
+
+
+def cluster_touches_mask(cluster_cells: Sequence[GridCell], mask: np.ndarray) -> bool:
+    """Return whether a frontier cluster belongs to a flooded local region."""
+    return any(
+        _cell_in_shape(cell, mask.shape) and mask[cell]
+        for cell in cluster_cells
+    )
+
+
+def rectangle_mask_outline(
+    mask: np.ndarray,
+    geometry: GridGeometry,
+) -> Tuple[Point, ...]:
+    """Return a closed world-space outline for one rectangular Region mask."""
+    cells = np.argwhere(mask)
+    if cells.size == 0:
+        return ()
+    top = int(np.min(cells[:, 0]))
+    bottom = int(np.max(cells[:, 0])) + 1
+    left = int(np.min(cells[:, 1]))
+    right = int(np.max(cells[:, 1])) + 1
+    min_x = geometry.origin_x + left * geometry.resolution
+    max_x = geometry.origin_x + right * geometry.resolution
+    min_y = geometry.origin_y + top * geometry.resolution
+    max_y = geometry.origin_y + bottom * geometry.resolution
+    return (
+        (min_x, min_y),
+        (max_x, min_y),
+        (max_x, max_y),
+        (min_x, max_y),
+        (min_x, min_y),
+    )
+
+
 def initial_straightness(path: Sequence[Point], robot_yaw: float) -> float:
     """Score whether the first non-trivial A* segment continues the robot heading."""
     if len(path) < 2:
@@ -464,16 +1039,84 @@ def astar_path(
     return []
 
 
+def bidirectional_astar_path(
+    traversable: np.ndarray,
+    start: GridCell,
+    goal: GridCell,
+    *,
+    prevent_corner_cutting: bool = True,
+) -> List[GridCell]:
+    """Find a deterministic collision-free bridge with two-ended A* search."""
+    if (
+        not _cell_in_shape(start, traversable.shape)
+        or not _cell_in_shape(goal, traversable.shape)
+        or not traversable[start]
+        or not traversable[goal]
+    ):
+        return []
+    if start == goal:
+        return [start]
+
+    forward_queue = [(math.dist(start, goal), 0.0, start)]
+    backward_queue = [(math.dist(goal, start), 0.0, goal)]
+    forward_costs = {start: 0.0}
+    backward_costs = {goal: 0.0}
+    forward_previous = {}
+    backward_previous = {}
+
+    while forward_queue and backward_queue:
+        meeting = _expand_bidirectional_frontier(
+            forward_queue,
+            forward_costs,
+            forward_previous,
+            backward_costs,
+            goal,
+            traversable,
+            prevent_corner_cutting,
+        )
+        if meeting is not None:
+            return _reconstruct_bidirectional_path(
+                forward_previous,
+                backward_previous,
+                meeting,
+            )
+        meeting = _expand_bidirectional_frontier(
+            backward_queue,
+            backward_costs,
+            backward_previous,
+            forward_costs,
+            start,
+            traversable,
+            prevent_corner_cutting,
+        )
+        if meeting is not None:
+            return _reconstruct_bidirectional_path(
+                forward_previous,
+                backward_previous,
+                meeting,
+            )
+    return []
+
+
 def nearest_traversable_cell(
     traversable: np.ndarray,
     geometry: GridGeometry,
     point: Point,
 ) -> Optional[GridCell]:
     """Return the nearest passable cell to a world-space pose."""
+    return nearest_value_cell(traversable, geometry, point)
+
+
+def nearest_value_cell(
+    mask: np.ndarray,
+    geometry: GridGeometry,
+    point: Point,
+) -> Optional[GridCell]:
+    """Return the nearest true cell in a raster mask."""
     cell = world_to_grid(point, geometry)
-    if cell is not None and traversable[cell]:
+    if cell is not None and mask[cell]:
         return cell
-    rows, cols = np.nonzero(traversable)
+    rows, cols = np.nonzero(mask)
     if rows.size == 0:
         return None
     x = geometry.origin_x + (cols + 0.5) * geometry.resolution
@@ -650,8 +1293,189 @@ def skeleton_to_graph(
                     weight=distance,
                     information_weight=1.0 / max(distance, 1e-6),
                     virtual=False,
+                    connection_mode='gvd',
                 )
     return graph
+
+
+def _merge_close_vertices(graph: nx.Graph, min_spacing: float) -> nx.Graph:
+    """Iteratively merge graph vertices that are closer than *min_spacing*.
+
+    When two vertices lie within the threshold the one with fewer edges
+    is merged into the other: its incident edges are re-wired, preferring
+    shorter weights when both endpoints already share an edge.
+    """
+    if graph.number_of_nodes() < 2:
+        return graph
+
+    while True:
+        nodes = list(graph.nodes)
+        best_pair = None
+        best_dist = min_spacing
+
+        for i in range(len(nodes)):
+            u = nodes[i]
+            ux = float(graph.nodes[u]['x'])
+            uy = float(graph.nodes[u]['y'])
+            for j in range(i + 1, len(nodes)):
+                v = nodes[j]
+                vx = float(graph.nodes[v]['x'])
+                vy = float(graph.nodes[v]['y'])
+                d = math.hypot(ux - vx, uy - vy)
+                if d < best_dist:
+                    best_dist = d
+                    best_pair = (u, v)
+
+        if best_pair is None:
+            break
+
+        u, v = best_pair
+        # Keep the higher-degree vertex; merge the other into it.
+        if graph.degree(u) < graph.degree(v):
+            u, v = v, u
+
+        ux = float(graph.nodes[u]['x'])
+        uy = float(graph.nodes[u]['y'])
+        for neighbor in list(graph.neighbors(v)):
+            if neighbor == u:
+                continue
+            nx_w = float(graph.nodes[neighbor]['x'])
+            ny_w = float(graph.nodes[neighbor]['y'])
+            new_weight = math.hypot(ux - nx_w, uy - ny_w)
+            if graph.has_edge(u, neighbor):
+                old_weight = float(graph.edges[u, neighbor].get('weight', new_weight))
+                new_weight = min(old_weight, new_weight)
+            graph.add_edge(
+                u,
+                neighbor,
+                weight=new_weight,
+                information_weight=1.0 / max(new_weight, 1e-6),
+                virtual=False,
+                connection_mode='gvd',
+            )
+        graph.remove_node(v)
+
+    return graph
+
+
+def repair_topology_connectivity(
+    graph: nx.Graph,
+    skeleton: np.ndarray,
+    traversable: np.ndarray,
+    geometry: GridGeometry,
+    cache: TopologyConnectionCache,
+    *,
+    neighbor_limit: int,
+    map_revision=None,
+) -> Tuple[nx.Graph, TopologyRepairStats]:
+    """Repair reachable skeleton breaks with GVD-first, grid-A*-fallback bridges."""
+    repaired = graph.copy()
+    gvd_edges = 0
+    astar_edges = 0
+    revision = cache.revision_for(traversable, map_revision)
+    while repaired.number_of_nodes() > 1:
+        components = sorted(
+            nx.connected_components(repaired),
+            key=lambda component: (len(component), min(component)),
+        )
+        if len(components) <= 1:
+            break
+        added = False
+        all_nodes = set(repaired.nodes)
+        for component in components:
+            outside = all_nodes - component
+            bridge = _best_component_bridge(
+                repaired,
+                component,
+                outside,
+                skeleton,
+                traversable,
+                geometry,
+                cache,
+                neighbor_limit=max(1, int(neighbor_limit)),
+                revision=revision,
+            )
+            if bridge is None:
+                continue
+            source, target, connection = bridge
+            repaired.add_edge(
+                source,
+                target,
+                weight=connection.length,
+                information_weight=1.0 / max(connection.length, 1e-6),
+                virtual=False,
+                connection_mode=connection.mode,
+                path=tuple(grid_to_world(cell, geometry) for cell in connection.path),
+            )
+            if connection.mode == 'gvd':
+                gvd_edges += 1
+            else:
+                astar_edges += 1
+            added = True
+            break
+        if not added:
+            break
+    unresolved = (
+        nx.number_connected_components(repaired)
+        if repaired.number_of_nodes()
+        else 0
+    )
+    return repaired, TopologyRepairStats(gvd_edges, astar_edges, unresolved)
+
+
+def _best_component_bridge(
+    graph: nx.Graph,
+    component,
+    outside,
+    skeleton: np.ndarray,
+    traversable: np.ndarray,
+    geometry: GridGeometry,
+    cache: TopologyConnectionCache,
+    *,
+    neighbor_limit: int,
+    revision,
+):
+    candidates = []
+    for source in sorted(component):
+        source_point = _graph_node_point(graph, source)
+        nearest = sorted(
+            outside,
+            key=lambda target: (
+                math.dist(source_point, _graph_node_point(graph, target)),
+                target,
+            ),
+        )[:neighbor_limit]
+        for target in nearest:
+            start = world_to_grid(source_point, geometry)
+            goal = world_to_grid(_graph_node_point(graph, target), geometry)
+            if start is None or goal is None:
+                continue
+            connection = cache.connection(
+                traversable,
+                skeleton,
+                start,
+                goal,
+                resolution=geometry.resolution,
+                revision=revision,
+            )
+            if connection is not None:
+                candidates.append(
+                    (
+                        connection.mode != 'gvd',
+                        connection.length,
+                        source,
+                        target,
+                        connection,
+                    )
+                )
+    if not candidates:
+        return None
+    _, _, source, target, connection = min(candidates)
+    return source, target, connection
+
+
+def _graph_node_point(graph: nx.Graph, node_id) -> Point:
+    return float(graph.nodes[node_id]['x']), float(graph.nodes[node_id]['y'])
 
 
 def robot_component_graph(graph: nx.Graph, robot_xy: Point) -> nx.Graph:
@@ -678,6 +1502,10 @@ def gvd_to_marker_array(
     active_path: Sequence[Point],
     frame_id: str,
     stamp,
+    hierarchical_tracker: Optional[HierarchicalGVDTracker] = None,
+    local_cleanup_mask: Optional[np.ndarray] = None,
+    local_cleanup_geometry: Optional[GridGeometry] = None,
+    cleared_region_outlines: Sequence[Sequence[Point]] = (),
 ):
     """Build compact RViz markers for bootstrap bounds, skeleton, and active path."""
     from geometry_msgs.msg import Point as MarkerPoint
@@ -727,6 +1555,80 @@ def gvd_to_marker_array(
     for point in active_path:
         path.points.append(_marker_point(MarkerPoint, point, 0.12))
     markers.markers.append(path)
+    if hierarchical_tracker is not None:
+        explored = _marker(Marker, frame_id, stamp, 'gvd_explored_nodes', 3, Marker.SPHERE_LIST)
+        explored.scale.x = explored.scale.y = explored.scale.z = 0.16
+        explored.color.a = 0.9
+        explored.color.g = 0.7
+        for node_id in sorted(hierarchical_tracker.explored_vertices):
+            if node_id in hierarchical_tracker.graph:
+                explored.points.append(
+                    _marker_point(MarkerPoint, _graph_node_point(hierarchical_tracker.graph, node_id), 0.10)
+                )
+        markers.markers.append(explored)
+
+        cleared = _marker(Marker, frame_id, stamp, 'gvd_cleared_nodes', 4, Marker.SPHERE_LIST)
+        cleared.scale.x = cleared.scale.y = cleared.scale.z = 0.20
+        cleared.color.a = 0.95
+        cleared.color.g = 1.0
+        cleared.color.b = 0.35
+        for node_id in sorted(hierarchical_tracker.cleared_vertices):
+            if node_id in hierarchical_tracker.graph:
+                cleared.points.append(
+                    _marker_point(MarkerPoint, _graph_node_point(hierarchical_tracker.graph, node_id), 0.13)
+                )
+        markers.markers.append(cleared)
+
+        if hierarchical_tracker.active_vertex in hierarchical_tracker.graph:
+            active = _marker(Marker, frame_id, stamp, 'gvd_active_macro_node', 5, Marker.SPHERE)
+            active.pose.position.x, active.pose.position.y = _graph_node_point(
+                hierarchical_tracker.graph,
+                hierarchical_tracker.active_vertex,
+            )
+            active.pose.position.z = 0.17
+            active.scale.x = active.scale.y = active.scale.z = 0.28
+            active.color.a = 1.0
+            active.color.r = 1.0
+            active.color.g = 0.2
+            markers.markers.append(active)
+    if (
+        local_cleanup_mask is not None
+        and local_cleanup_geometry is not None
+        and local_cleanup_mask.shape
+        == (local_cleanup_geometry.height, local_cleanup_geometry.width)
+    ):
+        flood = _marker(Marker, frame_id, stamp, 'gvd_local_cleanup_flood', 6, Marker.CUBE_LIST)
+        flood.scale.x = flood.scale.y = local_cleanup_geometry.resolution
+        flood.scale.z = 0.025
+        flood.color.a = 0.22
+        flood.color.g = 0.9
+        flood.color.b = 1.0
+        for row, column in np.argwhere(local_cleanup_mask):
+            flood.points.append(
+                _marker_point(
+                    MarkerPoint,
+                    grid_to_world((int(row), int(column)), local_cleanup_geometry),
+                    0.025,
+                )
+            )
+        markers.markers.append(flood)
+    cleared_regions = _marker(
+        Marker,
+        frame_id,
+        stamp,
+        'gvd_cleared_region_outlines',
+        7,
+        Marker.LINE_LIST,
+    )
+    cleared_regions.scale.x = 0.045
+    cleared_regions.color.a = 0.75
+    cleared_regions.color.g = 0.95
+    cleared_regions.color.b = 1.0
+    for outline in cleared_region_outlines:
+        for source, target in zip(outline, outline[1:]):
+            cleared_regions.points.append(_marker_point(MarkerPoint, source, 0.035))
+            cleared_regions.points.append(_marker_point(MarkerPoint, target, 0.035))
+    markers.markers.append(cleared_regions)
     return markers
 
 
@@ -819,6 +1721,102 @@ def _neighbors(cell: GridCell, shape):
             neighbor = cell[0] + di, cell[1] + dj
             if 0 <= neighbor[0] < shape[0] and 0 <= neighbor[1] < shape[1]:
                 yield neighbor, math.hypot(di, dj)
+
+
+def _cell_in_shape(cell: GridCell, shape) -> bool:
+    return 0 <= cell[0] < shape[0] and 0 <= cell[1] < shape[1]
+
+
+def _collision_free_neighbors(
+    cell: GridCell,
+    traversable: np.ndarray,
+    prevent_corner_cutting: bool,
+):
+    for neighbor, distance in _neighbors(cell, traversable.shape):
+        if not traversable[neighbor]:
+            continue
+        if (
+            prevent_corner_cutting
+            and cell[0] != neighbor[0]
+            and cell[1] != neighbor[1]
+            and (
+                not traversable[cell[0], neighbor[1]]
+                or not traversable[neighbor[0], cell[1]]
+            )
+        ):
+            continue
+        yield neighbor, distance
+
+
+def _path_cells_traversable(
+    path: Sequence[GridCell],
+    traversable: np.ndarray,
+    *,
+    prevent_corner_cutting: bool,
+) -> bool:
+    for source, target in zip(path, path[1:]):
+        if not traversable[source] or not traversable[target]:
+            return False
+        if (
+            prevent_corner_cutting
+            and source[0] != target[0]
+            and source[1] != target[1]
+            and (
+                not traversable[source[0], target[1]]
+                or not traversable[target[0], source[1]]
+            )
+        ):
+            return False
+    return not path or bool(traversable[path[-1]])
+
+
+def _expand_bidirectional_frontier(
+    queue,
+    own_costs,
+    own_previous,
+    other_costs,
+    target: GridCell,
+    traversable: np.ndarray,
+    prevent_corner_cutting: bool,
+) -> Optional[GridCell]:
+    while queue:
+        _, cost, cell = heapq.heappop(queue)
+        if cost <= own_costs.get(cell, math.inf) + 1e-9:
+            break
+    else:
+        return None
+    if cell in other_costs:
+        return cell
+    for neighbor, distance in _collision_free_neighbors(
+        cell,
+        traversable,
+        prevent_corner_cutting,
+    ):
+        next_cost = cost + distance
+        if next_cost + 1e-9 >= own_costs.get(neighbor, math.inf):
+            continue
+        own_costs[neighbor] = next_cost
+        own_previous[neighbor] = cell
+        heapq.heappush(
+            queue,
+            (next_cost + math.dist(neighbor, target), next_cost, neighbor),
+        )
+        if neighbor in other_costs:
+            return neighbor
+    return None
+
+
+def _reconstruct_bidirectional_path(
+    forward_previous,
+    backward_previous,
+    meeting: GridCell,
+) -> List[GridCell]:
+    path = _reconstruct_path(forward_previous, meeting)
+    cell = meeting
+    while cell in backward_previous:
+        cell = backward_previous[cell]
+        path.append(cell)
+    return path
 
 
 def _reconstruct_path(previous, cell: GridCell) -> List[GridCell]:

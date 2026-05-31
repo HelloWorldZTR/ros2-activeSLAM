@@ -245,10 +245,13 @@ def select_safe_frontier_goal(
     robot_xy: Point,
     config: SafeGoalSearchConfig,
     prepared_grid: Optional[PreparedSafeGoalGrid] = None,
+    allowed_goal_mask: Optional[np.ndarray] = None,
 ) -> Optional[SafeFrontierGoal]:
     """Find the best known-free standoff cell for a frontier cluster."""
     if geometry.resolution <= 0.0 or not frontier_cells:
         return None
+    if allowed_goal_mask is not None and allowed_goal_mask.shape != grid.shape:
+        raise ValueError('Allowed goal mask shape does not match occupancy grid.')
 
     search_cells = max(1, int(math.ceil(config.search_radius / geometry.resolution)))
     clearance_cells = max(0, int(math.ceil(config.clearance / geometry.resolution)))
@@ -287,6 +290,11 @@ def select_safe_frontier_goal(
         min_j = max(0, nominal_j - search_cells)
         max_j = min(geometry.width, nominal_j + search_cells + 1)
         local_valid = prepared_grid.valid_goal_mask[min_i:max_i, min_j:max_j]
+        if allowed_goal_mask is not None:
+            local_valid = np.logical_and(
+                local_valid,
+                allowed_goal_mask[min_i:max_i, min_j:max_j],
+            )
         local_rows, local_cols = np.nonzero(local_valid)
         if local_rows.size == 0:
             continue

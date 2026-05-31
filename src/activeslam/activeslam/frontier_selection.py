@@ -5,6 +5,7 @@ from typing import Any, Iterable, List, Optional
 
 UNKNOWN_FRONTIER = 'unknown'
 OPEN_EDGE_FRONTIER = 'open_edge'
+GVD_SLAM_MODES = frozenset(('gvd_gbsae', 'gvd_hierarchical'))
 
 
 @dataclass(frozen=True)
@@ -43,3 +44,37 @@ def ranked_frontier_candidates(
     return sorted(candidates, key=lambda candidate: candidate.utility, reverse=True)[
         :max(0, limit)
     ]
+
+
+def ranked_local_cleanup_candidates(
+    candidates: Iterable[FrontierCandidate],
+    robot_x: float,
+    robot_y: float,
+    limit: int,
+) -> List[FrontierCandidate]:
+    """Rank micro-cleanup frontiers with the deliberately simple size/distance rule."""
+    return sorted(
+        candidates,
+        key=lambda candidate: (
+            -candidate.cluster.size
+            / (
+                math.hypot(
+                    candidate.safe_goal.point[0] - robot_x,
+                    candidate.safe_goal.point[1] - robot_y,
+                )
+                + 0.1
+            ),
+            -candidate.cluster.size,
+            candidate.safe_goal.point,
+        ),
+    )[:max(0, limit)]
+
+
+def frontier_probes_enabled_for_mode(
+    slam_mode: str,
+    *,
+    frontier_modes_enabled: bool,
+    gvd_modes_enabled: bool,
+) -> bool:
+    """Apply distinct probe defaults to frontier-driven and GVD-driven modes."""
+    return gvd_modes_enabled if slam_mode in GVD_SLAM_MODES else frontier_modes_enabled

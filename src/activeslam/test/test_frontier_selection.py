@@ -3,8 +3,10 @@ from types import SimpleNamespace
 import pytest
 
 from activeslam.frontier_selection import (
+    frontier_probes_enabled_for_mode,
     make_frontier_candidate,
     ranked_frontier_candidates,
+    ranked_local_cleanup_candidates,
 )
 
 
@@ -65,3 +67,38 @@ def test_candidate_utility_is_gain_over_safe_goal_distance():
     candidate = make_frontier_candidate(_cluster('unknown'), _goal(0.9), 1.0, 0.0, 0.0)
 
     assert candidate.utility == pytest.approx(1.0)
+
+
+def test_local_cleanup_ranking_uses_cluster_size_over_distance():
+    large = make_frontier_candidate(_cluster('unknown', size=10), _goal(2.0), 0.1, 0.0, 0.0)
+    small = make_frontier_candidate(_cluster('unknown', size=2), _goal(0.5), 10.0, 0.0, 0.0)
+
+    ranked = ranked_local_cleanup_candidates([small, large], 0.0, 0.0, limit=2)
+
+    assert ranked == [large, small]
+
+
+@pytest.mark.parametrize('slam_mode', ('frontier', 'approx_graph', 'gbsae'))
+def test_frontier_driven_modes_enable_probes_by_default(slam_mode):
+    assert frontier_probes_enabled_for_mode(
+        slam_mode,
+        frontier_modes_enabled=True,
+        gvd_modes_enabled=False,
+    )
+
+
+@pytest.mark.parametrize('slam_mode', ('gvd_gbsae', 'gvd_hierarchical'))
+def test_gvd_driven_modes_disable_probes_by_default(slam_mode):
+    assert not frontier_probes_enabled_for_mode(
+        slam_mode,
+        frontier_modes_enabled=True,
+        gvd_modes_enabled=False,
+    )
+
+
+def test_gvd_probe_default_can_be_overridden_for_ablation():
+    assert frontier_probes_enabled_for_mode(
+        'gvd_hierarchical',
+        frontier_modes_enabled=True,
+        gvd_modes_enabled=True,
+    )

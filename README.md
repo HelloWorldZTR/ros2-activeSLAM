@@ -9,7 +9,7 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gvd_gbsae
+ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gvd_hierarchical
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
@@ -96,6 +96,9 @@ ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
 - `gvd_gbsae`：先基于雷达已观测障碍构建在线 GVD 骨架并快速扫掠，再切换到
   由实时骨架生成的 GBSAE 路线。第一阶段将 unknown 和 free 都视为可通行区域，
   但仍由 Nav2 做最终路径规划、DWB 控制和恢复。
+- `gvd_hierarchical`：单次分层探索。宏观层贪心遍历在线 GVD 节点，在叶节点或
+  最多剩余一个未探索分支的节点处切入矩形 flood 限定的局部 frontier 清空，最后执行全局
+  frontier 扫尾。
 
 启用近似图评分策略：
 
@@ -123,12 +126,38 @@ ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gvd_gbsae
 为了缩短几步而贴墙行驶。若新扫描出的障碍切断当前路径，探索节点会立即取消
 Nav2 目标并重新选点。轨迹扫掠面积达到配置阈值后切换到实时 GBSAE。
 
+实时拓扑图不会盲信细化后的 GVD 连通性。骨架压缩后若仍存在多个 component，
+节点会优先查询缓存中的 GVD 连接；GVD 无法补边时，再使用双向 A* 在障碍栅格上
+寻找可通行桥接边。缓存命中仍会重新校验路径，避免新观测障碍使旧连接失效。
+连通判断、局部 GVD A* 和路径失效检测统一使用 `gvd_obstacle_clearance: 0.18`
+膨胀已知障碍，与 TurtleBot 圆形 footprint 半径一致；单像素窄缝不会再被当作
+可执行通路。可用 `gvd_switching_connections_enabled` 关闭切换连接机制进行
+ablation study。
+
 如果 GVD bootstrap 阶段 TF 位姿长时间没有产生足够的有效平移，节点会启动有界的轻量
 随机脱困：随机调用一次 Nav2 `Spin`，再调用短距离 `DriveOnHeading`。原地旋转
 和微小位置抖动不会刷新进展计时器。恢复动作仍使用 Nav2 local costmap 做碰撞
 检查，不会让探索节点直接发布 `/cmd_vel`。对应参数均以 `gvd_stuck_*` 和
 `gvd_random_recovery_*` 开头，可用于 ablation study。空闲、选点、预检和导航
 执行期间统一使用同一套进展 watchdog，避免机器人静止在原地重复空选点。
+
+无需切换到 GBSAE 第二阶段、直接完成宏观到微观一次探索的实验模式：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gvd_hierarchical
+```
+
+该模式按空间半径迁移 live GVD 重建前后的节点状态。宏观节点使用局部 unknown
+面积除以拓扑距离的朴素 utility；局部清空从叶节点或近耗尽分支出发，生成多个受墙体、
+粗先验边界和其他 live GVD 顶点约束的贪心矩形 Region，并选择最接近正方形的
+候选。Region 可以覆盖 unknown，但不能跨过占据栅格；它表示局部探索范围，不表示
+已验证可通行空间。Region 内仍按 `frontier cluster size / distance` 依次派发
+Nav2 目标，并强制 safe goal 位于 Region 内部。
+宏观图遍历结束后，剩余 frontier 会由全局贪心扫尾收集。RViz 中绿色节点表示
+宏观已探索，黄绿色节点表示局部已清空，红色节点表示当前宏观位置；局部清空
+期间的半透明青色格子表示当前选中的矩形 Region，已经清扫完成的 Region 会保留
+青色矩形轮廓。Region 使用生成时的 `/map` geometry 快照，因此地图扩张后不会
+因栅格 origin 或尺寸变化发生错位。
 
 选择其他地图并启用 `gbsae` 会在启动早期报告缺少对应
 `<world>.gbsae.json`。旧命令中的 `exploration_strategy:=frontier|graph`
@@ -144,9 +173,15 @@ ros2 launch activeslam slam.launch.py nav2_params_file:=/path/to/nav2_params.yam
 `activeslam/config/exploration.yaml` 中将
 `frontier_include_open_map_edges` 设为 `false`。
 
-当 Nav2 到达 frontier 的地图内部安全落点后，探索节点会调用 Nav2 `Spin`
-对准局部外法线，再调用 `DriveOnHeading` 低速前探。普通 unknown frontier
-使用保守的 `0.45m` 前探打开门口等狭窄入口；开放边缘 frontier 使用 `2.0m`
-前探扩展 `/map` 边界。前探速度由 Behavior Server 直接发布到 `/cmd_vel`；
-它不经过 velocity smoother，但仍使用 Nav2 local costmap 的碰撞检查。
-探索节点本身不会直接发布速度命令。
+`frontier`、`approx_graph` 和 `gbsae` 默认启用全部 frontier probe。当 Nav2
+到达地图内部安全落点后，探索节点会调用 Nav2 `Spin` 对准局部外法线，再调用
+`DriveOnHeading` 低速前探。普通 unknown frontier 使用保守的 `0.45m` 前探打开
+门口等狭窄入口；开放边缘 frontier 使用 `2.0m` 前探扩展 `/map` 边界。
+
+`gvd_gbsae` 和 `gvd_hierarchical` 默认关闭全部 frontier probe，避免 GVD 轨迹
+执行期间额外前探改变宏观遍历行为。可使用 `frontier_mode_probes_enabled` 和
+`gvd_mode_probes_enabled` 覆盖模式默认值，再使用
+`frontier_unknown_probe_enabled` 与 `frontier_open_edge_probe_enabled` 单独关闭
+某一类 probe，便于消融实验。前探速度由 Behavior Server 直接发布到 `/cmd_vel`；
+它不经过 velocity smoother，但仍使用 Nav2 local costmap 的碰撞检查。探索节点
+本身不会直接发布速度命令。

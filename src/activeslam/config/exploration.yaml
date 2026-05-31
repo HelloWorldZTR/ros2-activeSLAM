@@ -4,7 +4,7 @@ exploration_coordinator:
     stability_threshold: 0.02
     min_frontier_size: 5
     frontier_include_open_map_edges: true
-    slam_mode: "frontier"  # frontier, approx_graph, gbsae, or gvd_gbsae
+    slam_mode: "frontier"  # frontier, approx_graph, gbsae, gvd_gbsae, or gvd_hierarchical
     frontier_planning_attempts: 12
     frontier_goal_search_radius: 1.2
     frontier_goal_clearance: 0.20
@@ -20,6 +20,8 @@ exploration_coordinator:
     initial_spin_yaw: 6.283185307
     initial_spin_timeout: 30.0
     nav2_goal_timeout: 30.0
+    frontier_mode_probes_enabled: true
+    gvd_mode_probes_enabled: false
     frontier_open_edge_probe_enabled: true
     frontier_probe_normal_radius: 0.35
     frontier_probe_spin_tolerance: 0.10
@@ -50,9 +52,10 @@ exploration_coordinator:
     gvd_raster_resolution: 0.15
     gvd_sweep_radius: 2.0
     gvd_overlap_radius: 0.35
-    gvd_obstacle_clearance: 0.04
+    gvd_obstacle_clearance: 0.18  # TurtleBot radius used by GVD connectivity and local A*
     gvd_boundary_margin: 0.20
     gvd_support_vertex_spacing: 1.0
+    gvd_min_vertex_spacing: 1.0
     gvd_min_goal_distance: 1.0
     gvd_max_goal_distance: 6.0
     gvd_candidate_limit: 24
@@ -64,6 +67,12 @@ exploration_coordinator:
     gvd_path_overlap_penalty_weight: 2.0
     gvd_straightness_weight: 1.0
     gvd_centerline_distance_weight: 5.0
+    gvd_switching_connections_enabled: true
+    gvd_connection_neighbor_limit: 10
+    gvd_connection_cache_size: 4096
+    gvd_hierarchical_state_migration_radius: 0.75
+    gvd_hierarchical_unknown_radius: 1.5
+    gvd_hierarchical_local_half_extent: 2.5
     gvd_stuck_recovery_enabled: true
     gvd_stuck_min_progress_distance: 0.15
     gvd_stuck_timeout: 5.0

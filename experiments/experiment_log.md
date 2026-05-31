@@ -444,3 +444,128 @@ pending.
 Status: local Python compilation, `git diff --check`, and available pure Python
 helper regression tests passed (`68 passed`). Remote ROS smoke validation is
 pending.
+
+### GVD-TG-inspired switching connections
+
+- Added a topology repair pass inspired by the GVD-TG switching connection
+  mechanism. Native compressed skeleton edges remain the first choice. When
+  thinning leaves reachable components disconnected, the repair pass adds a
+  collision-free bridge computed by deterministic bidirectional A*.
+- Added a bounded LRU cache for connectivity queries. Cached positive paths are
+  revalidated against the latest obstacle-only raster, including diagonal
+  corner checks; negative results are scoped to the current map revision.
+- Added `gvd_switching_connections_enabled`,
+  `gvd_connection_neighbor_limit`, and `gvd_connection_cache_size` parameters
+  for tuning and ablation studies.
+
+Reference: [GVD-TG paper](https://arxiv.org/abs/2511.18708) and the authors'
+[public implementation](https://github.com/littleBurgerrr/Hierarchical_GVD_Exploration).
+
+Status: local Python compilation, `git diff --check`, and available pure Python
+helper regression tests passed (`74 passed`). Remote ROS smoke validation is
+pending.
+
+## 2026-05-31 - One-pass hierarchical GVD exploration
+
+- Added `slam_mode:=gvd_hierarchical` while preserving `gvd_gbsae` as a
+  baseline. The new mode follows a three-phase state machine: macro live-GVD
+  traversal, local frontier cleanup at exhausted branches, and global frontier
+  tail cleanup.
+- Added spatial migration for explored and locally-cleared macro vertices
+  across live GVD rebuilds. Macro selection uses a simple local-unknown-area
+  over topo-distance utility.
+- Added rectangular known-free flood masks for micro cleanup. Local frontiers
+  cannot leak through walls into adjacent rooms and are deliberately ranked by
+  the baseline `cluster size / distance` rule.
+- Added RViz markers for explored, locally cleared, and active macro vertices.
+- Added a translucent cyan RViz cell overlay for the current local-cleanup
+  flood mask. It visualizes the wall-constrained known-free region rather than
+  only the configured bounding rectangle.
+
+Status: local Python compilation, `git diff --check`, and available pure Python
+helper regression tests passed (`81 passed`). Remote ROS smoke validation is
+pending.
+
+## 2026-06-01 - Mode-specific frontier probe defaults
+
+- Enabled unknown-frontier and open-edge probes by default for `frontier`,
+  `approx_graph`, and static `gbsae`.
+- Disabled all frontier probes by default for `gvd_gbsae` and
+  `gvd_hierarchical`, including hierarchical local cleanup and tail cleanup.
+- Added `frontier_mode_probes_enabled` and `gvd_mode_probes_enabled` as
+  mode-level ablation switches while retaining the existing per-probe-type
+  switches.
+
+Status: local Python compilation, `git diff --check`, and available pure Python
+helper regression tests passed (`87 passed`). Remote ROS smoke validation is
+pending.
+
+## 2026-06-01 - Local cleanup rectangular Region constraints
+
+- Replaced same-result four-edge flood attempts with one-edge greedy expansion
+  strategies and selected the candidate closest to a square, with larger area
+  as the tie-breaker.
+- Limited each local-cleanup Region to the configured coarse world bounds.
+- Stopped candidate expansion before it can include another live GVD vertex,
+  keeping exhausted-node cleanup local to one macro region.
+- Kept the existing local frontier ranking and Nav2 cleanup dispatch behavior.
+
+Status: local Python compilation, `git diff --check`, focused GVD helper tests
+(`28 passed`), and the available pure Python regression suite (`90 passed`)
+passed. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Robot-radius GVD connectivity
+
+- Changed `gvd_obstacle_clearance` from the permissive `0.04m` value to the
+  TurtleBot footprint radius `0.18m`.
+- Kept one shared inflated obstacle raster for skeleton construction, native
+  GVD connectivity, switching-connection bidirectional A* fallback, local GVD
+  A*, and active-path invalidation.
+- Added a regression showing that a one-pixel doorway is rejected after
+  footprint inflation while a sufficiently wide doorway remains connected.
+
+Status: local Python compilation, `git diff --check`, focused GVD helper tests
+(`29 passed`), and the available pure Python regression suite (`91 passed`)
+passed. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Hierarchical Region RViz snapshot rendering
+
+- Stored the `/map` geometry snapshot together with the active local-cleanup
+  mask instead of rendering an older mask using the newest dynamic map origin.
+- Archived each completed rectangular Region as a compact world-space outline.
+  Regions with no local frontier candidate now remain visible after the
+  immediate local-clear transition instead of disappearing before RViz can
+  publish them.
+- Kept the active Region as a translucent cyan cell fill and render completed
+  Regions as cyan rectangle outlines.
+
+Status: local Python compilation, `git diff --check`, focused GVD helper tests
+(`30 passed`), and the available pure Python regression suite (`92 passed`)
+passed. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Unknown-permissive Region flood and bounded local goals
+
+- Changed hierarchical local Region expansion to stop on occupied cells,
+  coarse bounds, the configured size limit, or another live GVD vertex.
+  Unknown cells no longer stop Region growth.
+- Kept safe goals conservative: they must still be known-free and now must
+  also lie inside the active local Region.
+- Passed the Region mask into safe-goal search so a cluster crossing the
+  boundary can still select an interior fallback goal.
+
+Status: local Python compilation, `git diff --check`, focused Region and
+safe-goal helper tests (`51 passed`), and the available pure Python regression
+suite (`95 passed`) passed. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Relaxed hierarchical local-cleanup trigger
+
+- Restored eager local cleanup for GVD leaves with graph degree `<= 1`.
+- Also trigger local cleanup for branch vertices once at most one neighboring
+  branch remains unexplored, so the Region sweep runs before macro traversal
+  commits to the final exit.
+- Kept the rectangular Region construction, local frontier ranking, and Nav2
+  dispatch behavior unchanged.
+
+Status: local Python compilation, `git diff --check`, focused GVD helper tests
+(`29 passed`), and the available pure Python regression suite (`91 passed`)
+passed. Remote ROS smoke validation is pending.

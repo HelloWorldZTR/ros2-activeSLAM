@@ -58,7 +58,13 @@ def _launch_explorer(
     """Start exploration while keeping YAML defaults unless launch overrides them."""
     mode = context.perform_substitution(slam_mode).strip()
     legacy_strategy = context.perform_substitution(exploration_strategy).strip()
-    if mode and mode not in ('frontier', 'approx_graph', 'gbsae', 'gvd_gbsae'):
+    if mode and mode not in (
+        'frontier',
+        'approx_graph',
+        'gbsae',
+        'gvd_gbsae',
+        'gvd_hierarchical',
+    ):
         raise RuntimeError(f'Unsupported slam_mode={mode}.')
     if legacy_strategy and legacy_strategy not in ('frontier', 'graph', 'graph_based'):
         raise RuntimeError(f'Unsupported deprecated exploration_strategy={legacy_strategy}.')
@@ -233,7 +239,7 @@ def generate_launch_description():
             default_value='',
             description=(
                 'Optional exploration policy override: frontier, approx_graph, '
-                'gbsae, or gvd_gbsae.'
+                'gbsae, gvd_gbsae, or gvd_hierarchical.'
             ),
         ),
         DeclareLaunchArgument(
