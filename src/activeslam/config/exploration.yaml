@@ -10,10 +10,8 @@ exploration_coordinator:
     frontier_goal_clearance: 0.20
     frontier_goal_standoff: 0.45
     frontier_goal_map_edge_clearance: 0.0
-    frontier_goal_min_advance: 0.35
     frontier_goal_point_sample_limit: 40
     frontier_information_gain_radius: 1.0
-    frontier_information_gain_min: 0.45
     nav2_goal_reach_radius: 0.25  # Keep in sync with Nav2 xy_goal_tolerance.
     failed_goal_cooldown: 20.0
     failed_goal_radius: 0.6
@@ -23,12 +21,16 @@ exploration_coordinator:
     initial_spin_timeout: 30.0
     nav2_goal_timeout: 30.0
     frontier_open_edge_probe_enabled: true
-    frontier_open_edge_normal_radius: 0.35
-    frontier_open_edge_spin_tolerance: 0.10
-    frontier_open_edge_spin_timeout: 8.0
+    frontier_probe_normal_radius: 0.35
+    frontier_probe_spin_tolerance: 0.10
+    frontier_probe_spin_timeout: 8.0
     frontier_open_edge_probe_distance: 2.0
     frontier_open_edge_probe_speed: 0.12
     frontier_open_edge_probe_timeout: 20.0
+    frontier_unknown_probe_enabled: true
+    frontier_unknown_probe_distance: 0.45
+    frontier_unknown_probe_speed: 0.08
+    frontier_unknown_probe_timeout: 8.0
     graph_max_frontier_candidates: 8
     graph_info_radius: 1.5
     graph_node_spacing: 0.5

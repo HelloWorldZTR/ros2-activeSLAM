@@ -37,6 +37,18 @@ python3 tools/generate_slam_office_world.py \
   src/activeslam_resource/maps/slam_office.world
 ```
 
+The initial reviewable GBSAE prior for the office map is generated from the
+same occupancy image. It samples clear interior waypoints, validates
+line-of-sight edges, and keeps the component connected to the
+`PublicBathroomB` seed:
+
+```bash
+python3 tools/generate_office_gbsae_prior.py \
+  /path/to/office/map/map.png \
+  src/activeslam_resource/maps/slam_office.gbsae.json
+ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
+```
+
 GBSAE prior graphs use the same world basename with a `.gbsae.json` suffix.
 `slam_rooms.gbsae.json` is the initial hand-authored topo-metric prior:
 

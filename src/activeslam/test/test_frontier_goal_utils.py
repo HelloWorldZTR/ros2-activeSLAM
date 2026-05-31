@@ -12,6 +12,7 @@ from activeslam.frontier_goal_utils import (
     prepare_safe_goal_grid,
     segment_is_obstacle_free,
     select_safe_frontier_goal,
+    unknown_frontier_outward_normal,
 )
 
 
@@ -31,7 +32,6 @@ def _config(**overrides):
         'clearance': 0.1,
         'standoff': 0.4,
         'map_edge_clearance': 0.0,
-        'min_advance': 0.35,
         'reach_radius': 0.25,
         'point_sample_limit': 40,
     }
@@ -114,15 +114,22 @@ def test_safe_goal_search_rejects_obstacles_clearance_and_map_edge():
     ) is None
 
 
-def test_safe_goal_search_rejects_short_advance_and_reach_radius():
+def test_safe_goal_search_allows_short_advance_but_rejects_reach_radius():
     grid = np.zeros((20, 20), dtype=np.int8)
 
     assert select_safe_frontier_goal(
         grid,
         _geometry(),
+        frontier_cells=[(10, 12)],
+        robot_xy=(0.55, 1.05),
+        config=_config(search_radius=0.0),
+    ) is not None
+    assert select_safe_frontier_goal(
+        grid,
+        _geometry(),
         frontier_cells=[(10, 8)],
         robot_xy=(0.55, 1.05),
-        config=_config(search_radius=0.0, min_advance=0.35),
+        config=_config(search_radius=0.0),
     ) is None
     assert not is_goal_outside_reach_radius((0.0, 0.0), (0.15, 0.20), 0.25)
     assert is_goal_outside_reach_radius((0.0, 0.0), (0.26, 0.0), 0.25)
@@ -190,6 +197,31 @@ def test_open_edge_normal_handles_corners_and_ignores_distant_edge_votes():
 
 def test_open_edge_normal_returns_none_without_local_edge_cells():
     assert open_edge_outward_normal(
+        frontier_cells=[(10, 10)],
+        seed=(10, 10),
+        geometry=_geometry(),
+        radius=0.35,
+    ) is None
+
+
+def test_unknown_frontier_normal_uses_local_unknown_neighbor_votes():
+    grid = np.zeros((20, 20), dtype=np.int8)
+    grid[:, 11:] = -1
+
+    normal = unknown_frontier_outward_normal(
+        grid,
+        frontier_cells=[(row, 10) for row in range(20)],
+        seed=(10, 10),
+        geometry=_geometry(),
+        radius=0.35,
+    )
+
+    assert normal == pytest.approx((1.0, 0.0))
+
+
+def test_unknown_frontier_normal_returns_none_without_unknown_neighbors():
+    assert unknown_frontier_outward_normal(
+        np.zeros((20, 20), dtype=np.int8),
         frontier_cells=[(10, 10)],
         seed=(10, 10),
         geometry=_geometry(),

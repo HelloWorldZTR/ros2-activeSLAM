@@ -24,7 +24,6 @@ class SafeGoalSearchConfig:
     clearance: float
     standoff: float
     map_edge_clearance: float
-    min_advance: float
     reach_radius: float
     point_sample_limit: int
 
@@ -33,6 +32,7 @@ class SafeGoalSearchConfig:
 class SafeFrontierGoal:
     point: Point
     seed: GridCell
+    outward_normal: Optional[Point] = None
 
 
 @dataclass(frozen=True)
@@ -125,6 +125,45 @@ def open_edge_outward_normal(
 
     normal_x = math.copysign(1.0, normal_x) if abs(normal_x) >= 1e-6 else 0.0
     normal_y = math.copysign(1.0, normal_y) if abs(normal_y) >= 1e-6 else 0.0
+    magnitude = math.hypot(normal_x, normal_y)
+    if magnitude < 1e-6:
+        return None
+    return normal_x / magnitude, normal_y / magnitude
+
+
+def unknown_frontier_outward_normal(
+    grid: np.ndarray,
+    frontier_cells: Sequence[GridCell],
+    seed: GridCell,
+    geometry: GridGeometry,
+    radius: float,
+) -> Optional[Point]:
+    """Estimate a local frontier normal from adjacent unknown-cell votes."""
+    if (
+        geometry.resolution <= 0.0
+        or radius < 0.0
+        or grid.shape != (geometry.height, geometry.width)
+    ):
+        return None
+
+    seed_xy = _grid_to_world(seed, geometry)
+    normal_x = 0.0
+    normal_y = 0.0
+    for cell in frontier_cells:
+        cell_xy = _grid_to_world(cell, geometry)
+        if math.hypot(cell_xy[0] - seed_xy[0], cell_xy[1] - seed_xy[1]) > radius:
+            continue
+        i, j = cell
+        for di, dj in ((-1, 0), (0, -1), (0, 1), (1, 0)):
+            ni, nj = i + di, j + dj
+            if (
+                0 <= ni < geometry.height
+                and 0 <= nj < geometry.width
+                and grid[ni, nj] == -1
+            ):
+                normal_x += dj
+                normal_y += di
+
     magnitude = math.hypot(normal_x, normal_y)
     if magnitude < 1e-6:
         return None
@@ -260,10 +299,7 @@ def select_safe_frontier_goal(
         robot_dy = ys - robot_xy[1]
         distance_to_robot = np.hypot(robot_dx, robot_dy)
         advance = robot_dx * direction_x + robot_dy * direction_y
-        valid = np.logical_and(
-            distance_to_robot > config.reach_radius,
-            advance >= config.min_advance,
-        )
+        valid = distance_to_robot > config.reach_radius
         if not np.any(valid):
             continue
 

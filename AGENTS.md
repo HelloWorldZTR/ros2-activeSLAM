@@ -25,8 +25,10 @@ Simulation assets live in `activeslam_resource` and vendored TurtleBot3 simulati
 - `src/activeslam/activeslam/slam_evaluator_utils.py`: testable evaluator geometry and metric helpers.
 - `src/activeslam_resource/maps/`: Gazebo worlds used by `slam.launch.py` and `slam_evaluator`.
 - `src/activeslam_resource/maps/slam_rooms.gbsae.json`: initial GBSAE topo-metric prior graph. GBSAE fails early if the selected world lacks a matching asset.
+- `src/activeslam_resource/maps/slam_office.gbsae.json`: generated reviewable Office GBSAE prior graph.
 - `src/activeslam_resource/models/`: custom Gazebo models referenced by project worlds.
 - `tools/generate_slam_office_world.py`: standard-library generator for the inline-box `slam_office` benchmark.
+- `tools/generate_office_gbsae_prior.py`: standard-library generator for the initial Office GBSAE prior graph.
 - `src/setup.zsh`: bc01-style zsh setup with equivalent build/run aliases.
 
 

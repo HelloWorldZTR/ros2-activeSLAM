@@ -154,7 +154,9 @@ def world_text(
         size_y = (max_row - min_row + 1) * resolution
         x = origin_x + (min_col + max_col + 1) * resolution / 2.0
         # PNG rows grow downward while the ROS map y axis grows upward.
-        y = origin_y + (image_height - min_row - max_row - 1) * resolution / 2.0
+        y = origin_y + (
+            2 * image_height - min_row - max_row - 1
+        ) * resolution / 2.0
         links.append(f'''      <link name="wall_{index}">
         <pose>{x:.4f} {y:.4f} 0.4 0 0 0</pose>
         <collision name="collision">

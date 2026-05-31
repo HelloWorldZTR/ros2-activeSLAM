@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from activeslam.slam_evaluator_utils import (
     Pose2D,
@@ -69,7 +70,7 @@ def test_slam_office_uses_inline_box_obstacles_for_iou():
     bounds = derive_bounds_from_obstacles(obstacles, margin=0.5)
 
     assert len(obstacles) == 374
-    assert bounds is not None
+    assert bounds == pytest.approx((-28.15, 21.75, -0.6, 23.1))
 
 
 def test_compute_map_iou_excludes_unknown_cells():

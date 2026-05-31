@@ -1,6 +1,7 @@
 import math
 import time
 from collections import deque
+from dataclasses import replace
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -24,9 +25,11 @@ from .frontier_goal_utils import (
     potential_unknown_area,
     prepare_safe_goal_grid,
     select_safe_frontier_goal,
+    unknown_frontier_outward_normal,
 )
 from .frontier_selection import (
     OPEN_EDGE_FRONTIER,
+    UNKNOWN_FRONTIER,
     FrontierCandidate,
     make_frontier_candidate,
     ranked_frontier_candidates,
@@ -67,8 +70,8 @@ class ExplorationCoordinator(Node):
     IDLE = 'idle'
     SELECTING = 'selecting'
     NAVIGATING = 'navigating'
-    ALIGNING_OPEN_EDGE = 'aligning_open_edge'
-    PROBING_OPEN_EDGE = 'probing_open_edge'
+    ALIGNING_FRONTIER_PROBE = 'aligning_frontier_probe'
+    PROBING_FRONTIER = 'probing_frontier'
     COMPLETE = 'complete'
 
     def __init__(self):
@@ -98,17 +101,11 @@ class ExplorationCoordinator(Node):
         self.frontier_goal_map_edge_clearance = self.declare_parameter(
             'frontier_goal_map_edge_clearance', 0.0
         ).value
-        self.frontier_goal_min_advance = self.declare_parameter(
-            'frontier_goal_min_advance', 0.35
-        ).value
         self.frontier_goal_point_sample_limit = int(
             self.declare_parameter('frontier_goal_point_sample_limit', 40).value
         )
         self.frontier_information_gain_radius = self.declare_parameter(
             'frontier_information_gain_radius', 1.0
-        ).value
-        self.frontier_information_gain_min = self.declare_parameter(
-            'frontier_information_gain_min', 0.45
         ).value
         self.nav2_goal_reach_radius = self.declare_parameter(
             'nav2_goal_reach_radius', 0.25
@@ -137,14 +134,14 @@ class ExplorationCoordinator(Node):
         self.frontier_open_edge_probe_enabled = self.declare_parameter(
             'frontier_open_edge_probe_enabled', True
         ).value
-        self.frontier_open_edge_normal_radius = self.declare_parameter(
-            'frontier_open_edge_normal_radius', 0.35
+        self.frontier_probe_normal_radius = self.declare_parameter(
+            'frontier_probe_normal_radius', 0.35
         ).value
-        self.frontier_open_edge_spin_tolerance = self.declare_parameter(
-            'frontier_open_edge_spin_tolerance', 0.10
+        self.frontier_probe_spin_tolerance = self.declare_parameter(
+            'frontier_probe_spin_tolerance', 0.10
         ).value
-        self.frontier_open_edge_spin_timeout = self.declare_parameter(
-            'frontier_open_edge_spin_timeout', 8.0
+        self.frontier_probe_spin_timeout = self.declare_parameter(
+            'frontier_probe_spin_timeout', 8.0
         ).value
         self.frontier_open_edge_probe_distance = self.declare_parameter(
             'frontier_open_edge_probe_distance', 2.0
@@ -154,6 +151,18 @@ class ExplorationCoordinator(Node):
         ).value
         self.frontier_open_edge_probe_timeout = self.declare_parameter(
             'frontier_open_edge_probe_timeout', 20.0
+        ).value
+        self.frontier_unknown_probe_enabled = self.declare_parameter(
+            'frontier_unknown_probe_enabled', True
+        ).value
+        self.frontier_unknown_probe_distance = self.declare_parameter(
+            'frontier_unknown_probe_distance', 0.45
+        ).value
+        self.frontier_unknown_probe_speed = self.declare_parameter(
+            'frontier_unknown_probe_speed', 0.08
+        ).value
+        self.frontier_unknown_probe_timeout = self.declare_parameter(
+            'frontier_unknown_probe_timeout', 8.0
         ).value
         self.graph_max_frontier_candidates = int(
             self.declare_parameter('graph_max_frontier_candidates', 8).value
@@ -254,7 +263,7 @@ class ExplorationCoordinator(Node):
         self.current_goal: Optional[Tuple[float, float]] = None
         self.current_safe_goal: Optional[SafeFrontierGoal] = None
         self.target_cluster: Optional[FrontierCluster] = None
-        self.open_edge_normal: Optional[Tuple[float, float]] = None
+        self.frontier_probe_normal: Optional[Tuple[float, float]] = None
         self.explored_history = deque()
         self.state = self.WAITING_FOR_NAV2
         self.next_retry_wall_time = 0.0
@@ -268,7 +277,7 @@ class ExplorationCoordinator(Node):
         self.selection_kind = 'frontier'
         self.current_navigation_kind = 'frontier'
         self.navigation_start_wall_time: Optional[float] = None
-        self.open_edge_action_start_wall_time: Optional[float] = None
+        self.frontier_probe_action_start_wall_time: Optional[float] = None
         self.failed_goals = FailedGoalCooldown(
             self.failed_goal_cooldown,
             self.failed_goal_radius,
@@ -333,25 +342,27 @@ class ExplorationCoordinator(Node):
                 self._clear_navigation()
                 self._schedule_retry(0.0)
             return
-        if self.state == self.ALIGNING_OPEN_EDGE:
+        if self.state == self.ALIGNING_FRONTIER_PROBE:
             if navigation_timed_out(
-                self.open_edge_action_start_wall_time,
-                self.frontier_open_edge_spin_timeout,
+                self.frontier_probe_action_start_wall_time,
+                self.frontier_probe_spin_timeout,
                 time.monotonic(),
             ):
-                self.get_logger().warn('Open-edge alignment spin timed out; retrying.')
+                self.get_logger().warn('Frontier probe alignment spin timed out; retrying.')
                 self.nav2.cancel_spin()
-                self._open_edge_probe_failed()
+                self._frontier_probe_failed()
             return
-        if self.state == self.PROBING_OPEN_EDGE:
+        if self.state == self.PROBING_FRONTIER:
+            settings = self._frontier_probe_settings()
+            timeout = 0.0 if settings is None else settings[2]
             if navigation_timed_out(
-                self.open_edge_action_start_wall_time,
-                self.frontier_open_edge_probe_timeout,
+                self.frontier_probe_action_start_wall_time,
+                timeout,
                 time.monotonic(),
             ):
-                self.get_logger().warn('Open-edge DriveOnHeading timed out; retrying.')
+                self.get_logger().warn('Frontier DriveOnHeading probe timed out; retrying.')
                 self.nav2.cancel_drive_on_heading()
-                self._open_edge_probe_failed()
+                self._frontier_probe_failed()
             return
         if self.state == self.SELECTING:
             if (
@@ -726,12 +737,8 @@ class ExplorationCoordinator(Node):
             return
         if status == GOAL_STATUS_SUCCEEDED:
             self.get_logger().info('Nav2 reached the active frontier goal.')
-            if (
-                self.frontier_open_edge_probe_enabled
-                and self.target_cluster is not None
-                and self.target_cluster.source == OPEN_EDGE_FRONTIER
-            ):
-                self._start_open_edge_probe()
+            if self._frontier_probe_settings() is not None:
+                self._start_frontier_probe()
                 return
         else:
             self.get_logger().warn(f'Nav2 navigation ended with status={status}; retrying.')
@@ -739,90 +746,106 @@ class ExplorationCoordinator(Node):
         self._clear_navigation()
         self._schedule_retry(0.0)
 
-    def _start_open_edge_probe(self):
+    def _start_frontier_probe(self):
         if (
             self.latest_map is None
             or self.target_cluster is None
             or self.current_safe_goal is None
         ):
-            self._open_edge_probe_failed()
+            self._frontier_probe_failed()
             return
 
-        info = self.latest_map.info
-        normal = open_edge_outward_normal(
-            self.target_cluster.cells,
-            self.current_safe_goal.seed,
-            GridGeometry(
-                origin_x=info.origin.position.x,
-                origin_y=info.origin.position.y,
-                resolution=info.resolution,
-                width=info.width,
-                height=info.height,
-            ),
-            self.frontier_open_edge_normal_radius,
-        )
+        normal = self.current_safe_goal.outward_normal
         pose = self._get_robot_pose()
         if normal is None or pose is None:
-            self.get_logger().warn('Cannot estimate open-edge probe direction; retrying.')
-            self._open_edge_probe_failed()
+            self.get_logger().warn('Cannot estimate frontier probe direction; retrying.')
+            self._frontier_probe_failed()
             return
 
-        self.open_edge_normal = normal
+        self.frontier_probe_normal = normal
         target_yaw = math.atan2(normal[1], normal[0])
         yaw_delta = normalize_angle(target_yaw - pose[2])
-        if abs(yaw_delta) <= self.frontier_open_edge_spin_tolerance:
-            self._start_open_edge_drive()
+        if abs(yaw_delta) <= self.frontier_probe_spin_tolerance:
+            self._start_frontier_drive()
             return
 
-        self.state = self.ALIGNING_OPEN_EDGE
-        self.open_edge_action_start_wall_time = time.monotonic()
+        self.state = self.ALIGNING_FRONTIER_PROBE
+        self.frontier_probe_action_start_wall_time = time.monotonic()
         self.get_logger().info(
-            f'Aligning with open map edge normal using Nav2 Spin: delta={yaw_delta:.2f} rad.'
+            f'Aligning with {self.target_cluster.source} frontier normal using '
+            f'Nav2 Spin: delta={yaw_delta:.2f} rad.'
         )
         self.nav2.spin_once(
             yaw_delta,
-            self.frontier_open_edge_spin_timeout,
-            self._open_edge_spin_finished,
+            self.frontier_probe_spin_timeout,
+            self._frontier_probe_spin_finished,
         )
 
-    def _open_edge_spin_finished(self, status: int):
-        if self.state != self.ALIGNING_OPEN_EDGE:
+    def _frontier_probe_spin_finished(self, status: int):
+        if self.state != self.ALIGNING_FRONTIER_PROBE:
             return
         if status != GOAL_STATUS_SUCCEEDED:
             self.get_logger().warn(
-                f'Open-edge alignment spin ended with status={status}; retrying.'
+                f'Frontier probe alignment spin ended with status={status}; retrying.'
             )
-            self._open_edge_probe_failed()
+            self._frontier_probe_failed()
             return
-        self._start_open_edge_drive()
+        self._start_frontier_drive()
 
-    def _start_open_edge_drive(self):
-        self.state = self.PROBING_OPEN_EDGE
-        self.open_edge_action_start_wall_time = time.monotonic()
+    def _start_frontier_drive(self):
+        settings = self._frontier_probe_settings()
+        if settings is None:
+            self._frontier_probe_failed()
+            return
+        distance, speed, timeout = settings
+        self.state = self.PROBING_FRONTIER
+        self.frontier_probe_action_start_wall_time = time.monotonic()
         self.get_logger().info(
-            f'Probing beyond open map edge with Nav2 DriveOnHeading: '
-            f'distance={self.frontier_open_edge_probe_distance:.2f}m, '
-            f'speed={self.frontier_open_edge_probe_speed:.2f}m/s.'
+            f'Probing beyond {self.target_cluster.source} frontier with '
+            f'Nav2 DriveOnHeading: distance={distance:.2f}m, speed={speed:.2f}m/s.'
         )
         self.nav2.drive_on_heading(
-            self.frontier_open_edge_probe_distance,
-            self.frontier_open_edge_probe_speed,
-            self.frontier_open_edge_probe_timeout,
-            self._open_edge_drive_finished,
+            distance,
+            speed,
+            timeout,
+            self._frontier_probe_drive_finished,
         )
 
-    def _open_edge_drive_finished(self, status: int):
-        if self.state != self.PROBING_OPEN_EDGE:
+    def _frontier_probe_drive_finished(self, status: int):
+        if self.state != self.PROBING_FRONTIER:
             return
         if status != GOAL_STATUS_SUCCEEDED:
-            self.get_logger().warn(f'Open-edge probe ended with status={status}; retrying.')
-            self._open_edge_probe_failed()
+            self.get_logger().warn(f'Frontier probe ended with status={status}; retrying.')
+            self._frontier_probe_failed()
             return
-        self.get_logger().info('Open-edge Nav2 probe completed.')
+        self.get_logger().info('Frontier Nav2 probe completed.')
         self._clear_navigation()
         self._schedule_retry(0.0)
 
-    def _open_edge_probe_failed(self):
+    def _frontier_probe_settings(self) -> Optional[Tuple[float, float, float]]:
+        if self.target_cluster is None:
+            return None
+        if (
+            self.target_cluster.source == OPEN_EDGE_FRONTIER
+            and self.frontier_open_edge_probe_enabled
+        ):
+            return (
+                self.frontier_open_edge_probe_distance,
+                self.frontier_open_edge_probe_speed,
+                self.frontier_open_edge_probe_timeout,
+            )
+        if (
+            self.target_cluster.source == UNKNOWN_FRONTIER
+            and self.frontier_unknown_probe_enabled
+        ):
+            return (
+                self.frontier_unknown_probe_distance,
+                self.frontier_unknown_probe_speed,
+                self.frontier_unknown_probe_timeout,
+            )
+        return None
+
+    def _frontier_probe_failed(self):
         self._mark_goal_failed(self.current_goal)
         self._clear_navigation()
         self._schedule_retry(0.0)
@@ -832,8 +855,8 @@ class ExplorationCoordinator(Node):
         self.current_safe_goal = None
         self.target_cluster = None
         self.navigation_start_wall_time = None
-        self.open_edge_normal = None
-        self.open_edge_action_start_wall_time = None
+        self.frontier_probe_normal = None
+        self.frontier_probe_action_start_wall_time = None
         self.current_navigation_kind = 'frontier'
 
     def _handle_navigation_failure(self, reason: str):
@@ -888,7 +911,6 @@ class ExplorationCoordinator(Node):
             clearance=self.frontier_goal_clearance,
             standoff=self.frontier_goal_standoff,
             map_edge_clearance=self.frontier_goal_map_edge_clearance,
-            min_advance=self.frontier_goal_min_advance,
             reach_radius=self.nav2_goal_reach_radius,
             point_sample_limit=self.frontier_goal_point_sample_limit,
         )
@@ -932,6 +954,15 @@ class ExplorationCoordinator(Node):
         )
         if goal is None:
             return None
+        goal = replace(
+            goal,
+            outward_normal=self._frontier_outward_normal(
+                data,
+                geometry,
+                cluster,
+                goal.seed,
+            ),
+        )
         information_gain = potential_unknown_area(
             data,
             geometry,
@@ -945,8 +976,29 @@ class ExplorationCoordinator(Node):
             information_gain,
             rx,
             ry,
-            self.frontier_information_gain_min,
             on_cooldown=self.failed_goals.contains(goal.point, now),
+        )
+
+    def _frontier_outward_normal(
+        self,
+        data: np.ndarray,
+        geometry: GridGeometry,
+        cluster: FrontierCluster,
+        seed: Tuple[int, int],
+    ) -> Optional[Tuple[float, float]]:
+        if cluster.source == OPEN_EDGE_FRONTIER:
+            return open_edge_outward_normal(
+                cluster.cells,
+                seed,
+                geometry,
+                self.frontier_probe_normal_radius,
+            )
+        return unknown_frontier_outward_normal(
+            data,
+            cluster.cells,
+            seed,
+            geometry,
+            self.frontier_probe_normal_radius,
         )
 
     def _mark_goal_failed(self, goal: Optional[Tuple[float, float]]):

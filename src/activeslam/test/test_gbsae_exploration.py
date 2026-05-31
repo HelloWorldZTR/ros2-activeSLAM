@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from types import SimpleNamespace
 
 import networkx as nx
@@ -63,6 +64,17 @@ def test_load_prior_graph_adds_metric_weights(tmp_path):
     assert sorted(graph.nodes) == [0, 1, 2, 3]
     assert graph.edges[0, 1]['weight'] == pytest.approx(1.0)
     assert graph.edges[0, 1]['information_weight'] == pytest.approx(1.0)
+
+
+def test_slam_office_prior_graph_asset_loads():
+    repo_src = Path(__file__).resolve().parents[2]
+    path = repo_src / 'activeslam_resource' / 'maps' / 'slam_office.gbsae.json'
+
+    graph = load_prior_graph(path, expected_world='slam_office')
+
+    assert graph.number_of_nodes() == 89
+    assert graph.number_of_edges() == 143
+    assert graph.nodes[0] == {'x': 12.1, 'y': 1.5}
 
 
 @pytest.mark.parametrize(

@@ -331,6 +331,57 @@ Products:
 
 Status: generated world XML contains `374` inline box collisions and only the
 standard Gazebo `ground_plane` and `sun` model includes. The launch file uses
-the backed-up interior spawn position `(0.0, -10.0)` for `slam_office`, while
-preserving `(-2.0, -0.5)` for the existing maps. Remote ROS smoke test is
+the mesh-aligned `PublicBathroomB` interior spawn position `(12.1, 1.5)` for
+`slam_office`, while preserving `(-2.0, -0.5)` for the existing maps.
+- Added `tools/generate_office_gbsae_prior.py` and generated the first
+  reviewable `slam_office.gbsae.json`: `89` nodes and `143` visibility edges,
+  connected to the `PublicBathroomB` seed. The generator checks `0.32m` node
+  clearance and `0.24m` edge clearance before emitting the graph.
+
+Status: local static validation passed. Remote ROS smoke test and RViz prior
+graph review are pending.
+
+### Office coordinate correction
+
+- Fixed the PNG-row to ROS-world-y conversion in
+  `tools/generate_slam_office_world.py`. The initial formula missed one image
+  height term and shifted all generated Gazebo obstacles downward by `30m`.
+- Regenerated `slam_office.world`. Its obstacle bounds now match the upstream
+  occupancy geometry: `x=[-27.65, 21.25]`, `y=[-0.10, 22.60]`.
+- Kept the GBSAE prior and spawn seed at the mesh-aligned `PublicBathroomB`
+  interior point `(12.1, 1.5)`.
+
+## 2026-05-31 - Relaxed Frontier Local Filtering
+
+- Removed the hard `frontier_information_gain_min` filter. Information gain is
+  still computed and used to rank candidates.
+- Removed the hard `frontier_goal_min_advance` filter. Safe-goal scoring still
+  prefers useful forward progress, while reach radius, known-free checks,
+  obstacle clearance, segment checks, and failed-goal cooldown remain active.
+- Kept the diagnostic Nav2 inflation adjustment: local `0.22m`, global `0.35m`.
+
+Status: Python compilation, `git diff --check`, and the available pure Python
+frontier, graph, Nav2 adapter, and evaluator helper tests passed (`40 passed`).
+Full local pytest collection remains blocked by missing generic-environment
+`ament_*` modules and `networkx`. Remote approx-graph smoke comparison is
 pending.
+
+### Unknown-frontier doorway probe
+
+- Extended the Nav2-owned frontier probe to ordinary unknown frontiers. After
+  reaching a known-free standoff goal, the coordinator estimates a local
+  outward normal from adjacent unknown cells, aligns with Nav2 `Spin`, and
+  advances with Nav2 `DriveOnHeading`.
+- Kept ordinary probes conservative at `0.45m`, `0.08m/s`, and `8s`. Open map
+  edges retain their existing `2.0m`, `0.12m/s`, and `20s` configuration.
+- Behavior Server local-costmap collision checks remain active; the exploration
+  coordinator still does not publish `/cmd_vel`.
+
+Status: Python compilation, `git diff --check`, and the available pure Python
+frontier, graph, Nav2 adapter, and evaluator helper tests passed (`42 passed`).
+
+### Global planner clearance retune
+
+- Increased global-costmap `inflation_radius` from `0.35m` to `0.45m` after
+  observing U-shaped wall-following plans. Local-costmap inflation remains
+  `0.22m` so DWB retains doorway maneuvering room.

@@ -21,11 +21,10 @@ def make_frontier_candidate(
     information_gain: float,
     robot_x: float,
     robot_y: float,
-    min_information_gain: float,
     on_cooldown: bool = False,
 ) -> Optional[FrontierCandidate]:
     """Create a shared-pool candidate after cheap local filtering."""
-    if safe_goal is None or on_cooldown or information_gain < min_information_gain:
+    if safe_goal is None or on_cooldown:
         return None
     distance = math.hypot(safe_goal.point[0] - robot_x, safe_goal.point[1] - robot_y)
     return FrontierCandidate(

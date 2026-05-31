@@ -9,7 +9,7 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=frontier
+ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
@@ -74,10 +74,17 @@ Evaluator 默认随 launch 启动，但只对 `slam_*` 地图生成可信指标�
 项目还包含基于
 [`Dataset-of-Gazebo-Worlds-Models-and-Maps`](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps)
 Office 地图生成的复杂测试场景。该版本将二维占据区域转换为内嵌 box collision，
-因此仍可计算 coverage 和 IoU。launch 默认使用地图内部出生点 `(0.0, -10.0)`：
+因此仍可计算 coverage 和 IoU。launch 默认使用 `PublicBathroomB` 内部出生点
+`(12.1, 1.5)`：
 
 ```bash
 ros2 launch activeslam slam.launch.py map:=slam_office
+```
+
+Office 也包含可继续手工校对的初版 GBSAE 先验图：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
 ```
 
 探索策略通过 `slam_mode` 选择。YAML 默认值是 `frontier`；不传 launch
@@ -93,7 +100,8 @@ ros2 launch activeslam slam.launch.py map:=slam_office
 ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=approx_graph
 ```
 
-GBSAE 当前只为 `slam_rooms` 提供手工校对的先验图：
+GBSAE 当前为 `slam_rooms` 提供手工校对的先验图，并为 `slam_office` 提供自动
+生成的初版先验图：
 
 ```bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gbsae
@@ -114,8 +122,9 @@ ros2 launch activeslam slam.launch.py nav2_params_file:=/path/to/nav2_params.yam
 `activeslam/config/exploration.yaml` 中将
 `frontier_include_open_map_edges` 设为 `false`。
 
-当 Nav2 到达开放边缘 frontier 的地图内部安全落点后，探索节点会调用
-Nav2 `Spin` 对准局部外法线，再调用 `DriveOnHeading` 低速向边界外前探
-`2.0m`。前探速度由 Behavior Server 直接发布到 `/cmd_vel`；它不经过
-velocity smoother，但仍使用 Nav2 local costmap 的碰撞检查。探索节点本身
-不会直接发布速度命令。
+当 Nav2 到达 frontier 的地图内部安全落点后，探索节点会调用 Nav2 `Spin`
+对准局部外法线，再调用 `DriveOnHeading` 低速前探。普通 unknown frontier
+使用保守的 `0.45m` 前探打开门口等狭窄入口；开放边缘 frontier 使用 `2.0m`
+前探扩展 `/map` 边界。前探速度由 Behavior Server 直接发布到 `/cmd_vel`；
+它不经过 velocity smoother，但仍使用 Nav2 local costmap 的碰撞检查。
+探索节点本身不会直接发布速度命令。

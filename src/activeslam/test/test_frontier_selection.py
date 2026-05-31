@@ -17,8 +17,8 @@ def _goal(x, y=0.0):
 
 
 def test_frontier_candidates_share_one_information_gain_ranking():
-    ordinary = make_frontier_candidate(_cluster('unknown'), _goal(2.0), 1.0, 0.0, 0.0, 0.45)
-    open_edge = make_frontier_candidate(_cluster('open_edge'), _goal(1.0), 1.0, 0.0, 0.0, 0.45)
+    ordinary = make_frontier_candidate(_cluster('unknown'), _goal(2.0), 1.0, 0.0, 0.0)
+    open_edge = make_frontier_candidate(_cluster('open_edge'), _goal(1.0), 1.0, 0.0, 0.0)
 
     ranked = ranked_frontier_candidates([ordinary, open_edge], limit=8)
 
@@ -32,7 +32,6 @@ def test_long_open_edge_cluster_does_not_win_from_size_alone():
         1.0,
         0.0,
         0.0,
-        0.45,
     )
     open_edge = make_frontier_candidate(
         _cluster('open_edge', size=100),
@@ -40,7 +39,6 @@ def test_long_open_edge_cluster_does_not_win_from_size_alone():
         0.5,
         0.0,
         0.0,
-        0.45,
     )
 
     ranked = ranked_frontier_candidates([open_edge, ordinary], limit=1)
@@ -48,23 +46,22 @@ def test_long_open_edge_cluster_does_not_win_from_size_alone():
     assert ranked == [ordinary]
 
 
-def test_candidate_filter_rejects_missing_goal_low_gain_and_cooldown():
+def test_candidate_filter_rejects_missing_goal_and_cooldown_but_allows_low_gain():
     cluster = _cluster('unknown')
 
-    assert make_frontier_candidate(cluster, None, 1.0, 0.0, 0.0, 0.45) is None
-    assert make_frontier_candidate(cluster, _goal(1.0), 0.44, 0.0, 0.0, 0.45) is None
+    assert make_frontier_candidate(cluster, None, 1.0, 0.0, 0.0) is None
+    assert make_frontier_candidate(cluster, _goal(1.0), 0.0, 0.0, 0.0) is not None
     assert make_frontier_candidate(
         cluster,
         _goal(1.0),
         1.0,
         0.0,
         0.0,
-        0.45,
         on_cooldown=True,
     ) is None
 
 
 def test_candidate_utility_is_gain_over_safe_goal_distance():
-    candidate = make_frontier_candidate(_cluster('unknown'), _goal(0.9), 1.0, 0.0, 0.0, 0.45)
+    candidate = make_frontier_candidate(_cluster('unknown'), _goal(0.9), 1.0, 0.0, 0.0)
 
     assert candidate.utility == pytest.approx(1.0)
