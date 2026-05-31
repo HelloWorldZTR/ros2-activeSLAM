@@ -402,3 +402,45 @@ frontier, graph, Nav2 adapter, and evaluator helper tests passed (`42 passed`).
 
 Status: local Python compilation and focused GVD helper tests passed
 (`7 passed`). Remote ROS smoke validation is pending.
+
+### Centerline-biased paths and bounded stuck recovery
+
+- Added a continuous A* penalty for distance from the estimated GVD centerline.
+  The local bootstrap planner can now accept a modest detour instead of blindly
+  preferring a shorter wall-hugging path.
+- Added a TF-pose translation-progress watchdog for active GVD goals. After
+  the configured timeout without enough positional displacement, the
+  coordinator cancels navigation and performs up to three randomized Nav2-owned
+  `Spin -> DriveOnHeading` attempts. In-place DWB rotation and tiny pose jitter
+  do not postpone recovery.
+- Kept the standalone direct-`/cmd_vel` `random_walker` as a debug entry point
+  only. Online recovery uses Behavior Server actions so local-costmap collision
+  checks remain active and the coordinator still does not publish velocity.
+
+Status: local Python compilation, `git diff --check`, and available pure Python
+helper regression tests passed (`64 passed`). Remote ROS smoke validation is
+pending.
+
+### GVD replanning-loop correction
+
+- Fixed a state-machine regression introduced while adding stuck recovery:
+  normal `NAVIGATING` cycles could fall through into `_start_selection()` and
+  issue a new target every control tick.
+- Tightened active-path invalidation. The coordinator now snapshots the
+  obstacle-only raster when dispatching a goal, ignores walls already present
+  at dispatch time, and checks only the forward suffix nearest to the robot.
+  SLAM updates behind the robot no longer trigger unnecessary replanning.
+- Replaced velocity-based stuck detection with TF-position progress anchors.
+  Only translation of at least `0.15m` refreshes the watchdog; in-place
+  rotation and small localization jitter no longer hide a U-shaped deadlock.
+- Increased `gvd_centerline_distance_weight` from `2.0` to `5.0` so bootstrap
+  A* more strongly prefers the estimated medial axis over shorter wall-hugging
+  alternatives.
+- Extended the translation-progress watchdog across GVD bootstrap `IDLE`,
+  `SELECTING`, and `NAVIGATING` states. Any prolonged lack of effective
+  displacement starts the same bounded random `Spin -> DriveOnHeading`
+  escape sequence, including repeated empty selections and Nav2 failures.
+
+Status: local Python compilation, `git diff --check`, and available pure Python
+helper regression tests passed (`68 passed`). Remote ROS smoke validation is
+pending.

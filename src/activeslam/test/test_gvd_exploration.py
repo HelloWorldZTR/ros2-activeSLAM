@@ -1,4 +1,5 @@
 import math
+import random
 
 import networkx as nx
 import numpy as np
@@ -13,11 +14,17 @@ from activeslam.gvd_exploration import (
     boundary_unknown_score,
     bounds_geometry,
     build_obstacle_gvd_topology,
+    distance_to_mask,
     grid_to_world,
+    path_crosses_new_obstacle,
     path_crosses_obstacle,
+    path_suffix_from_nearest,
     path_overlap_ratio,
+    progress_watchdog_expired,
     rank_gvd_goals,
     robot_component_graph,
+    sample_random_recovery_motion,
+    update_translation_progress,
 )
 
 
@@ -57,6 +64,29 @@ def test_astar_routes_around_known_obstacle_and_prefers_reachable_goal():
     assert path[-1] == (3, 5)
     assert all(traversable[cell] for cell in path)
     assert any(row in (0, 6) for row, _ in path)
+
+
+def test_astar_centerline_distance_penalty_prefers_medial_detour():
+    traversable = np.ones((7, 7), dtype=bool)
+    skeleton = np.zeros_like(traversable)
+    skeleton[1, 1:6] = True
+    skeleton[1:4, 1] = True
+    skeleton[1:4, 5] = True
+    distance = distance_to_mask(skeleton, resolution=1.0)
+
+    path = astar_path(
+        traversable,
+        skeleton,
+        (3, 1),
+        (3, 5),
+        skeleton_cost=1.0,
+        off_skeleton_cost=1.0,
+        centerline_distance=distance,
+        centerline_distance_weight=5.0,
+    )
+
+    assert (1, 3) in path
+    assert len(path) > 5
 
 
 def test_boundary_unknown_score_rewards_unswept_border_direction():
@@ -134,6 +164,33 @@ def test_new_obstacle_invalidates_active_path():
     assert path_crosses_obstacle(path, topology)
 
 
+def test_path_suffix_ignores_obstacles_behind_robot():
+    path = [(float(column), 2.0) for column in range(6)]
+
+    suffix = path_suffix_from_nearest(path, (4.1, 2.0), lookbehind_points=1)
+
+    assert suffix == ((3.0, 2.0), (4.0, 2.0), (5.0, 2.0))
+
+
+def test_path_obstruction_only_considers_new_cells_on_forward_suffix():
+    geometry = _geometry(width=6, height=5)
+    path = [(float(column) + 0.5, 2.5) for column in range(6)]
+    suffix = path_suffix_from_nearest(path, (3.6, 2.5), lookbehind_points=1)
+    previous = np.ones((5, 6), dtype=bool)
+    previous[2, 4] = False
+
+    existing_wall = previous.copy()
+    assert not path_crosses_new_obstacle(suffix, geometry, previous, existing_wall)
+
+    wall_behind_robot = previous.copy()
+    wall_behind_robot[2, 0] = False
+    assert not path_crosses_new_obstacle(suffix, geometry, previous, wall_behind_robot)
+
+    wall_ahead = previous.copy()
+    wall_ahead[2, 5] = False
+    assert path_crosses_new_obstacle(suffix, geometry, previous, wall_ahead)
+
+
 def test_robot_component_graph_drops_disconnected_skeleton_regions():
     graph = nx.Graph()
     graph.add_node(0, x=0.0, y=0.0)
@@ -144,3 +201,48 @@ def test_robot_component_graph_drops_disconnected_skeleton_regions():
     component = robot_component_graph(graph, (0.1, 0.1))
 
     assert set(component.nodes) == {0, 1}
+
+
+def test_translation_progress_watchdog_ignores_small_position_jitter():
+    anchor, timestamp, refreshed = update_translation_progress(
+        (1.0, 1.0),
+        5.0,
+        (1.05, 1.03),
+        min_distance=0.15,
+        now=9.0,
+    )
+
+    assert anchor == (1.0, 1.0)
+    assert timestamp == 5.0
+    assert not refreshed
+    assert progress_watchdog_expired(timestamp, timeout=5.0, now=10.1)
+
+
+def test_translation_progress_watchdog_refreshes_after_effective_displacement():
+    anchor, timestamp, refreshed = update_translation_progress(
+        (1.0, 1.0),
+        5.0,
+        (1.16, 1.0),
+        min_distance=0.15,
+        now=9.0,
+    )
+
+    assert anchor == (1.16, 1.0)
+    assert timestamp == 9.0
+    assert refreshed
+    assert not progress_watchdog_expired(timestamp, timeout=5.0, now=10.1)
+
+
+def test_random_recovery_motion_is_bounded():
+
+    motion = sample_random_recovery_motion(
+        random.Random(7),
+        min_abs_yaw=0.6,
+        max_abs_yaw=2.4,
+        distance=0.45,
+        speed=0.10,
+    )
+
+    assert 0.6 <= abs(motion.yaw_delta) <= 2.4
+    assert motion.distance == 0.45
+    assert motion.speed == 0.10

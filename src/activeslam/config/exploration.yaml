@@ -46,11 +46,11 @@ exploration_coordinator:
     graph_odom_cov_y: 0.04
     graph_odom_cov_yaw: 0.008
     gbsae_loop_path_cost_weight: 0.01
-    gvd_sweep_switch_ratio: 0.50
+    gvd_sweep_switch_ratio: 0.8
     gvd_raster_resolution: 0.15
     gvd_sweep_radius: 2.0
     gvd_overlap_radius: 0.35
-    gvd_obstacle_clearance: 0.25
+    gvd_obstacle_clearance: 0.04
     gvd_boundary_margin: 0.20
     gvd_support_vertex_spacing: 1.0
     gvd_min_goal_distance: 1.0
@@ -63,3 +63,14 @@ exploration_coordinator:
     gvd_goal_distance_weight: 1.0
     gvd_path_overlap_penalty_weight: 2.0
     gvd_straightness_weight: 1.0
+    gvd_centerline_distance_weight: 5.0
+    gvd_stuck_recovery_enabled: true
+    gvd_stuck_min_progress_distance: 0.15
+    gvd_stuck_timeout: 5.0
+    gvd_random_recovery_attempts: 3
+    gvd_random_recovery_min_abs_yaw: 0.6
+    gvd_random_recovery_max_abs_yaw: 2.4
+    gvd_random_recovery_spin_timeout: 5.0
+    gvd_random_recovery_distance: 0.45
+    gvd_random_recovery_speed: 0.10
+    gvd_random_recovery_drive_timeout: 6.0

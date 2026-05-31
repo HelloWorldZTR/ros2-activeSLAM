@@ -1,4 +1,5 @@
 import math
+import random
 import time
 from collections import deque
 from dataclasses import replace
@@ -57,10 +58,14 @@ from .gvd_exploration import (
     build_obstacle_traversability,
     gvd_to_marker_array,
     load_world_bounds,
-    path_crosses_traversability,
+    path_crosses_new_obstacle,
+    path_suffix_from_nearest,
+    progress_watchdog_expired,
     rank_gvd_goals,
     resolve_gvd_bounds_path,
     robot_component_graph,
+    sample_random_recovery_motion,
+    update_translation_progress,
 )
 from .nav2_backend import (
     GOAL_STATUS_SUCCEEDED,
@@ -86,6 +91,8 @@ class ExplorationCoordinator(Node):
     NAVIGATING = 'navigating'
     ALIGNING_FRONTIER_PROBE = 'aligning_frontier_probe'
     PROBING_FRONTIER = 'probing_frontier'
+    RANDOM_RECOVERY_SPIN = 'random_recovery_spin'
+    RANDOM_RECOVERY_DRIVE = 'random_recovery_drive'
     COMPLETE = 'complete'
 
     def __init__(self):
@@ -143,7 +150,7 @@ class ExplorationCoordinator(Node):
             'initial_spin_timeout', 30.0
         ).value
         self.nav2_goal_timeout = self.declare_parameter(
-            'nav2_goal_timeout', 30.0
+            'nav2_goal_timeout', 60.0
         ).value
         self.frontier_open_edge_probe_enabled = self.declare_parameter(
             'frontier_open_edge_probe_enabled', True
@@ -248,6 +255,37 @@ class ExplorationCoordinator(Node):
             ).value,
             straightness=self.declare_parameter('gvd_straightness_weight', 1.0).value,
         )
+        self.gvd_centerline_distance_weight = self.declare_parameter(
+            'gvd_centerline_distance_weight', 5.0
+        ).value
+        self.gvd_stuck_recovery_enabled = self.declare_parameter(
+            'gvd_stuck_recovery_enabled', True
+        ).value
+        self.gvd_stuck_min_progress_distance = self.declare_parameter(
+            'gvd_stuck_min_progress_distance', 0.15
+        ).value
+        self.gvd_stuck_timeout = self.declare_parameter('gvd_stuck_timeout', 5.0).value
+        self.gvd_random_recovery_attempts = int(
+            self.declare_parameter('gvd_random_recovery_attempts', 3).value
+        )
+        self.gvd_random_recovery_min_abs_yaw = self.declare_parameter(
+            'gvd_random_recovery_min_abs_yaw', 0.6
+        ).value
+        self.gvd_random_recovery_max_abs_yaw = self.declare_parameter(
+            'gvd_random_recovery_max_abs_yaw', 2.4
+        ).value
+        self.gvd_random_recovery_spin_timeout = self.declare_parameter(
+            'gvd_random_recovery_spin_timeout', 5.0
+        ).value
+        self.gvd_random_recovery_distance = self.declare_parameter(
+            'gvd_random_recovery_distance', 0.45
+        ).value
+        self.gvd_random_recovery_speed = self.declare_parameter(
+            'gvd_random_recovery_speed', 0.10
+        ).value
+        self.gvd_random_recovery_drive_timeout = self.declare_parameter(
+            'gvd_random_recovery_drive_timeout', 6.0
+        ).value
 
         if self.slam_mode not in ('frontier', 'approx_graph', 'gbsae', 'gvd_gbsae'):
             self.get_logger().warn(
@@ -354,8 +392,20 @@ class ExplorationCoordinator(Node):
         self.gvd_candidates: List[GVDGoal] = []
         self.gvd_candidate_index = 0
         self.gvd_active_path: Tuple[Tuple[float, float], ...] = ()
+        self.gvd_active_traversability: Optional[np.ndarray] = None
         self.gvd_map_generation = 0
         self.gvd_checked_map_generation = -1
+        self.gvd_progress_anchor_xy: Optional[Tuple[float, float]] = None
+        self.gvd_last_progress_wall_time: Optional[float] = None
+        self.gvd_random_recovery_attempt = 0
+        self.gvd_random_recovery_action_start_wall_time: Optional[float] = None
+        self.gvd_random_recovery_motion = None
+        self.gvd_random = random.Random()
+        self._gvd_obstruction_original_goal = None
+        self._gvd_obstruction_path = ()
+        self._gvd_obstruction_start = None
+        self._gvd_obstruction_checkpoints = []
+        self._gvd_obstruction_checkpoint_idx = 0
 
         self.control_timer = self.create_timer(0.2, self._control_loop)
 
@@ -404,15 +454,12 @@ class ExplorationCoordinator(Node):
             return
         if self.state == self.INITIAL_SPIN:
             return
+        if self._gvd_bootstrap_stuck(pose):
+            self._start_gvd_stuck_recovery()
+            return
         if self.state == self.NAVIGATING:
             if self.current_navigation_kind == 'gvd_goal' and self._gvd_path_obstructed():
-                self.get_logger().warn(
-                    'Observed a new obstacle on the active GVD path; canceling and reselecting.'
-                )
-                self.nav2.cancel_navigation()
-                self._mark_goal_failed(self.current_goal)
-                self._clear_navigation()
-                self._schedule_retry(0.0)
+                self._handle_gvd_path_obstructed()
                 return
             if navigation_timed_out(
                 self.navigation_start_wall_time,
@@ -427,6 +474,7 @@ class ExplorationCoordinator(Node):
                 self._handle_navigation_failure('Nav2 navigation timed out')
                 self._clear_navigation()
                 self._schedule_retry(0.0)
+                return
             return
         if self.state == self.ALIGNING_FRONTIER_PROBE:
             if navigation_timed_out(
@@ -449,6 +497,24 @@ class ExplorationCoordinator(Node):
                 self.get_logger().warn('Frontier DriveOnHeading probe timed out; retrying.')
                 self.nav2.cancel_drive_on_heading()
                 self._frontier_probe_failed()
+            return
+        if self.state == self.RANDOM_RECOVERY_SPIN:
+            if navigation_timed_out(
+                self.gvd_random_recovery_action_start_wall_time,
+                self.gvd_random_recovery_spin_timeout,
+                time.monotonic(),
+            ):
+                self.nav2.cancel_spin()
+                self._gvd_random_recovery_attempt_failed('random recovery spin timed out')
+            return
+        if self.state == self.RANDOM_RECOVERY_DRIVE:
+            if navigation_timed_out(
+                self.gvd_random_recovery_action_start_wall_time,
+                self.gvd_random_recovery_drive_timeout,
+                time.monotonic(),
+            ):
+                self.nav2.cancel_drive_on_heading()
+                self._gvd_random_recovery_attempt_failed('random recovery drive timed out')
             return
         if self.state == self.SELECTING:
             if (
@@ -548,6 +614,7 @@ class ExplorationCoordinator(Node):
             candidate_limit=self.gvd_candidate_limit,
             skeleton_cost=self.gvd_skeleton_cost,
             off_skeleton_cost=self.gvd_off_skeleton_cost,
+            centerline_distance_weight=self.gvd_centerline_distance_weight,
             failed=lambda goal: self.failed_goals.contains(goal, now),
         )[:self.gvd_nav2_planning_attempts]
         self.selection_start_xy = (rx, ry)
@@ -567,11 +634,11 @@ class ExplorationCoordinator(Node):
 
     def _request_next_gvd_path(self):
         if self.gvd_candidate_index >= len(self.gvd_candidates):
+            self.nav2.cancel_path_batch()
             self.get_logger().info(
-                f'GVD bootstrap found no Nav2-reachable goal; retrying in '
+                f'GVD bootstrap found no reachable goal; retrying in '
                 f'{self.frontier_retry_interval:.1f}s.'
             )
-            self.nav2.cancel_path_batch()
             self._schedule_retry()
             return
         candidate = self.gvd_candidates[self.gvd_candidate_index]
@@ -612,9 +679,11 @@ class ExplorationCoordinator(Node):
         self.selection_request_goal = None
         self.current_navigation_kind = 'gvd_goal'
         self.gvd_active_path = tuple(planned_path.points)
+        _, self.gvd_active_traversability = self._current_gvd_traversability()
         self.gvd_checked_map_generation = self.gvd_map_generation
         self.state = self.NAVIGATING
         self.navigation_start_wall_time = time.monotonic()
+        self._start_gvd_progress_watchdog(self.selection_start_xy)
         yaw = heading_to_target(planned_path.points[-2], planned_path.goal_xy) if (
             len(planned_path.points) >= 2
         ) else 0.0
@@ -672,7 +741,26 @@ class ExplorationCoordinator(Node):
         ):
             return False
         assert self.gvd_bounds is not None
-        geometry, traversable = build_obstacle_traversability(
+        geometry, traversable = self._current_gvd_traversability()
+        self.gvd_checked_map_generation = self.gvd_map_generation
+        if self.gvd_active_traversability is None:
+            self.gvd_active_traversability = traversable
+            return False
+        pose = self._get_robot_pose()
+        if pose is None:
+            return False
+        forward_path = path_suffix_from_nearest(self.gvd_active_path, (pose[0], pose[1]))
+        return path_crosses_new_obstacle(
+            forward_path,
+            geometry,
+            self.gvd_active_traversability,
+            traversable,
+        )
+
+    def _current_gvd_traversability(self):
+        assert self.latest_grid is not None
+        assert self.gvd_bounds is not None
+        return build_obstacle_traversability(
             self.latest_grid,
             self._latest_map_geometry(),
             self.gvd_bounds,
@@ -680,8 +768,292 @@ class ExplorationCoordinator(Node):
             clearance=self.gvd_obstacle_clearance,
             boundary_margin=self.gvd_boundary_margin,
         )
+
+    def _gvd_bootstrap_stuck(self, pose: Optional[Tuple[float, float, float]]) -> bool:
+        if (
+            not self.gvd_stuck_recovery_enabled
+            or self.slam_mode != 'gvd_gbsae'
+            or self.gvd_phase != 'bootstrap'
+            or self.state not in (self.IDLE, self.SELECTING, self.NAVIGATING)
+            or pose is None
+        ):
+            return False
+        self._record_gvd_navigation_progress((pose[0], pose[1]))
+        return progress_watchdog_expired(
+            self.gvd_last_progress_wall_time,
+            self.gvd_stuck_timeout,
+            time.monotonic(),
+        )
+
+    def _start_gvd_stuck_recovery(self):
+        self.get_logger().warn(
+            f'GVD bootstrap has made no effective translation for '
+            f'{self.gvd_stuck_timeout:.1f}s; starting bounded random-walk recovery.'
+        )
+        if self.state == self.NAVIGATING:
+            self.nav2.cancel_navigation()
+            self._mark_goal_failed(self.current_goal)
+            self._clear_navigation()
+        elif self.state == self.SELECTING:
+            self.nav2.cancel_path_batch()
+            self.selection_request_wall_time = None
+            self.selection_request_goal = None
+        self._start_gvd_random_recovery()
+
+    def _start_gvd_progress_watchdog(self, anchor_xy: Tuple[float, float]):
+        if (
+            self.gvd_progress_anchor_xy is None
+            or self.gvd_last_progress_wall_time is None
+        ):
+            self.gvd_progress_anchor_xy = anchor_xy
+            self.gvd_last_progress_wall_time = time.monotonic()
+
+    def _record_gvd_navigation_progress(self, robot_xy: Tuple[float, float]):
+        (
+            self.gvd_progress_anchor_xy,
+            self.gvd_last_progress_wall_time,
+            _,
+        ) = update_translation_progress(
+            self.gvd_progress_anchor_xy,
+            self.gvd_last_progress_wall_time,
+            robot_xy,
+            self.gvd_stuck_min_progress_distance,
+            time.monotonic(),
+        )
+
+    def _start_gvd_random_recovery(self):
+        self.gvd_random_recovery_attempt = 0
+        self._start_next_gvd_random_recovery_attempt()
+
+    def _start_next_gvd_random_recovery_attempt(self):
+        if self.gvd_random_recovery_attempt >= self.gvd_random_recovery_attempts:
+            self.get_logger().warn(
+                'GVD random-walk recovery exhausted its bounded attempts; reselecting.'
+            )
+            self._clear_gvd_random_recovery()
+            self._schedule_retry(0.0)
+            return
+        motion = sample_random_recovery_motion(
+            self.gvd_random,
+            min_abs_yaw=self.gvd_random_recovery_min_abs_yaw,
+            max_abs_yaw=self.gvd_random_recovery_max_abs_yaw,
+            distance=self.gvd_random_recovery_distance,
+            speed=self.gvd_random_recovery_speed,
+        )
+        self.gvd_random_recovery_motion = motion
+        self.gvd_random_recovery_action_start_wall_time = time.monotonic()
+        self.state = self.RANDOM_RECOVERY_SPIN
+        self.get_logger().info(
+            f'GVD random-walk recovery attempt '
+            f'{self.gvd_random_recovery_attempt + 1}/{self.gvd_random_recovery_attempts}: '
+            f'Nav2 Spin delta={motion.yaw_delta:.2f}rad.'
+        )
+        self.nav2.spin_once(
+            motion.yaw_delta,
+            self.gvd_random_recovery_spin_timeout,
+            self._gvd_random_recovery_spin_finished,
+        )
+
+    def _gvd_random_recovery_spin_finished(self, status: int):
+        if self.state != self.RANDOM_RECOVERY_SPIN:
+            return
+        if status != GOAL_STATUS_SUCCEEDED:
+            self._gvd_random_recovery_attempt_failed(
+                f'random recovery spin ended with status={status}'
+            )
+            return
+        assert self.gvd_random_recovery_motion is not None
+        motion = self.gvd_random_recovery_motion
+        self.state = self.RANDOM_RECOVERY_DRIVE
+        self.gvd_random_recovery_action_start_wall_time = time.monotonic()
+        self.get_logger().info(
+            f'GVD random-walk recovery driving {motion.distance:.2f}m at '
+            f'{motion.speed:.2f}m/s with Nav2 collision checking.'
+        )
+        self.nav2.drive_on_heading(
+            motion.distance,
+            motion.speed,
+            self.gvd_random_recovery_drive_timeout,
+            self._gvd_random_recovery_drive_finished,
+        )
+
+    def _gvd_random_recovery_drive_finished(self, status: int):
+        if self.state != self.RANDOM_RECOVERY_DRIVE:
+            return
+        if status != GOAL_STATUS_SUCCEEDED:
+            self._gvd_random_recovery_attempt_failed(
+                f'random recovery drive ended with status={status}'
+            )
+            return
+        self.get_logger().info('GVD random-walk recovery completed; reselecting.')
+        self._clear_gvd_random_recovery()
+        self._schedule_retry(0.0)
+
+    def _gvd_random_recovery_attempt_failed(self, reason: str):
+        self.get_logger().warn(f'GVD {reason}; trying another direction.')
+        self.gvd_random_recovery_attempt += 1
+        self._start_next_gvd_random_recovery_attempt()
+
+    def _clear_gvd_random_recovery(self):
+        self.gvd_random_recovery_action_start_wall_time = None
+        self.gvd_random_recovery_motion = None
+        self.gvd_progress_anchor_xy = None
+        self.gvd_last_progress_wall_time = None
+
+    def _handle_gvd_path_obstructed(self):
+        """Replan to same goal first, then backtrack along original path.
+
+        When the active GVD path is obstructed, instead of immediately
+        abandoning the goal and selecting a new one, we first try to replan
+        to the same goal from the current robot pose.  If that fails we
+        walk backwards along the original planned path and navigate to the
+        farthest checkpoint that Nav2 can still reach.
+        """
+        self.get_logger().warn(
+            'Observed a new obstacle on the active GVD path; attempting replan.'
+        )
+        self.nav2.cancel_navigation()
+
+        original_goal = self.current_goal
+        original_path = self.gvd_active_path
+        self._clear_navigation()
+
+        pose = self._get_robot_pose()
+        if pose is None or not original_path:
+            if original_goal is not None:
+                self._mark_goal_failed(original_goal)
+            self._schedule_retry(0.0)
+            return
+
+        # Sample evenly-spaced checkpoints from the goal backwards towards
+        # the start.  The first checkpoint (goal) gives the same-goal replan
+        # attempt; subsequent ones implement the backtracking fallback.
+        num_checkpoints = min(8, len(original_path))
+        step = (
+            max(1, (len(original_path) - 1) // (num_checkpoints - 1))
+            if num_checkpoints > 1
+            else 1
+        )
+        # Indices from goal (last) down to start (first)
+        checkpoints = list(range(len(original_path) - 1, -1, -step))
+
+        self._gvd_obstruction_original_goal = original_goal
+        self._gvd_obstruction_path = original_path
+        self._gvd_obstruction_start = (pose[0], pose[1])
+        self._gvd_obstruction_checkpoints = checkpoints
+        self._gvd_obstruction_checkpoint_idx = 0
+
+        self.state = self.SELECTING
+        self.selection_kind = 'gvd_obstruction_replan'
+        self._gvd_obstruction_gen = self.nav2.start_path_batch()
+
+        self._try_gvd_obstruction_checkpoint()
+
+    def _try_gvd_obstruction_checkpoint(self):
+        """Issue a Nav2 path request for the current backtrack checkpoint."""
+        idx = self._gvd_obstruction_checkpoint_idx
+        checkpoints = self._gvd_obstruction_checkpoints
+        if idx >= len(checkpoints):
+            self._finish_gvd_obstruction_fallback()
+            return
+
+        path_idx = checkpoints[idx]
+        goal = self._gvd_obstruction_path[path_idx]
+
+        self.selection_request_wall_time = time.monotonic()
+        self.selection_request_goal = goal
+        self.get_logger().info(
+            f'GVD obstruction replan: checkpoint {idx + 1}/{len(checkpoints)} '
+            f'(path index {path_idx}/{len(self._gvd_obstruction_path) - 1}): '
+            f'({goal[0]:.2f}, {goal[1]:.2f})'
+        )
+        self.nav2.compute_path(
+            self._gvd_obstruction_gen,
+            self._gvd_obstruction_start,
+            goal,
+            self._gvd_obstruction_replan_computed,
+        )
+
+    def _gvd_obstruction_replan_computed(
+        self, planned_path: Optional[PlannedPath]
+    ):
+        """Callback for obstruction-replan path requests.
+
+        The first successful path terminates the search and the robot
+        navigates there.  Failures advance to the next checkpoint
+        (closer to the robot).  If every checkpoint fails we fall back
+        to the original full-reselection behaviour.
+        """
+        if (
+            self.state != self.SELECTING
+            or self.selection_kind != 'gvd_obstruction_replan'
+        ):
+            return
+
+        if planned_path is not None:
+            checkpoint_idx = self._gvd_obstruction_checkpoint_idx
+            checkpoints = self._gvd_obstruction_checkpoints
+            path_idx = checkpoints[checkpoint_idx]
+            self.get_logger().info(
+                f'GVD obstruction replan: checkpoint {checkpoint_idx + 1}/'
+                f'{len(checkpoints)} (path index {path_idx}) is reachable; '
+                'navigating there.'
+            )
+            self._dispatch_gvd_obstruction_fallback(planned_path)
+            return
+
+        # This checkpoint is unreachable — try the next one (closer to robot).
+        self._gvd_obstruction_checkpoint_idx += 1
+        self._try_gvd_obstruction_checkpoint()
+
+    def _dispatch_gvd_obstruction_fallback(self, planned_path: PlannedPath):
+        """Navigate to the fallback point found during obstruction replan."""
+        self.nav2.cancel_path_batch()
+        self.current_goal = planned_path.goal_xy
+        self.current_safe_goal = None
+        self.target_cluster = None
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        self.current_navigation_kind = 'gvd_goal'
+        self.gvd_active_path = tuple(planned_path.points)
+        _, self.gvd_active_traversability = self._current_gvd_traversability()
         self.gvd_checked_map_generation = self.gvd_map_generation
-        return path_crosses_traversability(self.gvd_active_path, geometry, traversable)
+        self.state = self.NAVIGATING
+        self.navigation_start_wall_time = time.monotonic()
+        anchor_xy = self._gvd_obstruction_start or planned_path.points[0]
+        self._start_gvd_progress_watchdog(anchor_xy)
+        yaw = (
+            heading_to_target(planned_path.points[-2], planned_path.goal_xy)
+            if len(planned_path.points) >= 2
+            else 0.0
+        )
+        self.get_logger().info(
+            f'Navigating to GVD obstruction fallback goal='
+            f'({planned_path.goal_xy[0]:.2f}, {planned_path.goal_xy[1]:.2f}), '
+            f'cost={planned_path.cost:.2f}.'
+        )
+        self._cleanup_gvd_obstruction_state()
+        self.nav2.navigate(planned_path.goal_xy, yaw, self._navigation_finished)
+
+    def _finish_gvd_obstruction_fallback(self):
+        """No checkpoint on the original path is reachable — full reselection."""
+        self.get_logger().warn(
+            'GVD obstruction replan: no checkpoint on original path is '
+            'reachable; falling back to full reselection.'
+        )
+        self.nav2.cancel_path_batch()
+        if self._gvd_obstruction_original_goal is not None:
+            self._mark_goal_failed(self._gvd_obstruction_original_goal)
+        self._cleanup_gvd_obstruction_state()
+        self._schedule_retry(0.0)
+
+    def _cleanup_gvd_obstruction_state(self):
+        """Clear the transient obstruction-replan bookkeeping."""
+        self._gvd_obstruction_original_goal = None
+        self._gvd_obstruction_path = ()
+        self._gvd_obstruction_start = None
+        self._gvd_obstruction_checkpoints = []
+        self._gvd_obstruction_checkpoint_idx = 0
 
     def _start_standard_selection(self, rx: float, ry: float):
         if not self.frontier_clusters:
@@ -1127,6 +1499,7 @@ class ExplorationCoordinator(Node):
         self.frontier_probe_normal = None
         self.frontier_probe_action_start_wall_time = None
         self.gvd_active_path = ()
+        self.gvd_active_traversability = None
         self.current_navigation_kind = 'frontier'
 
     def _handle_navigation_failure(self, reason: str):

@@ -59,6 +59,16 @@ class GVDTopology:
     geometry: GridGeometry
     skeleton: np.ndarray
     traversable: np.ndarray
+    centerline_distance: Optional[np.ndarray] = None
+
+
+@dataclass(frozen=True)
+class RandomRecoveryMotion:
+    """One bounded Nav2-owned random-walk recovery attempt."""
+
+    yaw_delta: float
+    distance: float
+    speed: float
 
 
 class TrajectorySweepTracker:
@@ -132,7 +142,13 @@ def build_obstacle_gvd_topology(
     )
     skeleton = zhang_suen_thinning(traversable)
     graph = skeleton_to_graph(skeleton, geometry, support_vertex_spacing)
-    return GVDTopology(graph, geometry, skeleton, traversable)
+    return GVDTopology(
+        graph,
+        geometry,
+        skeleton,
+        traversable,
+        distance_to_mask(skeleton, geometry.resolution),
+    )
 
 
 def build_obstacle_traversability(
@@ -170,6 +186,7 @@ def rank_gvd_goals(
     candidate_limit: int,
     skeleton_cost: float,
     off_skeleton_cost: float,
+    centerline_distance_weight: float = 0.0,
     failed: Optional[Callable[[Point], bool]] = None,
 ) -> List[GVDGoal]:
     """Rank A*-reachable skeleton goals using border, distance, overlap, and heading terms."""
@@ -194,6 +211,8 @@ def rank_gvd_goals(
             cell,
             skeleton_cost,
             off_skeleton_cost,
+            topology.centerline_distance,
+            centerline_distance_weight,
         )
         if not cells:
             continue
@@ -248,6 +267,34 @@ def path_crosses_traversability(
     )
 
 
+def path_crosses_new_obstacle(
+    path: Sequence[Point],
+    geometry: GridGeometry,
+    previous_traversable: np.ndarray,
+    current_traversable: np.ndarray,
+) -> bool:
+    """Return whether a path intersects cells newly blocked since dispatch."""
+    newly_blocked = np.logical_and(previous_traversable, np.logical_not(current_traversable))
+    return path_crosses_traversability(path, geometry, np.logical_not(newly_blocked))
+
+
+def path_suffix_from_nearest(
+    path: Sequence[Point],
+    robot_xy: Point,
+    *,
+    lookbehind_points: int = 1,
+) -> Tuple[Point, ...]:
+    """Trim already-traversed path points while retaining a small local overlap."""
+    if not path:
+        return ()
+    nearest = min(
+        range(len(path)),
+        key=lambda index: (math.dist(path[index], robot_xy), index),
+    )
+    start = max(0, nearest - max(0, lookbehind_points))
+    return tuple(path[start:])
+
+
 def path_overlap_ratio(
     path: Sequence[Point],
     geometry: GridGeometry,
@@ -276,6 +323,53 @@ def initial_straightness(path: Sequence[Point], robot_yaw: float) -> float:
         path_yaw = math.atan2(target[1] - origin[1], target[0] - origin[0])
         return 0.5 * (1.0 + math.cos(normalize_angle(path_yaw - robot_yaw)))
     return 0.0
+
+
+def progress_watchdog_expired(
+    last_progress_wall_time: Optional[float],
+    timeout: float,
+    now: float,
+) -> bool:
+    """Return whether navigation has made no effective translation for too long."""
+    return (
+        last_progress_wall_time is not None
+        and timeout > 0.0
+        and now - last_progress_wall_time > timeout
+    )
+
+
+def update_translation_progress(
+    anchor_xy: Optional[Point],
+    last_progress_wall_time: Optional[float],
+    robot_xy: Point,
+    min_distance: float,
+    now: float,
+) -> Tuple[Point, float, bool]:
+    """Refresh the progress timestamp only after a meaningful position change."""
+    if (
+        anchor_xy is None
+        or last_progress_wall_time is None
+        or math.dist(anchor_xy, robot_xy) >= max(0.0, min_distance)
+    ):
+        return robot_xy, now, True
+    return anchor_xy, last_progress_wall_time, False
+
+
+def sample_random_recovery_motion(
+    rng,
+    *,
+    min_abs_yaw: float,
+    max_abs_yaw: float,
+    distance: float,
+    speed: float,
+) -> RandomRecoveryMotion:
+    """Sample a short collision-checked turn-and-drive recovery motion."""
+    low = max(0.0, min(min_abs_yaw, max_abs_yaw))
+    high = max(low, max(min_abs_yaw, max_abs_yaw))
+    yaw = rng.uniform(low, high)
+    if rng.random() < 0.5:
+        yaw = -yaw
+    return RandomRecoveryMotion(yaw, max(0.0, distance), max(0.0, speed))
 
 
 def boundary_unknown_score(
@@ -339,6 +433,8 @@ def astar_path(
     goal: GridCell,
     skeleton_cost: float,
     off_skeleton_cost: float,
+    centerline_distance: Optional[np.ndarray] = None,
+    centerline_distance_weight: float = 0.0,
 ) -> List[GridCell]:
     """Find a deterministic obstacle-avoiding path while preferring the GVD skeleton."""
     if not traversable[start] or not traversable[goal]:
@@ -356,6 +452,8 @@ def astar_path(
             if not traversable[neighbor]:
                 continue
             terrain = skeleton_cost if skeleton[neighbor] else off_skeleton_cost
+            if centerline_distance is not None:
+                terrain += centerline_distance_weight * centerline_distance[neighbor]
             next_cost = cost + distance * terrain
             if next_cost + 1e-9 >= costs.get(neighbor, math.inf):
                 continue
@@ -473,6 +571,27 @@ def zhang_suen_thinning(mask: np.ndarray) -> np.ndarray:
                 image[remove] = False
                 changed = True
     return image
+
+
+def distance_to_mask(mask: np.ndarray, resolution: float) -> np.ndarray:
+    """Approximate metric distance to a mask with deterministic eight-neighbor Dijkstra."""
+    distances = np.full(mask.shape, np.inf, dtype=np.float64)
+    queue = []
+    for row, col in np.argwhere(mask):
+        cell = int(row), int(col)
+        distances[cell] = 0.0
+        heapq.heappush(queue, (0.0, cell))
+    while queue:
+        distance, cell = heapq.heappop(queue)
+        if distance > distances[cell] + 1e-9:
+            continue
+        for neighbor, step in _neighbors(cell, mask.shape):
+            next_distance = distance + step * resolution
+            if next_distance + 1e-9 >= distances[neighbor]:
+                continue
+            distances[neighbor] = next_distance
+            heapq.heappush(queue, (next_distance, neighbor))
+    return distances
 
 
 def skeleton_to_graph(

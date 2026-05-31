@@ -9,7 +9,7 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gvd_gbsae
+ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gvd_gbsae
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
@@ -119,8 +119,16 @@ ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gvd_gbsae
 
 该模式使用 `config/gvd_worlds.yaml` 中不含墙体结构的粗矩形边界。GVD 快速扫掠
 目标综合考虑尚未扫过的边框方向、距离、与历史轨迹管道的重叠面积以及当前朝向；
-局部 A* 只把已观测障碍视为墙。若新扫描出的障碍切断当前路径，探索节点会立即
-取消 Nav2 目标并重新选点。轨迹扫掠面积达到粗矩形的 `50%` 后切换到实时 GBSAE。
+局部 A* 只把已观测障碍视为墙，并对偏离 GVD 中轴线的路径增加连续代价，避免
+为了缩短几步而贴墙行驶。若新扫描出的障碍切断当前路径，探索节点会立即取消
+Nav2 目标并重新选点。轨迹扫掠面积达到配置阈值后切换到实时 GBSAE。
+
+如果 GVD bootstrap 阶段 TF 位姿长时间没有产生足够的有效平移，节点会启动有界的轻量
+随机脱困：随机调用一次 Nav2 `Spin`，再调用短距离 `DriveOnHeading`。原地旋转
+和微小位置抖动不会刷新进展计时器。恢复动作仍使用 Nav2 local costmap 做碰撞
+检查，不会让探索节点直接发布 `/cmd_vel`。对应参数均以 `gvd_stuck_*` 和
+`gvd_random_recovery_*` 开头，可用于 ablation study。空闲、选点、预检和导航
+执行期间统一使用同一套进展 watchdog，避免机器人静止在原地重复空选点。
 
 选择其他地图并启用 `gbsae` 会在启动早期报告缺少对应
 `<world>.gbsae.json`。旧命令中的 `exploration_strategy:=frontier|graph`
