@@ -61,6 +61,17 @@ def test_extract_and_rasterize_inline_sdf_box_obstacles():
     assert np.count_nonzero(raster) > 0
 
 
+def test_slam_office_uses_inline_box_obstacles_for_iou():
+    repo_src = Path(__file__).resolve().parents[2]
+    world_path = repo_src / 'activeslam_resource' / 'maps' / 'slam_office.world'
+
+    obstacles = extract_box_obstacles(str(world_path))
+    bounds = derive_bounds_from_obstacles(obstacles, margin=0.5)
+
+    assert len(obstacles) == 374
+    assert bounds is not None
+
+
 def test_compute_map_iou_excludes_unknown_cells():
     pred = [100, 0, -1, 100]
     gt_occupied = np.array([[True, False], [True, True]])

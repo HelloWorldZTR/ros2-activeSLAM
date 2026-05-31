@@ -8,7 +8,7 @@ Exploration is coordinated by `activeslam.exploration_coordinator`. It detects f
 
 Evaluation is handled by `activeslam.slam_evaluator`. It compares SLAM output against Gazebo ground truth and inline world geometry, then writes run logs under `logs/run_*` with estimated/ground-truth trajectories, coverage over time, coverage over path length, map IoU, and ATE metrics. Precise evaluation is limited to `slam_*` worlds with inline box collisions. The main launch skips evaluator for `turtlebot3_*` worlds that rely on unparsed `model://` includes.
 
-Simulation assets live in `activeslam_resource` and vendored TurtleBot3 simulation packages. World names passed to launches are basenames only, for example `map:=slam_rooms`, not `slam_rooms.world`.
+Simulation assets live in `activeslam_resource` and vendored TurtleBot3 simulation packages. World names passed to launches are basenames only, for example `map:=slam_rooms`, not `slam_rooms.world`. `slam_office` is the IoU-friendly complex office benchmark generated from the upstream `Dataset-of-Gazebo-Worlds-Models-and-Maps` occupancy image.
 
 ## Important Files
 
@@ -26,6 +26,7 @@ Simulation assets live in `activeslam_resource` and vendored TurtleBot3 simulati
 - `src/activeslam_resource/maps/`: Gazebo worlds used by `slam.launch.py` and `slam_evaluator`.
 - `src/activeslam_resource/maps/slam_rooms.gbsae.json`: initial GBSAE topo-metric prior graph. GBSAE fails early if the selected world lacks a matching asset.
 - `src/activeslam_resource/models/`: custom Gazebo models referenced by project worlds.
+- `tools/generate_slam_office_world.py`: standard-library generator for the inline-box `slam_office` benchmark.
 - `src/setup.zsh`: bc01-style zsh setup with equivalent build/run aliases.
 
 

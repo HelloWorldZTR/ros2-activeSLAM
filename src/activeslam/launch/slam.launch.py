@@ -290,13 +290,17 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'x_pose',
-            default_value='-2.0',
-            description='Initial TurtleBot3 x position in Gazebo.',
+            default_value=PythonExpression(
+                ["'0.0' if '", map_name, "' == 'slam_office' else '-2.0'"]
+            ),
+            description='Initial TurtleBot3 x position in Gazebo; map-aware default.',
         ),
         DeclareLaunchArgument(
             'y_pose',
-            default_value='-0.5',
-            description='Initial TurtleBot3 y position in Gazebo.',
+            default_value=PythonExpression(
+                ["'-10' if '", map_name, "' == 'slam_office' else '-0.5'"]
+            ),
+            description='Initial TurtleBot3 y position in Gazebo; map-aware default.',
         ),
         SetEnvironmentVariable('TURTLEBOT3_MODEL', turtlebot3_model),
         gzserver_launch,

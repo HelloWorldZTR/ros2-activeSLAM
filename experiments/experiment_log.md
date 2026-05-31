@@ -318,3 +318,19 @@ Products:
 - [smoke key events](products/gbsae_smoke_key_events_20260531.log)
 - [smoke metrics](products/gbsae_smoke_20260531/run_slam_rooms_gbsae_20260531_111227/run_20260531_111228/metrics.json)
 - [final evaluator map](products/gbsae_smoke_20260531/run_slam_rooms_gbsae_20260531_111227/run_20260531_111228/final_map.pgm)
+
+## 2026-05-31 - IoU-Friendly Office Benchmark
+
+- Added `slam_office.world`, derived from the office occupancy image in
+  [`Dataset-of-Gazebo-Worlds-Models-and-Maps`](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps).
+- Converted occupied pixels into merged inline Gazebo box collisions. This
+  avoids the original ServiceSim mesh and `model://` hierarchy, allowing the
+  existing evaluator to rasterize the same obstacle geometry used by Gazebo.
+- Added `tools/generate_slam_office_world.py` so the generated benchmark remains
+  reproducible without committing the upstream 96MB office archives.
+
+Status: generated world XML contains `374` inline box collisions and only the
+standard Gazebo `ground_plane` and `sun` model includes. The launch file uses
+the backed-up interior spawn position `(0.0, -10.0)` for `slam_office`, while
+preserving `(-2.0, -0.5)` for the existing maps. Remote ROS smoke test is
+pending.

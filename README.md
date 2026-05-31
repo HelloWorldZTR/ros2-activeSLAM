@@ -71,6 +71,15 @@ Evaluator 默认随 launch 启动，但只对 `slam_*` 地图生成可信指标�
 `model://...` include，当前 evaluator 不会递归解析模型目录；选择此类地图
 时会自动跳过 evaluator，并在终端和 `logs/evaluator_skipped.log` 中记录原因。
 
+项目还包含基于
+[`Dataset-of-Gazebo-Worlds-Models-and-Maps`](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps)
+Office 地图生成的复杂测试场景。该版本将二维占据区域转换为内嵌 box collision，
+因此仍可计算 coverage 和 IoU。launch 默认使用地图内部出生点 `(0.0, -10.0)`：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_office
+```
+
 探索策略通过 `slam_mode` 选择。YAML 默认值是 `frontier`；不传 launch
 覆盖参数时读取 `activeslam/config/exploration.yaml`。现有模式：
 
