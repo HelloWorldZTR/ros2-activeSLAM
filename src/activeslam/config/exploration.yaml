@@ -4,7 +4,7 @@ exploration_coordinator:
     stability_threshold: 0.02
     min_frontier_size: 5
     frontier_include_open_map_edges: true
-    exploration_strategy: "graph"  # frontier or graph
+    slam_mode: "frontier"  # frontier, approx_graph, or gbsae
     frontier_planning_attempts: 12
     frontier_goal_search_radius: 1.2
     frontier_goal_clearance: 0.20
@@ -43,3 +43,4 @@ exploration_coordinator:
     graph_odom_cov_x: 0.04
     graph_odom_cov_y: 0.04
     graph_odom_cov_yaw: 0.008
+    gbsae_loop_path_cost_weight: 0.01

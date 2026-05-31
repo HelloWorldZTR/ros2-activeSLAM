@@ -37,6 +37,14 @@ from .graph_exploration import (
     graph_to_marker_array,
     make_information_matrix,
 )
+from .gbsae_exploration import (
+    GBSAEPlanner,
+    gbsae_to_marker_array,
+    load_prior_graph,
+    point_is_known_free,
+    resolve_prior_graph_path,
+    vertex_point,
+)
 from .nav2_backend import (
     GOAL_STATUS_SUCCEEDED,
     Nav2Backend,
@@ -73,9 +81,8 @@ class ExplorationCoordinator(Node):
         self.frontier_include_open_map_edges = self.declare_parameter(
             'frontier_include_open_map_edges', True
         ).value
-        self.exploration_strategy = self.declare_parameter(
-            'exploration_strategy', 'frontier'
-        ).value
+        self.slam_mode = self.declare_parameter('slam_mode', 'frontier').value
+        self.world_name = self.declare_parameter('world_name', 'slam_rooms').value
         self.frontier_planning_attempts = int(
             self.declare_parameter('frontier_planning_attempts', 3).value
         )
@@ -178,15 +185,16 @@ class ExplorationCoordinator(Node):
         self.graph_odom_cov_x = self.declare_parameter('graph_odom_cov_x', 0.04).value
         self.graph_odom_cov_y = self.declare_parameter('graph_odom_cov_y', 0.04).value
         self.graph_odom_cov_yaw = self.declare_parameter('graph_odom_cov_yaw', 0.008).value
+        self.gbsae_loop_path_cost_weight = self.declare_parameter(
+            'gbsae_loop_path_cost_weight', 0.01
+        ).value
 
-        if self.exploration_strategy not in ('frontier', 'graph', 'graph_based'):
+        if self.slam_mode not in ('frontier', 'approx_graph', 'gbsae'):
             self.get_logger().warn(
-                f'Unknown exploration_strategy={self.exploration_strategy}. '
+                f'Unknown slam_mode={self.slam_mode}. '
                 'Falling back to frontier.'
             )
-            self.exploration_strategy = 'frontier'
-        if self.exploration_strategy == 'graph_based':
-            self.exploration_strategy = 'graph'
+            self.slam_mode = 'frontier'
 
         # --- Publishers and subscribers ---
         self.goal_pub = self.create_publisher(Marker, '/goal_point', 10)
@@ -228,6 +236,16 @@ class ExplorationCoordinator(Node):
             path_cost_weight=self.graph_path_cost_weight,
             odom_information=graph_odom_information,
         )
+        self.gbsae_prior_graph = None
+        self.gbsae_planner: Optional[GBSAEPlanner] = None
+        if self.slam_mode == 'gbsae':
+            prior_graph_path = resolve_prior_graph_path(self.world_name)
+            self.gbsae_prior_graph = load_prior_graph(prior_graph_path, self.world_name)
+            self.get_logger().info(
+                f'Loaded GBSAE prior graph for world={self.world_name}: '
+                f'{self.gbsae_prior_graph.number_of_nodes()} nodes, '
+                f'{self.gbsae_prior_graph.number_of_edges()} edges from {prior_graph_path}.'
+            )
 
         # --- Exploration state ---
         self.latest_map: Optional[OccupancyGrid] = None
@@ -247,6 +265,8 @@ class ExplorationCoordinator(Node):
         self.graph_candidates = []
         self.selection_request_wall_time: Optional[float] = None
         self.selection_request_goal: Optional[Tuple[float, float]] = None
+        self.selection_kind = 'frontier'
+        self.current_navigation_kind = 'frontier'
         self.navigation_start_wall_time: Optional[float] = None
         self.open_edge_action_start_wall_time: Optional[float] = None
         self.failed_goals = FailedGoalCooldown(
@@ -259,12 +279,13 @@ class ExplorationCoordinator(Node):
 
         self.get_logger().info(
             f'Exploration coordinator started with Nav2 backend. '
-            f'Strategy: {self.exploration_strategy}'
+            f'SLAM mode: {self.slam_mode}'
         )
-        self.get_logger().info(
-            'Pose graph source: approximate TF trajectory. slam_toolbox can serialize '
-            'its pose graph, but this node does not receive live nodes/edges/FIM from it.'
-        )
+        if self.slam_mode == 'approx_graph':
+            self.get_logger().info(
+                'Pose graph source: approximate TF trajectory. slam_toolbox can serialize '
+                'its pose graph, but this node does not receive live nodes/edges/FIM from it.'
+            )
 
     # ------------------------------------------------------------------
     # Main callbacks
@@ -284,6 +305,7 @@ class ExplorationCoordinator(Node):
         pose = self._get_robot_pose()
         if pose is not None:
             self.pose_graph_tracker.update(pose)
+            self._initialize_gbsae(pose)
 
         if self.state == self.COMPLETE:
             return
@@ -304,10 +326,10 @@ class ExplorationCoordinator(Node):
             ):
                 self.get_logger().warn(
                     f'Nav2 goal timed out after {self.nav2_goal_timeout:.1f}s; '
-                    'canceling and selecting another frontier.'
+                    'canceling and selecting another target.'
                 )
-                self._mark_goal_failed(self.current_goal)
                 self.nav2.cancel_navigation()
+                self._handle_navigation_failure('Nav2 navigation timed out')
                 self._clear_navigation()
                 self._schedule_retry(0.0)
             return
@@ -340,6 +362,7 @@ class ExplorationCoordinator(Node):
                 self._mark_goal_failed(self.selection_request_goal)
                 self.nav2.cancel_path_batch()
                 self.selection_request_goal = None
+                self._skip_unreachable_loop_revisit('Nav2 path request timed out')
                 self._schedule_retry(0.0)
             return
         if time.monotonic() < self.next_retry_wall_time or pose is None:
@@ -349,6 +372,21 @@ class ExplorationCoordinator(Node):
     # ------------------------------------------------------------------
     # Nav2 action orchestration
     # ------------------------------------------------------------------
+
+    def _initialize_gbsae(self, pose: Tuple[float, float, float]):
+        if self.slam_mode != 'gbsae' or self.gbsae_planner is not None:
+            return
+        assert self.gbsae_prior_graph is not None
+        self.gbsae_planner = GBSAEPlanner(
+            self.gbsae_prior_graph,
+            (pose[0], pose[1]),
+            self.gbsae_loop_path_cost_weight,
+        )
+        route = [step.vertex_id for step in self.gbsae_planner.route]
+        self.get_logger().info(
+            f'Created GBSAE route from prior vertex {self.gbsae_planner.start_vertex}: '
+            f'{route}; loop_edges={self.gbsae_planner.loop_edges}.'
+        )
 
     def _start_initial_spin(self):
         self.state = self.INITIAL_SPIN
@@ -371,6 +409,12 @@ class ExplorationCoordinator(Node):
         self._schedule_retry(0.0)
 
     def _start_selection(self, rx: float, ry: float):
+        if self.slam_mode == 'gbsae' and self.gbsae_planner is not None:
+            self._start_gbsae_selection(rx, ry)
+            return
+        self._start_standard_selection(rx, ry)
+
+    def _start_standard_selection(self, rx: float, ry: float):
         if not self.frontier_clusters:
             if self._is_map_stable():
                 self.state = self.COMPLETE
@@ -383,7 +427,7 @@ class ExplorationCoordinator(Node):
 
         limit = (
             self.graph_max_frontier_candidates
-            if self.exploration_strategy == 'graph'
+            if self.slam_mode == 'approx_graph'
             else self.frontier_planning_attempts
         )
         self.selection_start_xy = (rx, ry)
@@ -397,6 +441,7 @@ class ExplorationCoordinator(Node):
         self.graph_candidates = []
         self.selection_request_wall_time = None
         self.selection_request_goal = None
+        self.selection_kind = 'frontier'
         self.state = self.SELECTING
         source_counts = {
             source: sum(
@@ -411,6 +456,147 @@ class ExplorationCoordinator(Node):
             f'local_filter_ms={local_filter_ms:.1f}.'
         )
         self._request_next_path()
+
+    def _start_gbsae_selection(self, rx: float, ry: float):
+        planner = self.gbsae_planner
+        assert planner is not None
+        for step in planner.advance_reached_steps((rx, ry), self.nav2_goal_reach_radius):
+            self.get_logger().info(
+                f'GBSAE prior vertex {step.vertex_id} already reached'
+                f'{" during loop revisit" if step.loop_revisit else ""}.'
+            )
+
+        step = planner.active_step
+        if step is None:
+            self.get_logger().info(
+                'GBSAE prior route completed; continuing with frontier coverage.'
+            )
+            self._start_standard_selection(rx, ry)
+            return
+
+        self.selection_start_xy = (rx, ry)
+        self.failed_goals.expire(time.monotonic())
+        target = vertex_point(planner.graph, step.vertex_id)
+        if (
+            self.latest_map is not None
+            and self.latest_grid is not None
+            and point_is_known_free(self.latest_map, self.latest_grid, target)
+            and not self.failed_goals.contains(target, time.monotonic())
+        ):
+            self.selection_generation = self.nav2.start_path_batch()
+            self.selection_kind = 'gbsae_vertex'
+            self.selection_request_wall_time = time.monotonic()
+            self.selection_request_goal = target
+            self.state = self.SELECTING
+            self.get_logger().info(
+                f'Checking GBSAE prior vertex {step.vertex_id}'
+                f'{" loop revisit" if step.loop_revisit else ""} '
+                f'at ({target[0]:.2f}, {target[1]:.2f}).'
+            )
+            self.nav2.compute_path(
+                self.selection_generation,
+                self.selection_start_xy,
+                target,
+                self._gbsae_vertex_path_computed,
+            )
+            return
+        if step.loop_revisit:
+            self._skip_unreachable_loop_revisit('prior vertex is not currently known-free')
+            self._schedule_retry(0.0)
+            return
+        self._start_gbsae_frontier_selection(rx, ry)
+
+    def _start_gbsae_frontier_selection(self, rx: float, ry: float):
+        planner = self.gbsae_planner
+        assert planner is not None
+        local_filter_start = time.monotonic()
+        candidates = self._ranked_frontier_candidates(
+            rx,
+            ry,
+            time.monotonic(),
+            len(self.frontier_clusters),
+        )
+        self.selection_candidates = planner.frontiers_for_active(candidates)[
+            :self.frontier_planning_attempts
+        ]
+        local_filter_ms = (time.monotonic() - local_filter_start) * 1000.0
+        self.selection_generation = self.nav2.start_path_batch()
+        self.selection_cluster_index = 0
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        self.selection_kind = 'gbsae_frontier'
+        self.state = self.SELECTING
+        step = planner.active_step
+        assert step is not None
+        self.get_logger().info(
+            f'GBSAE prior vertex {step.vertex_id} has {len(self.selection_candidates)} '
+            f'allocated safe frontier candidates, local_filter_ms={local_filter_ms:.1f}.'
+        )
+        self._request_next_gbsae_frontier_path()
+
+    def _gbsae_vertex_path_computed(self, planned_path: Optional[PlannedPath]):
+        if self.state != self.SELECTING or self.selection_kind != 'gbsae_vertex':
+            return
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        planner = self.gbsae_planner
+        assert planner is not None
+        step = planner.active_step
+        if step is None:
+            self._schedule_retry(0.0)
+            return
+        if planned_path is not None:
+            self._dispatch_gbsae_vertex_navigation(planned_path, step.vertex_id)
+            return
+        if step.loop_revisit:
+            self._skip_unreachable_loop_revisit('Nav2 could not plan the optional revisit')
+            self._schedule_retry(0.0)
+            return
+        self._mark_goal_failed(vertex_point(planner.graph, step.vertex_id))
+        self._start_gbsae_frontier_selection(*self.selection_start_xy)
+
+    def _request_next_gbsae_frontier_path(self):
+        if self.selection_cluster_index < len(self.selection_candidates):
+            candidate = self.selection_candidates[self.selection_cluster_index]
+            goal_xy = candidate.safe_goal.point
+            self.selection_request_wall_time = time.monotonic()
+            self.selection_request_goal = goal_xy
+            self.get_logger().info(
+                f'Checking GBSAE allocated frontier source={candidate.cluster.source}, '
+                f'information_gain={candidate.information_gain:.2f}m^2.'
+            )
+            self.nav2.compute_path(
+                self.selection_generation,
+                self.selection_start_xy,
+                goal_xy,
+                self._gbsae_frontier_path_computed,
+            )
+            return
+
+        planner = self.gbsae_planner
+        assert planner is not None
+        step = planner.active_step
+        if step is not None:
+            self.get_logger().warn(
+                f'GBSAE prior vertex {step.vertex_id} has no reachable allocated '
+                'frontier; advancing the route.'
+            )
+            planner.advance_active_step()
+        self.nav2.cancel_path_batch()
+        self._schedule_retry()
+
+    def _gbsae_frontier_path_computed(self, planned_path: Optional[PlannedPath]):
+        if self.state != self.SELECTING or self.selection_kind != 'gbsae_frontier':
+            return
+        self.selection_request_wall_time = None
+        candidate = self.selection_candidates[self.selection_cluster_index]
+        if planned_path is not None:
+            self._dispatch_navigation(candidate, planned_path)
+            return
+        self._mark_goal_failed(self.selection_request_goal)
+        self.selection_request_goal = None
+        self.selection_cluster_index += 1
+        self._request_next_gbsae_frontier_path()
 
     def _request_next_path(self):
         if self.selection_cluster_index < len(self.selection_candidates):
@@ -456,7 +642,7 @@ class ExplorationCoordinator(Node):
         candidate = self.selection_candidates[self.selection_cluster_index]
         if planned_path is None:
             self._mark_goal_failed(self.selection_request_goal)
-        elif self.exploration_strategy == 'frontier':
+        elif self.slam_mode != 'approx_graph':
             self._dispatch_navigation(candidate, planned_path)
             return
         else:
@@ -484,6 +670,7 @@ class ExplorationCoordinator(Node):
         self.target_cluster = cluster
         self.selection_request_wall_time = None
         self.selection_request_goal = None
+        self.current_navigation_kind = 'frontier'
         self.state = self.NAVIGATING
         self.navigation_start_wall_time = time.monotonic()
         yaw = heading_to_target(planned_path.goal_xy, (cluster.centroid_x, cluster.centroid_y))
@@ -495,8 +682,47 @@ class ExplorationCoordinator(Node):
         )
         self.nav2.navigate(planned_path.goal_xy, yaw, self._navigation_finished)
 
+    def _dispatch_gbsae_vertex_navigation(self, planned_path: PlannedPath, vertex_id: int):
+        self.nav2.cancel_path_batch()
+        self.current_goal = planned_path.goal_xy
+        self.current_safe_goal = None
+        self.target_cluster = None
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        self.current_navigation_kind = 'gbsae_vertex'
+        self.state = self.NAVIGATING
+        self.navigation_start_wall_time = time.monotonic()
+        planner = self.gbsae_planner
+        assert planner is not None
+        step = planner.active_step
+        revisit = step is not None and step.loop_revisit
+        self.get_logger().info(
+            f'Navigating directly to GBSAE prior vertex {vertex_id}'
+            f'{" loop revisit" if revisit else ""}: '
+            f'goal=({planned_path.goal_xy[0]:.2f}, {planned_path.goal_xy[1]:.2f}), '
+            f'cost={planned_path.cost:.2f}.'
+        )
+        self.nav2.navigate(planned_path.goal_xy, 0.0, self._navigation_finished)
+
     def _navigation_finished(self, status: int):
         if self.state != self.NAVIGATING:
+            return
+        if self.current_navigation_kind == 'gbsae_vertex':
+            if status == GOAL_STATUS_SUCCEEDED:
+                planner = self.gbsae_planner
+                assert planner is not None
+                step = planner.advance_active_step()
+                assert step is not None
+                self.get_logger().info(
+                    f'Nav2 reached GBSAE prior vertex {step.vertex_id}'
+                    f'{" during loop revisit" if step.loop_revisit else ""}.'
+                )
+            else:
+                self._handle_navigation_failure(
+                    f'Nav2 GBSAE navigation ended with status={status}'
+                )
+            self._clear_navigation()
+            self._schedule_retry(0.0)
             return
         if status == GOAL_STATUS_SUCCEEDED:
             self.get_logger().info('Nav2 reached the active frontier goal.')
@@ -608,6 +834,26 @@ class ExplorationCoordinator(Node):
         self.navigation_start_wall_time = None
         self.open_edge_normal = None
         self.open_edge_action_start_wall_time = None
+        self.current_navigation_kind = 'frontier'
+
+    def _handle_navigation_failure(self, reason: str):
+        if self._skip_unreachable_loop_revisit(reason):
+            return
+        self.get_logger().warn(f'{reason}; retrying.')
+        self._mark_goal_failed(self.current_goal)
+
+    def _skip_unreachable_loop_revisit(self, reason: str) -> bool:
+        if self.slam_mode != 'gbsae' or self.gbsae_planner is None:
+            return False
+        step = self.gbsae_planner.active_step
+        if step is None or not step.loop_revisit:
+            return False
+        skipped = self.gbsae_planner.skip_active_loop_revisit()
+        self.get_logger().warn(
+            f'Skipping optional GBSAE loop revisit to prior vertex '
+            f'{skipped.vertex_id}: {reason}.'
+        )
+        return True
 
     def _schedule_retry(self, delay: Optional[float] = None):
         self.state = self.IDLE
@@ -741,9 +987,16 @@ class ExplorationCoordinator(Node):
             return
         self._publish_frontier_markers()
         self._publish_goal_marker()
-        if self.exploration_strategy == 'graph':
+        if self.slam_mode == 'approx_graph':
             markers = graph_to_marker_array(
                 self.pose_graph_tracker.graph,
+                'map',
+                self.get_clock().now().to_msg(),
+            )
+            self.pose_graph_pub.publish(markers)
+        elif self.slam_mode == 'gbsae' and self.gbsae_planner is not None:
+            markers = gbsae_to_marker_array(
+                self.gbsae_planner,
                 'map',
                 self.get_clock().now().to_msg(),
             )

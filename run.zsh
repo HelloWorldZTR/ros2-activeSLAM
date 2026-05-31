@@ -4,7 +4,8 @@ set -euo pipefail
 # Fast headless experiment runner for the remote ROS 2 Humble workspace.
 # Usage examples:
 #   ./run.zsh
-#   MAP=slam_loop STRATEGY=graph ./run.zsh
+#   MAP=slam_loop SLAM_MODE=approx_graph ./run.zsh
+#   MAP=slam_rooms SLAM_MODE=gbsae RUN_SECONDS=120 ./run.zsh
 #   MAPS="slam_landmarks slam_loop" RUN_SECONDS=600 ./run.zsh
 #   REAL_TIME_UPDATE_RATE=0 MAX_STEP_SIZE=0.001 ./run.zsh
 # Default physics is capped near 5x realtime; set REAL_TIME_UPDATE_RATE=0
@@ -13,7 +14,10 @@ set -euo pipefail
 WORKSPACE=${WORKSPACE:-/home/psirobot/projects/ros2_ws}
 SRC_DIR=${SRC_DIR:-${WORKSPACE}/src}
 DEFAULT_MAPS=(slam_landmarks slam_loop slam_rooms slam_rooms_corridor)
-STRATEGY=${STRATEGY:-frontier}
+if [[ -z "${SLAM_MODE:-}" && -n "${STRATEGY:-}" ]]; then
+  echo "Warning: STRATEGY is deprecated; use SLAM_MODE."
+fi
+SLAM_MODE=${SLAM_MODE:-${STRATEGY:-frontier}}
 RUN_SECONDS=${RUN_SECONDS:-900}
 REAL_TIME_UPDATE_RATE=${REAL_TIME_UPDATE_RATE:-5000}
 MAX_STEP_SIZE=${MAX_STEP_SIZE:-0.001}
@@ -108,14 +112,14 @@ trap cleanup INT TERM EXIT
 run_experiment() {
   local map_name="$1"
   local stamp=$(date +%Y%m%d_%H%M%S)
-  local run_root="${LOG_ROOT}/run_${map_name}_${STRATEGY}_${stamp}"
+  local run_root="${LOG_ROOT}/run_${map_name}_${SLAM_MODE}_${stamp}"
   local log_file="${run_root}/launch.log"
 
   mkdir -p "${run_root}"
 
   echo "Fast experiment"
   echo "  map: ${map_name}"
-  echo "  strategy: ${STRATEGY}"
+  echo "  slam mode: ${SLAM_MODE}"
   echo "  run seconds: ${RUN_SECONDS}"
   echo "  gazebo real_time_update_rate: ${REAL_TIME_UPDATE_RATE} (0 means uncapped)"
   echo "  gazebo max_step_size: ${MAX_STEP_SIZE}"
@@ -126,7 +130,7 @@ run_experiment() {
 
   ros2 launch activeslam slam.launch.py \
     map:="${map_name}" \
-    exploration_strategy:="${STRATEGY}" \
+    slam_mode:="${SLAM_MODE}" \
     gui:=false \
     run_rviz:=false \
     run_evaluator:=true \

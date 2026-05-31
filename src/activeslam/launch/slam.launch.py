@@ -47,9 +47,56 @@ def _launch_evaluator(context, *, evaluator_node, map_name, log_root, run_evalua
     return []
 
 
+def _launch_explorer(
+    context,
+    *,
+    config_path,
+    exploration_strategy,
+    map_name,
+    slam_mode,
+    use_sim_time,
+):
+    """Start exploration while keeping YAML defaults unless launch overrides them."""
+
+    mode = context.perform_substitution(slam_mode).strip()
+    legacy_strategy = context.perform_substitution(exploration_strategy).strip()
+    if mode and mode not in ('frontier', 'approx_graph', 'gbsae'):
+        raise RuntimeError(f'Unsupported slam_mode={mode}.')
+    if legacy_strategy and legacy_strategy not in ('frontier', 'graph', 'graph_based'):
+        raise RuntimeError(f'Unsupported deprecated exploration_strategy={legacy_strategy}.')
+    if mode and legacy_strategy:
+        print(
+            '[slam.launch.py] WARNING: Ignoring deprecated exploration_strategy '
+            'because slam_mode was also provided.'
+        )
+    elif legacy_strategy:
+        mode = 'approx_graph' if legacy_strategy in ('graph', 'graph_based') else 'frontier'
+        print(
+            '[slam.launch.py] WARNING: exploration_strategy is deprecated; '
+            f'using slam_mode={mode}.'
+        )
+
+    overrides = {
+        'use_sim_time': use_sim_time,
+        'world_name': map_name,
+    }
+    if mode:
+        overrides['slam_mode'] = mode
+    return [
+        Node(
+            package='activeslam',
+            executable='exploration_coordinator',
+            name='exploration_coordinator',
+            output='screen',
+            parameters=[config_path, overrides],
+        )
+    ]
+
+
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     turtlebot3_model = LaunchConfiguration('turtlebot3_model')
+    slam_mode = LaunchConfiguration('slam_mode')
     exploration_strategy = LaunchConfiguration('exploration_strategy')
     nav2_params_file = LaunchConfiguration('nav2_params_file')
     map_name = LaunchConfiguration('map')
@@ -139,20 +186,6 @@ def generate_launch_description():
         [FindPackageShare('activeslam'), 'config', 'exploration.yaml']
     )
 
-    explorer_node = Node(
-        package='activeslam',
-        executable='exploration_coordinator',
-        name='exploration_coordinator',
-        output='screen',
-        parameters=[
-            config_path,
-            {
-                'use_sim_time': use_sim_time,
-                'exploration_strategy': exploration_strategy,
-            },
-        ],
-    )
-
     evaluator_node = Node(
         package='activeslam',
         executable='slam_evaluator',
@@ -198,10 +231,14 @@ def generate_launch_description():
             description='TurtleBot3 model to spawn in Gazebo.',
         ),
         DeclareLaunchArgument(
+            'slam_mode',
+            default_value='',
+            description='Optional exploration policy override: frontier, approx_graph, or gbsae.',
+        ),
+        DeclareLaunchArgument(
             'exploration_strategy',
-            default_value='frontier',
-            choices=['frontier', 'graph'],
-            description='Exploration target selection strategy.',
+            default_value='',
+            description='Deprecated compatibility override: frontier or graph.',
         ),
         DeclareLaunchArgument(
             'nav2_params_file',
@@ -270,7 +307,16 @@ def generate_launch_description():
         spawn_turtlebot_launch,
         slam_node,
         nav2_launch,
-        explorer_node,
+        OpaqueFunction(
+            function=_launch_explorer,
+            kwargs={
+                'config_path': config_path,
+                'exploration_strategy': exploration_strategy,
+                'map_name': map_name,
+                'slam_mode': slam_mode,
+                'use_sim_time': use_sim_time,
+            },
+        ),
         OpaqueFunction(
             function=_launch_evaluator,
             kwargs={
