@@ -85,7 +85,6 @@ def is_goal_outside_reach_radius(
     reach_radius: float,
 ) -> bool:
     """Return whether Nav2 would need to move to reach this goal."""
-
     return math.hypot(goal_xy[0] - origin_xy[0], goal_xy[1] - origin_xy[1]) > reach_radius
 
 
@@ -104,7 +103,6 @@ def open_edge_outward_normal(
     radius: float,
 ) -> Optional[Point]:
     """Estimate the local outward normal from map-edge neighbor directions."""
-
     if geometry.resolution <= 0.0 or radius < 0.0:
         return None
 
@@ -141,7 +139,6 @@ def potential_unknown_area(
     include_outside_map: bool = False,
 ) -> float:
     """Return local unknown area, optionally treating out-of-map cells as unknown."""
-
     if geometry.resolution <= 0.0 or radius < 0.0:
         return 0.0
 
@@ -175,7 +172,6 @@ def prepare_safe_goal_grid(
     config: SafeGoalSearchConfig,
 ) -> PreparedSafeGoalGrid:
     """Precompute known-free cells with the requested obstacle clearance."""
-
     clearance_cells = max(0, int(math.ceil(config.clearance / geometry.resolution)))
     edge_cells = max(0, int(math.ceil(config.map_edge_clearance / geometry.resolution)))
     occupied = grid > 50
@@ -212,7 +208,6 @@ def select_safe_frontier_goal(
     prepared_grid: Optional[PreparedSafeGoalGrid] = None,
 ) -> Optional[SafeFrontierGoal]:
     """Find the best known-free standoff cell for a frontier cluster."""
-
     if geometry.resolution <= 0.0 or not frontier_cells:
         return None
 
@@ -302,7 +297,6 @@ def segment_is_obstacle_free(
     end_xy: Point,
 ) -> bool:
     """Return whether a map-bounded segment avoids occupied cells."""
-
     distance = math.hypot(end_xy[0] - start_xy[0], end_xy[1] - start_xy[1])
     step = geometry.resolution * 0.5
     if step <= 0.0:

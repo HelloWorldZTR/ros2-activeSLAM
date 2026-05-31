@@ -22,7 +22,6 @@ def _as_bool(value):
 
 def _launch_evaluator(context, *, evaluator_node, map_name, log_root, run_evaluator):
     """Start precise evaluation only for worlds with inline box geometry."""
-
     if not _as_bool(context.perform_substitution(run_evaluator)):
         return []
 
@@ -57,7 +56,6 @@ def _launch_explorer(
     use_sim_time,
 ):
     """Start exploration while keeping YAML defaults unless launch overrides them."""
-
     mode = context.perform_substitution(slam_mode).strip()
     legacy_strategy = context.perform_substitution(exploration_strategy).strip()
     if mode and mode not in ('frontier', 'approx_graph', 'gbsae'):

@@ -57,7 +57,10 @@ class RandomWalker(Node):
         self.mode_deadline = self.get_clock().now() + Duration(seconds=duration)
 
     def control_loop(self):
-        if self.front_obstacle_distance < self.obstacle_distance and self.current_twist.linear.x > 0.0:
+        if (
+            self.front_obstacle_distance < self.obstacle_distance
+            and self.current_twist.linear.x > 0.0
+        ):
             self.choose_turn_motion()
         elif self.get_clock().now() >= self.mode_deadline:
             self.choose_random_motion()

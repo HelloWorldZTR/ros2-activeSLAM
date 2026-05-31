@@ -25,7 +25,6 @@ def make_frontier_candidate(
     on_cooldown: bool = False,
 ) -> Optional[FrontierCandidate]:
     """Create a shared-pool candidate after cheap local filtering."""
-
     if safe_goal is None or on_cooldown or information_gain < min_information_gain:
         return None
     distance = math.hypot(safe_goal.point[0] - robot_x, safe_goal.point[1] - robot_y)
@@ -42,7 +41,6 @@ def ranked_frontier_candidates(
     limit: int,
 ) -> List[FrontierCandidate]:
     """Return the best candidates regardless of frontier source."""
-
     return sorted(candidates, key=lambda candidate: candidate.utility, reverse=True)[
         :max(0, limit)
     ]

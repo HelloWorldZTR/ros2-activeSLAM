@@ -1,0 +1,165 @@
+[exploration_coordinator-13] [INFO] [1780197148.647992009] [exploration_coordinator]: Loaded GBSAE prior graph for world=slam_rooms: 10 nodes, 11 edges from /home/psirobot/projects/ros2_ws/src/install/activeslam_resource/share/activeslam_resource/maps/slam_rooms.gbsae.json.
+[slam_evaluator-14] [INFO] [1780197148.914312448] [slam_evaluator]: Evaluator logging to /home/psirobot/projects/ros2_ws/experiments/products/gbsae_smoke_20260531/run_slam_rooms_gbsae_20260531_111227/run_20260531_111228 for world slam_rooms
+[slam_evaluator-14] [INFO] [1780197148.914483540] [slam_evaluator]: Sampling every 1.00s; waiting for map/TF data.
+[exploration_coordinator-13] [INFO] [1780197155.528944693] [exploration_coordinator]: Created GBSAE route from prior vertex 0: [0, 4, 5, 6, 5, 7, 5, 4, 8, 0, 8, 0, 1, 2, 1, 3, 1, 0, 9]; loop_edges=[(0, 8)].
+[exploration_coordinator-13] [INFO] [1780197158.290426474] [exploration_coordinator]: Nav2 is ready. Starting initial 360 degree scan.
+[exploration_coordinator-13] [WARN] [1780197158.291394177] [exploration_coordinator]: Initial Nav2 spin ended with status=6; continuing exploration.
+[exploration_coordinator-13] [INFO] [1780197158.335233496] [exploration_coordinator]: GBSAE prior vertex 0 has 3 allocated safe frontier candidates, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1780197158.335381329] [exploration_coordinator]: Checking GBSAE allocated frontier source=open_edge, information_gain=2.43m^2.
+[exploration_coordinator-13] [INFO] [1780197158.336537567] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.28m^2.
+[exploration_coordinator-13] [INFO] [1780197158.337226735] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.06m^2.
+[exploration_coordinator-13] [WARN] [1780197158.338030371] [exploration_coordinator]: GBSAE prior vertex 0 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197161.370307875] [exploration_coordinator]: GBSAE prior vertex 4 has 0 allocated safe frontier candidates, local_filter_ms=3.8.
+[exploration_coordinator-13] [WARN] [1780197161.370475644] [exploration_coordinator]: GBSAE prior vertex 4 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197164.412393455] [exploration_coordinator]: GBSAE prior vertex 5 has 0 allocated safe frontier candidates, local_filter_ms=8.7.
+[exploration_coordinator-13] [WARN] [1780197164.412763171] [exploration_coordinator]: GBSAE prior vertex 5 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197167.444879901] [exploration_coordinator]: GBSAE prior vertex 6 has 0 allocated safe frontier candidates, local_filter_ms=8.6.
+[exploration_coordinator-13] [WARN] [1780197167.445059902] [exploration_coordinator]: GBSAE prior vertex 6 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197170.485571622] [exploration_coordinator]: GBSAE prior vertex 5 has 0 allocated safe frontier candidates, local_filter_ms=3.8.
+[exploration_coordinator-13] [WARN] [1780197170.485745617] [exploration_coordinator]: GBSAE prior vertex 5 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197173.491339016] [exploration_coordinator]: GBSAE prior vertex 7 has 0 allocated safe frontier candidates, local_filter_ms=3.9.
+[exploration_coordinator-13] [WARN] [1780197173.491544614] [exploration_coordinator]: GBSAE prior vertex 7 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197176.531053583] [exploration_coordinator]: GBSAE prior vertex 5 has 0 allocated safe frontier candidates, local_filter_ms=4.2.
+[exploration_coordinator-13] [WARN] [1780197176.531227638] [exploration_coordinator]: GBSAE prior vertex 5 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197179.581969078] [exploration_coordinator]: GBSAE prior vertex 4 has 0 allocated safe frontier candidates, local_filter_ms=11.7.
+[exploration_coordinator-13] [WARN] [1780197179.582150409] [exploration_coordinator]: GBSAE prior vertex 4 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197182.620974088] [exploration_coordinator]: GBSAE prior vertex 8 has 0 allocated safe frontier candidates, local_filter_ms=9.1.
+[exploration_coordinator-13] [WARN] [1780197182.621151766] [exploration_coordinator]: GBSAE prior vertex 8 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1780197185.656269202] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 0: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1780197185.696296560] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 8: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1780197185.744110230] [exploration_coordinator]: GBSAE prior vertex 0 has 1 allocated safe frontier candidates, local_filter_ms=9.0.
+[exploration_coordinator-13] [INFO] [1780197185.744259111] [exploration_coordinator]: Checking GBSAE allocated frontier source=open_edge, information_gain=1.86m^2.
+[exploration_coordinator-13] [INFO] [1780197185.747784251] [exploration_coordinator]: Navigating to frontier goal=(-2.27, 0.72), size=48, cost=2.61, source=open_edge, information_gain=1.86m^2
+[exploration_coordinator-13] [INFO] [1780197185.864915737] [exploration_coordinator]: GBSAE prior vertex 0 has 0 allocated safe frontier candidates, local_filter_ms=9.7.
+[exploration_coordinator-13] [WARN] [1780197185.865085408] [exploration_coordinator]: GBSAE prior vertex 0 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197188.899391105] [exploration_coordinator]: Checking GBSAE prior vertex 1 at (-4.00, 0.00).
+[exploration_coordinator-13] [INFO] [1780197188.903788126] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 1: goal=(-4.00, 0.00), cost=1.25.
+[exploration_coordinator-13] [INFO] [1780197189.011467950] [exploration_coordinator]: GBSAE prior vertex 1 has 4 allocated safe frontier candidates, local_filter_ms=32.3.
+[exploration_coordinator-13] [INFO] [1780197189.011630037] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.47m^2.
+[exploration_coordinator-13] [INFO] [1780197189.016322402] [exploration_coordinator]: Navigating to frontier goal=(-4.23, 1.23), size=67, cost=2.45, source=unknown, information_gain=0.47m^2
+[exploration_coordinator-13] [INFO] [1780197189.125062111] [exploration_coordinator]: GBSAE prior vertex 1 has 2 allocated safe frontier candidates, local_filter_ms=25.8.
+[exploration_coordinator-13] [INFO] [1780197189.125222471] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.53m^2.
+[exploration_coordinator-13] [INFO] [1780197189.129363760] [exploration_coordinator]: Navigating to frontier goal=(-5.23, 1.33), size=231, cost=3.08, source=unknown, information_gain=0.53m^2
+[exploration_coordinator-13] [INFO] [1780197189.245723486] [exploration_coordinator]: GBSAE prior vertex 1 has 1 allocated safe frontier candidates, local_filter_ms=26.5.
+[exploration_coordinator-13] [INFO] [1780197189.245884288] [exploration_coordinator]: Checking GBSAE allocated frontier source=open_edge, information_gain=1.55m^2.
+[exploration_coordinator-13] [INFO] [1780197189.248493872] [exploration_coordinator]: Navigating to frontier goal=(-2.33, -0.52), size=18, cost=1.07, source=open_edge, information_gain=1.55m^2
+[exploration_coordinator-13] [INFO] [1780197189.365056370] [exploration_coordinator]: GBSAE prior vertex 1 has 0 allocated safe frontier candidates, local_filter_ms=25.8.
+[exploration_coordinator-13] [WARN] [1780197189.365227611] [exploration_coordinator]: GBSAE prior vertex 1 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197192.405993062] [exploration_coordinator]: GBSAE prior vertex 2 has 0 allocated safe frontier candidates, local_filter_ms=24.5.
+[exploration_coordinator-13] [WARN] [1780197192.406174247] [exploration_coordinator]: GBSAE prior vertex 2 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197195.449870119] [exploration_coordinator]: GBSAE prior vertex 1 has 0 allocated safe frontier candidates, local_filter_ms=26.1.
+[exploration_coordinator-13] [WARN] [1780197195.450134438] [exploration_coordinator]: GBSAE prior vertex 1 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197198.466378919] [exploration_coordinator]: Checking GBSAE prior vertex 3 at (-4.00, -3.00).
+[exploration_coordinator-13] [INFO] [1780197198.469166331] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 3: goal=(-4.00, -3.00), cost=1.42.
+[exploration_coordinator-13] [INFO] [1780197198.574334126] [exploration_coordinator]: GBSAE prior vertex 3 has 3 allocated safe frontier candidates, local_filter_ms=27.9.
+[exploration_coordinator-13] [INFO] [1780197198.574504217] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.89m^2.
+[exploration_coordinator-13] [INFO] [1780197198.578870974] [exploration_coordinator]: Navigating to frontier goal=(-2.43, -3.48), size=652, cost=2.99, source=unknown, information_gain=1.89m^2
+[exploration_coordinator-13] [INFO] [1780197198.689903333] [exploration_coordinator]: GBSAE prior vertex 3 has 3 allocated safe frontier candidates, local_filter_ms=23.5.
+[exploration_coordinator-13] [INFO] [1780197198.690059625] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.44m^2.
+[exploration_coordinator-13] [INFO] [1780197198.694214894] [exploration_coordinator]: Navigating to frontier goal=(-3.68, -4.63), size=652, cost=2.91, source=unknown, information_gain=1.44m^2
+[exploration_coordinator-13] [INFO] [1780197198.810111797] [exploration_coordinator]: GBSAE prior vertex 3 has 2 allocated safe frontier candidates, local_filter_ms=23.6.
+[exploration_coordinator-13] [INFO] [1780197198.810265813] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.80m^2.
+[exploration_coordinator-13] [INFO] [1780197198.814199200] [exploration_coordinator]: Navigating to frontier goal=(-4.73, -4.63), size=652, cost=2.65, source=unknown, information_gain=0.80m^2
+[exploration_coordinator-13] [INFO] [1780197198.938895929] [exploration_coordinator]: GBSAE prior vertex 3 has 1 allocated safe frontier candidates, local_filter_ms=31.4.
+[exploration_coordinator-13] [INFO] [1780197198.939047757] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.53m^2.
+[exploration_coordinator-13] [INFO] [1780197198.942870469] [exploration_coordinator]: Navigating to frontier goal=(-2.48, -2.63), size=8, cost=2.35, source=unknown, information_gain=0.53m^2
+[exploration_coordinator-13] [INFO] [1780197201.090239353] [exploration_coordinator]: GBSAE prior vertex 3 has 2 allocated safe frontier candidates, local_filter_ms=21.3.
+[exploration_coordinator-13] [INFO] [1780197201.090391891] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.74m^2.
+[exploration_coordinator-13] [INFO] [1780197201.094696946] [exploration_coordinator]: Navigating to frontier goal=(-5.53, -4.13), size=652, cost=3.25, source=unknown, information_gain=0.74m^2
+[exploration_coordinator-13] [INFO] [1780197202.091305556] [exploration_coordinator]: GBSAE prior vertex 3 has 2 allocated safe frontier candidates, local_filter_ms=22.2.
+[exploration_coordinator-13] [INFO] [1780197202.091474366] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.99m^2.
+[exploration_coordinator-13] [INFO] [1780197202.094691026] [exploration_coordinator]: Navigating to frontier goal=(-2.43, -2.53), size=12, cost=0.87, source=unknown, information_gain=0.99m^2
+[exploration_coordinator-13] [INFO] [1780197202.211633234] [exploration_coordinator]: GBSAE prior vertex 3 has 0 allocated safe frontier candidates, local_filter_ms=22.8.
+[exploration_coordinator-13] [WARN] [1780197202.211808207] [exploration_coordinator]: GBSAE prior vertex 3 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197205.254349202] [exploration_coordinator]: GBSAE prior vertex 1 has 0 allocated safe frontier candidates, local_filter_ms=22.9.
+[exploration_coordinator-13] [WARN] [1780197205.254523544] [exploration_coordinator]: GBSAE prior vertex 1 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197208.296867236] [exploration_coordinator]: GBSAE prior vertex 0 has 1 allocated safe frontier candidates, local_filter_ms=22.7.
+[exploration_coordinator-13] [INFO] [1780197208.297026220] [exploration_coordinator]: Checking GBSAE allocated frontier source=open_edge, information_gain=2.28m^2.
+[exploration_coordinator-13] [INFO] [1780197208.303929317] [exploration_coordinator]: Navigating to frontier goal=(-2.13, 1.17), size=45, cost=6.15, source=open_edge, information_gain=2.28m^2
+[exploration_coordinator-13] [INFO] [1780197210.125159962] [exploration_coordinator]: GBSAE prior vertex 0 has 0 allocated safe frontier candidates, local_filter_ms=9.1.
+[exploration_coordinator-13] [WARN] [1780197210.125334902] [exploration_coordinator]: GBSAE prior vertex 0 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197213.164918775] [exploration_coordinator]: GBSAE prior vertex 9 has 1 allocated safe frontier candidates, local_filter_ms=7.1.
+[exploration_coordinator-13] [INFO] [1780197213.165070471] [exploration_coordinator]: Checking GBSAE allocated frontier source=open_edge, information_gain=1.58m^2.
+[exploration_coordinator-13] [INFO] [1780197213.168705630] [exploration_coordinator]: Navigating to frontier goal=(-1.99, -0.84), size=57, cost=1.84, source=open_edge, information_gain=1.58m^2
+[exploration_coordinator-13] [INFO] [1780197213.245088777] [exploration_coordinator]: GBSAE prior vertex 9 has 0 allocated safe frontier candidates, local_filter_ms=7.2.
+[exploration_coordinator-13] [WARN] [1780197213.245259726] [exploration_coordinator]: GBSAE prior vertex 9 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1780197216.280713920] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197219.322530552] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197219.332561926] [exploration_coordinator]: Navigating to frontier goal=(-1.39, -1.59), size=9, cost=1.48, source=unknown, information_gain=1.41m^2
+[exploration_coordinator-13] [INFO] [1780197220.003534982] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197220.015473683] [exploration_coordinator]: Navigating to frontier goal=(-3.89, 1.41), size=14, cost=4.61, source=unknown, information_gain=1.50m^2
+[exploration_coordinator-13] [INFO] [1780197220.124658930] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197220.140812111] [exploration_coordinator]: Navigating to frontier goal=(-2.69, -1.69), size=11, cost=5.48, source=unknown, information_gain=0.65m^2
+[exploration_coordinator-13] [INFO] [1780197223.247215398] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197223.261396962] [exploration_coordinator]: Navigating to frontier goal=(0.31, -1.39), size=284, cost=3.08, source=unknown, information_gain=2.81m^2
+[exploration_coordinator-13] [INFO] [1780197223.286063712] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197223.298075171] [exploration_coordinator]: Navigating to frontier goal=(-2.29, -2.14), size=11, cost=3.32, source=unknown, information_gain=0.61m^2
+[exploration_coordinator-13] [INFO] [1780197229.452118965] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197229.479688204] [exploration_coordinator]: Navigating to frontier goal=(0.96, -2.64), size=13, cost=4.93, source=unknown, information_gain=2.37m^2
+[exploration_coordinator-13] [INFO] [1780197229.571117355] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197229.598013611] [exploration_coordinator]: Navigating to frontier goal=(-1.14, -1.04), size=20, cost=2.35, source=unknown, information_gain=0.56m^2
+[exploration_coordinator-13] [INFO] [1780197229.691377721] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197229.714914247] [exploration_coordinator]: Navigating to frontier goal=(1.61, -2.44), size=280, cost=5.32, source=unknown, information_gain=1.53m^2
+[exploration_coordinator-13] [INFO] [1780197232.854640623] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197232.875861451] [exploration_coordinator]: Navigating to frontier goal=(-1.69, -2.44), size=280, cost=2.12, source=unknown, information_gain=1.10m^2
+[exploration_coordinator-13] [INFO] [1780197232.974905998] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197232.998010862] [exploration_coordinator]: Navigating to frontier goal=(-1.79, 1.31), size=353, cost=4.02, source=unknown, information_gain=1.59m^2
+[exploration_coordinator-13] [INFO] [1780197233.094255006] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197236.137291889] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197239.179114470] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197239.204625769] [exploration_coordinator]: Navigating to frontier goal=(-0.19, -4.24), size=5, cost=4.08, source=unknown, information_gain=2.44m^2
+[exploration_coordinator-13] [INFO] [1780197240.942392580] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197240.977042077] [exploration_coordinator]: Navigating to frontier goal=(0.71, -4.24), size=6, cost=2.58, source=unknown, information_gain=1.79m^2
+[exploration_coordinator-13] [INFO] [1780197241.062326426] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197241.097994958] [exploration_coordinator]: Navigating to frontier goal=(-1.04, -0.29), size=7, cost=2.36, source=unknown, information_gain=1.00m^2
+[exploration_coordinator-13] [INFO] [1780197241.181948623] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197241.220489617] [exploration_coordinator]: Navigating to frontier goal=(-4.09, 1.21), size=14, cost=5.06, source=unknown, information_gain=1.50m^2
+[exploration_coordinator-13] [INFO] [1780197241.302321701] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197244.343920250] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197247.387331715] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197250.432827851] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197250.482061803] [exploration_coordinator]: Navigating to frontier goal=(-3.29, 1.31), size=20, cost=1.81, source=unknown, information_gain=1.28m^2
+[exploration_coordinator-13] [INFO] [1780197250.548875543] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197250.601479001] [exploration_coordinator]: Navigating to frontier goal=(0.51, -0.34), size=5, cost=6.55, source=unknown, information_gain=2.10m^2
+[exploration_coordinator-13] [INFO] [1780197253.751179184] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197253.794655110] [exploration_coordinator]: Navigating to frontier goal=(-1.74, 1.36), size=5, cost=1.34, source=unknown, information_gain=2.52m^2
+[exploration_coordinator-13] [INFO] [1780197256.875302249] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197256.926047036] [exploration_coordinator]: Navigating to frontier goal=(1.51, -1.59), size=149, cost=4.39, source=unknown, information_gain=1.53m^2
+[exploration_coordinator-13] [INFO] [1780197259.997114373] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197260.044576461] [exploration_coordinator]: Navigating to frontier goal=(0.76, 1.06), size=14, cost=2.35, source=unknown, information_gain=2.65m^2
+[exploration_coordinator-13] [INFO] [1780197260.157016547] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197260.204116217] [exploration_coordinator]: Navigating to frontier goal=(-2.39, 2.76), size=11, cost=7.45, source=unknown, information_gain=2.38m^2
+[exploration_coordinator-13] [INFO] [1780197260.278386993] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197260.327537367] [exploration_coordinator]: Navigating to frontier goal=(-1.69, 2.11), size=487, cost=4.23, source=unknown, information_gain=1.75m^2
+[exploration_coordinator-13] [INFO] [1780197260.442945925] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197260.493699028] [exploration_coordinator]: Navigating to frontier goal=(1.41, -4.44), size=150, cost=3.47, source=unknown, information_gain=1.03m^2
+[exploration_coordinator-13] [INFO] [1780197260.596983672] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197260.637605809] [exploration_coordinator]: Navigating to frontier goal=(-1.54, 0.26), size=10, cost=2.90, source=unknown, information_gain=0.83m^2
+[exploration_coordinator-13] [INFO] [1780197263.759843812] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197263.805579360] [exploration_coordinator]: Navigating to frontier goal=(-0.69, -0.19), size=10, cost=0.76, source=unknown, information_gain=0.86m^2
+[exploration_coordinator-13] [INFO] [1780197263.879684588] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197263.927154660] [exploration_coordinator]: Navigating to frontier goal=(1.46, 1.01), size=14, cost=2.98, source=unknown, information_gain=2.62m^2
+[exploration_coordinator-13] [INFO] [1780197264.001960433] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197264.055675198] [exploration_coordinator]: Navigating to frontier goal=(-4.34, 4.51), size=582, cost=6.09, source=unknown, information_gain=2.37m^2
+[exploration_coordinator-13] [INFO] [1780197267.163195414] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197267.211056257] [exploration_coordinator]: Navigating to frontier goal=(-2.29, 3.56), size=11, cost=2.93, source=unknown, information_gain=2.38m^2
+[exploration_coordinator-13] [INFO] [1780197270.407709810] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197270.478686938] [exploration_coordinator]: Navigating to frontier goal=(-3.69, 4.61), size=5, cost=1.76, source=unknown, information_gain=1.56m^2
+[exploration_coordinator-13] [INFO] [1780197270.567129846] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197270.620508757] [exploration_coordinator]: Navigating to frontier goal=(-4.24, 3.66), size=7, cost=1.91, source=unknown, information_gain=0.93m^2
+[exploration_coordinator-13] [INFO] [1780197270.766654057] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197270.824586235] [exploration_coordinator]: Navigating to frontier goal=(2.31, -1.09), size=191, cost=9.47, source=unknown, information_gain=2.41m^2
+[exploration_coordinator-13] [INFO] [1780197270.966517878] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197271.021444683] [exploration_coordinator]: Navigating to frontier goal=(-5.59, 3.36), size=344, cost=3.00, source=unknown, information_gain=0.87m^2
+[exploration_coordinator-13] [INFO] [1780197271.166721985] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197274.250776600] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197274.314370634] [exploration_coordinator]: Navigating to frontier goal=(-3.44, 3.96), size=5, cost=1.11, source=unknown, information_gain=1.62m^2
+[exploration_coordinator-13] [INFO] [1780197274.410815611] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197274.468690502] [exploration_coordinator]: Navigating to frontier goal=(-2.94, 3.16), size=7, cost=0.84, source=unknown, information_gain=1.23m^2
+[exploration_coordinator-13] [INFO] [1780197274.610954776] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197274.672892389] [exploration_coordinator]: Navigating to frontier goal=(0.16, -1.14), size=34, cost=6.90, source=unknown, information_gain=0.45m^2
+[exploration_coordinator-13] [INFO] [1780197274.810205427] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197274.869954977] [exploration_coordinator]: Navigating to frontier goal=(-2.94, 2.31), size=265, cost=1.49, source=unknown, information_gain=0.47m^2
+[exploration_coordinator-13] [INFO] [1780197275.011457580] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.
+[exploration_coordinator-13] [INFO] [1780197275.070744338] [exploration_coordinator]: Navigating to frontier goal=(-2.99, 4.56), size=5, cost=0.93, source=unknown, information_gain=1.67m^2
+[exploration_coordinator-13] [INFO] [1780197275.130319977] [exploration_coordinator]: GBSAE prior route completed; continuing with frontier coverage.

@@ -350,7 +350,15 @@ def graph_to_marker_array(graph: WeightedPoseGraph, frame_id: str, stamp) -> Mar
     return marker_array
 
 
-def _edge_marker(frame_id: str, stamp, ns: str, marker_id: int, r: float, g: float, b: float) -> Marker:
+def _edge_marker(
+    frame_id: str,
+    stamp,
+    ns: str,
+    marker_id: int,
+    r: float,
+    g: float,
+    b: float,
+) -> Marker:
     marker = Marker()
     marker.header.frame_id = frame_id
     marker.header.stamp = stamp

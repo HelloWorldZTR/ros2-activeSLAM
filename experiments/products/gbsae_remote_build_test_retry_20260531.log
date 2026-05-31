@@ -1,0 +1,60 @@
+[0.148s] WARNING:colcon.colcon_core.package_selection:ignoring unknown package 'gazebo_dev' in --packages-skip
+[0.148s] WARNING:colcon.colcon_core.package_selection:ignoring unknown package 'gazebo_msgs' in --packages-skip
+[0.148s] WARNING:colcon.colcon_core.package_selection:ignoring unknown package 'gazebo_ros' in --packages-skip
+[0.148s] WARNING:colcon.colcon_core.package_selection:ignoring unknown package 'gazebo_plugins' in --packages-skip
+[0.148s] WARNING:colcon.colcon_core.package_selection:ignoring unknown package 'gazebo_ros_pkgs' in --packages-skip
+Starting >>> activeslam_resource
+Finished <<< activeslam_resource [0.07s]
+Starting >>> turtlebot3_fake_node
+Finished <<< turtlebot3_fake_node [0.06s]
+Starting >>> turtlebot3_gazebo
+Finished <<< turtlebot3_gazebo [0.18s]
+Starting >>> turtlebot3_manipulation_gazebo
+Finished <<< turtlebot3_manipulation_gazebo [0.05s]
+Starting >>> activeslam
+Finished <<< activeslam [0.52s]
+Starting >>> turtlebot3_simulations
+Finished <<< turtlebot3_simulations [0.05s]
+
+Summary: 6 packages finished [1.07s]
+Starting >>> activeslam
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-6.2.5, py-1.10.0, pluggy-0.13.0
+cachedir: /home/psirobot/projects/ros2_ws/src/build/activeslam/.pytest_cache
+rootdir: /home/psirobot/projects/ros2_ws/src/activeslam
+plugins: ament-copyright-0.12.15, ament-lint-0.12.15, ament-pep257-0.12.15, launch-testing-ros-0.19.13, ament-flake8-0.12.15, launch-testing-1.0.14, ament-xmllint-0.12.15, cov-3.0.0, colcon-core-0.20.1
+collected 54 items
+
+test/test_copyright.py s                                                 [  1%]
+test/test_flake8.py .                                                    [  3%]
+test/test_frontier_detector.py ........                                  [ 18%]
+test/test_frontier_goal_utils.py ................                        [ 48%]
+test/test_frontier_selection.py ....                                     [ 55%]
+test/test_gbsae_exploration.py ............                              [ 77%]
+test/test_graph_exploration.py ..                                        [ 81%]
+test/test_nav2_backend.py ....                                           [ 88%]
+test/test_pep257.py .                                                    [ 90%]
+test/test_slam_evaluator_utils.py .....                                  [100%]
+- generated xml file: /home/psirobot/projects/ros2_ws/src/build/activeslam/pytest.xml -
+================== 53 passed, 1 skipped, 2 warnings in 0.58s ===================
+Finished <<< activeslam [0.87s]
+
+Summary: 1 package finished [1.01s]
+  1 package had stderr output: activeslam
+
+=============================== warnings summary ===============================
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+  Warning: SelectableGroups dict interface is deprecated. Use select.
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+--- stderr: activeslam
+
+=============================== warnings summary ===============================
+test/test_flake8.py::test_flake8
+test/test_flake8.py::test_flake8
+  Warning: SelectableGroups dict interface is deprecated. Use select.
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+---
+Summary: 54 tests, 0 errors, 0 failures, 1 skipped

@@ -9,7 +9,7 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_rooms exploration_strategy:=frontier
+ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=frontier
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
@@ -71,11 +71,29 @@ Evaluator 默认随 launch 启动，但只对 `slam_*` 地图生成可信指标�
 `model://...` include，当前 evaluator 不会递归解析模型目录；选择此类地图
 时会自动跳过 evaluator，并在终端和 `logs/evaluator_skipped.log` 中记录原因。
 
-如果需要启用图评分策略：
+探索策略通过 `slam_mode` 选择。YAML 默认值是 `frontier`；不传 launch
+覆盖参数时读取 `activeslam/config/exploration.yaml`。现有模式：
+
+- `frontier`：按 frontier 信息增益和安全落点距离排序。
+- `approx_graph`：使用 TF 轨迹近似 pose graph，并用 D-opt 风格评分选择 frontier。
+- `gbsae`：使用先验拓扑度量图、frontier 分配、路线推进和谱分析 loop revisit。
+
+启用近似图评分策略：
 
 ```bash
-ros2 launch activeslam slam.launch.py map:=slam_rooms exploration_strategy:=graph
+ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=approx_graph
 ```
+
+GBSAE 当前只为 `slam_rooms` 提供手工校对的先验图：
+
+```bash
+ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gbsae
+MAP=slam_rooms SLAM_MODE=gbsae RUN_SECONDS=120 ./run.zsh
+```
+
+选择其他地图并启用 `gbsae` 会在启动早期报告缺少对应
+`<world>.gbsae.json`。旧命令中的 `exploration_strategy:=frontier|graph`
+仍兼容，其中 `graph` 映射到 `approx_graph`，但会打印弃用警告。
 
 Nav2 参数默认读取 `activeslam/config/nav2_params.yaml`。如需使用其他配置：
 

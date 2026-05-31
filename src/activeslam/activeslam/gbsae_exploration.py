@@ -24,7 +24,6 @@ class RouteStep:
 
 def load_prior_graph(path: Path, expected_world: Optional[str] = None) -> nx.Graph:
     """Load and validate a topo-metric prior graph from a JSON asset."""
-
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(f'GBSAE prior graph is missing: {path}')
@@ -109,7 +108,6 @@ def load_prior_graph(path: Path, expected_world: Optional[str] = None) -> nx.Gra
 
 def resolve_prior_graph_path(world_name: str) -> Path:
     """Resolve the installed per-world GBSAE graph asset."""
-
     from ament_index_python.packages import get_package_share_directory
 
     resource_dir = Path(get_package_share_directory('activeslam_resource'))
@@ -127,7 +125,6 @@ def nearest_vertex(
     candidates: Optional[Iterable[int]] = None,
 ) -> int:
     """Return the closest prior vertex with a stable ID tie break."""
-
     node_ids = graph.nodes if candidates is None else candidates
     return min(
         node_ids,
@@ -137,7 +134,6 @@ def nearest_vertex(
 
 def shortest_path_expansion(graph: nx.Graph, vertices: Sequence[int]) -> List[int]:
     """Expand sparse route vertices into deterministic connected graph steps."""
-
     if not vertices:
         return []
     expanded = [vertices[0]]
@@ -148,7 +144,6 @@ def shortest_path_expansion(graph: nx.Graph, vertices: Sequence[int]) -> List[in
 
 def greedy_visit_route(graph: nx.Graph, start_vertex: int) -> List[int]:
     """Build a deterministic nearest-unvisited route over the prior graph."""
-
     if start_vertex not in graph:
         raise ValueError(f'Unknown GBSAE start vertex: {start_vertex}.')
     route = [start_vertex]
@@ -170,7 +165,6 @@ def greedy_visit_route(graph: nx.Graph, start_vertex: int) -> List[int]:
 
 def weighted_spanning_tree_d_opt(graph: nx.Graph) -> float:
     """Return the normalized weighted-spanning-tree D-opt objective."""
-
     if graph.number_of_nodes() < 2 or not nx.is_connected(graph):
         return 0.0
     node_ids = sorted(graph.nodes)
@@ -199,7 +193,6 @@ def insert_spectral_loop_revisits(
     path_cost_weight: float,
 ) -> Tuple[List[RouteStep], List[Edge]]:
     """Insert optional revisits when spectral gain outweighs extra travel."""
-
     if not route:
         return [], []
     steps = [RouteStep(route[0])]
@@ -298,7 +291,6 @@ class GBSAEPlanner:
 
     def allocate_frontiers(self, frontiers: Iterable[object]) -> Dict[int, List[object]]:
         """Assign frontiers to nearest uncompleted prior vertices."""
-
         active = self.active_step
         candidates = set(self.graph.nodes) - self.completed_vertices
         if active is not None:
@@ -336,7 +328,6 @@ class GBSAEPlanner:
 
 def point_is_known_free(grid_msg, data: np.ndarray, point: Point) -> bool:
     """Return whether a world point currently maps to a known free grid cell."""
-
     info = grid_msg.info
     if info.resolution <= 0.0:
         return False
@@ -351,7 +342,6 @@ def point_is_known_free(grid_msg, data: np.ndarray, point: Point) -> bool:
 
 def gbsae_to_marker_array(planner: GBSAEPlanner, frame_id: str, stamp):
     """Build RViz markers for the prior graph, route, active vertex, and loops."""
-
     from geometry_msgs.msg import Point as MarkerPoint
     from visualization_msgs.msg import Marker, MarkerArray
 

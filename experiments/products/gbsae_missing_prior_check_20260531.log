@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/psirobot/projects/ros2_ws/src/install/activeslam/lib/activeslam/exploration_coordinator", line 33, in <module>
+    sys.exit(load_entry_point('activeslam', 'console_scripts', 'exploration_coordinator')())
+  File "/home/psirobot/projects/ros2_ws/src/build/activeslam/activeslam/exploration_coordinator.py", line 1085, in main
+    node = ExplorationCoordinator()
+  File "/home/psirobot/projects/ros2_ws/src/build/activeslam/activeslam/exploration_coordinator.py", line 243, in __init__
+    self.gbsae_prior_graph = load_prior_graph(prior_graph_path, self.world_name)
+  File "/home/psirobot/projects/ros2_ws/src/build/activeslam/activeslam/gbsae_exploration.py", line 29, in load_prior_graph
+    raise FileNotFoundError(f'GBSAE prior graph is missing: {path}')
+FileNotFoundError: GBSAE prior graph is missing: /home/psirobot/projects/ros2_ws/src/install/activeslam_resource/share/activeslam_resource/maps/slam_loop.gbsae.json
+[ros2run]: Process exited with failure 1

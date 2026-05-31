@@ -243,3 +243,78 @@ Status: Python compilation, diff checks, focused helper tests, RViz YAML
 parsing, and evaluator launch routing checks pass locally. The local host lacks
 the ROS Humble environment and built workspace dependencies, so interactive
 and headless ROS smoke tests remain pending.
+
+## 2026-05-31 - GBSAE Prior-Graph Exploration Mode
+
+Goal: add a ROS 2 GBSAE adaptation while keeping `slam_toolbox`, the shared
+safe-frontier pipeline, and Nav2 ownership of `/cmd_vel` unchanged.
+
+Implementation:
+
+- Replaced the coordinator-facing `exploration_strategy` setting with
+  `slam_mode: frontier|approx_graph|gbsae`. Launch still accepts deprecated
+  `exploration_strategy:=frontier|graph`, mapping `graph` to `approx_graph`.
+- Added a `networkx` prior-graph planner with strict JSON validation,
+  deterministic greedy route expansion, normalized Laplacian
+  weighted-spanning-tree scoring, positive-objective spectral loop revisits,
+  route progression, and frontier-to-prior-vertex allocation.
+- Added `slam_rooms.gbsae.json`, with free-space vertices and traversable edges
+  aligned to the room and doorway layout. Other worlds fail early in `gbsae`
+  mode until they receive a matching `<world>.gbsae.json` asset.
+- Reused Nav2 path checks and navigation actions for direct prior-vertex goals,
+  allocated frontier goals, and optional loop revisits. Unreachable optional
+  revisits are skipped with a warning to avoid deadlock.
+- Updated `run.zsh` to use `SLAM_MODE`, while retaining legacy `STRATEGY`
+  fallback.
+
+Local checks:
+
+- Focused helper tests: `51 passed`.
+- Python compilation, YAML/JSON parsing, `zsh -n run.zsh`, manual line-length
+  scan, and `git diff --check`: passed.
+- Full local pytest collection remains blocked by missing ROS
+  `ament_copyright`, `ament_flake8`, and `ament_pep257` Python modules.
+- Implementation milestone commit: `cd6ad1d`.
+
+Remote verification:
+
+- Synced to `betail:/home/psirobot/projects/ros2_ws/` without `.external/`.
+- The documented `src/setup2.zsh` was absent on `betail`; verification used the
+  existing `src/setup.zsh`, and `AGENTS.md` now reflects that path.
+- Remote dependency check: `networkx 3.4.2`.
+- Remote `colcon build`: passed.
+- Remote `colcon test --packages-select activeslam`:
+  `54 tests, 0 errors, 0 failures, 1 skipped`.
+- Unsupported-world check:
+  `ros2 run activeslam exploration_coordinator --ros-args
+  -p slam_mode:=gbsae -p world_name:=slam_loop` failed immediately with the
+  expected missing `slam_loop.gbsae.json` error.
+
+Remote smoke command:
+
+```bash
+MAP=slam_rooms SLAM_MODE=gbsae RUN_SECONDS=120 \
+  LOG_ROOT=/home/psirobot/projects/ros2_ws/experiments/products/gbsae_smoke_20260531 \
+  /home/psirobot/projects/ros2_ws/run.zsh
+```
+
+Smoke result: passed. The key-events log confirms prior-graph loading, route
+creation with spectral loop edge `(0, 8)`, allocated frontier checks, direct
+prior-vertex Nav2 goals, frontier goal dispatch, optional unreachable revisit
+skips, and route completion without deadlock. The evaluator wrote `128`
+estimated samples with `final_coverage=0.5817`, `ate_rmse=0.0371`, and
+`free_iou=0.9599`. This accelerated-physics run exercised Nav2 recovery churn,
+so it is a smoke test rather than a policy-quality benchmark.
+
+`ros2 topic info /cmd_vel --verbose` reported Nav2 `behavior_server` endpoints
+and `velocity_smoother` as the only publishers. `exploration_coordinator` was
+not a publisher.
+
+Products:
+
+- [remote build and package tests](products/gbsae_remote_build_test_retry_20260531.log)
+- [`/cmd_vel` publisher check](products/gbsae_cmd_vel_publishers_20260531.log)
+- [unsupported-world missing-prior check](products/gbsae_missing_prior_check_20260531.log)
+- [smoke key events](products/gbsae_smoke_key_events_20260531.log)
+- [smoke metrics](products/gbsae_smoke_20260531/run_slam_rooms_gbsae_20260531_111227/run_20260531_111228/metrics.json)
+- [final evaluator map](products/gbsae_smoke_20260531/run_slam_rooms_gbsae_20260531_111227/run_20260531_111228/final_map.pgm)
