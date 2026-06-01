@@ -1558,10 +1558,21 @@ def suppress_unconfident_cycles(
     radius: float,
     ratio_threshold: float,
 ) -> Tuple[nx.Graph, UnknownCycleSuppressionStats]:
-    """Replace unknown-heavy induced regions with MST edges before macro planning."""
+    """Globally prune prunable edges that form cycles with confident structure.
+
+    1. **Confident–confident** edges are unconditionally kept (even when
+       they form cycles among themselves).
+    2. Every edge that touches at least one unconfident endpoint is
+       *prunable* and competes in a single Union-Find pass ordered by
+       descending confidence.  An edge that would close a cycle is
+       removed so that fake loops through unknown-heavy territory cannot
+       distort the TSP.
+    """
     pruned = graph.copy()
     threshold = min(1.0, max(0.0, float(ratio_threshold)))
-    unconfident = set()
+
+    # ---- tag every vertex ----
+    unconfident_ids = set()
     for node_id in pruned.nodes:
         ratio = local_unknown_ratio(
             grid,
@@ -1572,28 +1583,72 @@ def suppress_unconfident_cycles(
         pruned.nodes[node_id]['unknown_ratio'] = ratio
         pruned.nodes[node_id]['unconfident'] = ratio >= threshold
         if ratio >= threshold:
-            unconfident.add(node_id)
-    removed_edges = 0
-    induced = pruned.subgraph(unconfident)
-    for component in nx.connected_components(induced):
-        local = induced.subgraph(component)
-        if local.number_of_edges() <= max(0, local.number_of_nodes() - 1):
-            continue
-        tree_edges = {
-            cell_edge(source, target)
-            for source, target in nx.minimum_spanning_edges(
-                local,
-                algorithm='kruskal',
-                weight='weight',
-                data=False,
+            unconfident_ids.add(node_id)
+
+    # ---- classify edges ----
+    # Confidence = 1 – effective_unknown_ratio.
+    # Pure unconfident edges use the worse endpoint directly.
+    # Cross edges (one confident endpoint) are strongly preferred:
+    # the confident side contributes −0.5 instead of 0, giving them
+    # an effective bonus of 0.5 in confidence space.
+    prunable = []  # (-confidence, u_tie, v_tie, u, v)
+    for u, v in pruned.edges:
+        u_unconf = pruned.nodes[u]['unconfident']
+        v_unconf = pruned.nodes[v]['unconfident']
+        if not u_unconf and not v_unconf:
+            continue  # confident–confident  → never removed
+        if u_unconf and v_unconf:
+            # Both unconfident — full penalty.
+            effective = max(
+                pruned.nodes[u]['unknown_ratio'],
+                pruned.nodes[v]['unknown_ratio'],
             )
-        }
-        for source, target in list(local.edges):
-            if cell_edge(source, target) in tree_edges:
-                continue
-            pruned.remove_edge(source, target)
-            removed_edges += 1
-    return pruned, UnknownCycleSuppressionStats(len(unconfident), removed_edges)
+        else:
+            # Cross edge — confident side gives a bonus.
+            unconf_ratio = (
+                pruned.nodes[u]['unknown_ratio'] if u_unconf
+                else pruned.nodes[v]['unknown_ratio']
+            )
+            effective = max(0.0, unconf_ratio - 0.5)
+        confidence = 1.0 - effective
+        prunable.append((-confidence, u, v, u, v))
+
+    # ---- Union-Find ----
+    parent = {n: n for n in pruned.nodes}
+
+    def _find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def _union(x, y):
+        rx, ry = _find(x), _find(y)
+        if rx != ry:
+            parent[rx] = ry
+            return True
+        return False
+
+    # Confident–confident edges establish the initial skeleton.
+    for u, v in pruned.edges:
+        if (
+            not pruned.nodes[u]['unconfident']
+            and not pruned.nodes[v]['unconfident']
+        ):
+            _union(u, v)
+
+    # All prunable edges compete by descending confidence.
+    prunable.sort()
+    removed_edges = 0
+    for _neg_conf, _tu, _tv, u, v in prunable:
+        if _union(u, v):
+            continue
+        pruned.remove_edge(u, v)
+        removed_edges += 1
+
+    return pruned, UnknownCycleSuppressionStats(
+        len(unconfident_ids), removed_edges,
+    )
 
 
 def repair_topology_connectivity(
@@ -1803,6 +1858,25 @@ def gvd_to_marker_array(
             skeleton.points.append(_marker_point(MarkerPoint, target_point, 0.06))
     markers.markers.append(skeleton)
 
+    # Topological graph edges — this is what the TSP actually sees after
+    # clustering, repair, and cycle suppression.
+    topo_graph = _marker(
+        Marker, frame_id, stamp, 'gvd_topo_graph', 11, Marker.LINE_LIST,
+    )
+    topo_graph.scale.x = 0.04
+    topo_graph.color.a = 0.8
+    topo_graph.color.r = 0.2
+    topo_graph.color.g = 0.9
+    topo_graph.color.b = 0.5
+    for source, target in topology.graph.edges:
+        topo_graph.points.append(
+            _marker_point(MarkerPoint, _graph_node_point(topology.graph, source), 0.0),
+        )
+        topo_graph.points.append(
+            _marker_point(MarkerPoint, _graph_node_point(topology.graph, target), 0.0),
+        )
+    markers.markers.append(topo_graph)
+
     path = _marker(Marker, frame_id, stamp, 'gvd_active_path', 2, Marker.LINE_STRIP)
     path.scale.x = 0.07
     path.color.a = 0.95
@@ -1886,6 +1960,7 @@ def gvd_to_marker_array(
             cleared_regions.points.append(_marker_point(MarkerPoint, target, 0.035))
     markers.markers.append(cleared_regions)
     if hierarchical_tracker is not None:
+        route_points = hierarchical_tracker.route_points
         tsp_route = _marker(
             Marker,
             frame_id,
@@ -1898,9 +1973,34 @@ def gvd_to_marker_array(
         tsp_route.color.a = 0.9
         tsp_route.color.r = 1.0
         tsp_route.color.g = 0.75
-        for point in hierarchical_tracker.route_points:
+        for point in route_points:
             tsp_route.points.append(_marker_point(MarkerPoint, point, 0.11))
         markers.markers.append(tsp_route)
+
+        # Direction arrows along each segment of the TSP route.
+        arrow_id = 100
+        for i in range(len(route_points) - 1):
+            p1 = route_points[i]
+            p2 = route_points[i + 1]
+            arrow = _marker(
+                Marker,
+                frame_id,
+                stamp,
+                f'gvd_hierarchical_tsp_arrow_{i}',
+                arrow_id,
+                Marker.ARROW,
+            )
+            arrow_id += 1
+            arrow.scale.x = 0.04   # shaft diameter
+            arrow.scale.y = 0.08   # head diameter
+            arrow.scale.z = 0.12   # head length
+            arrow.color.a = 0.85
+            arrow.color.r = 1.0
+            arrow.color.g = 0.45
+            arrow.color.b = 0.0
+            arrow.points.append(_marker_point(MarkerPoint, p1, 0.0))
+            arrow.points.append(_marker_point(MarkerPoint, p2, 0.0))
+            markers.markers.append(arrow)
     astar_bridges = _marker(
         Marker,
         frame_id,

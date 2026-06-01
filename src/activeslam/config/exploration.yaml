@@ -78,14 +78,14 @@ exploration_coordinator:
     gvd_reconnection_clearance: 0.04
     gvd_unknown_cycle_suppression_enabled: true
     gvd_unconfident_unknown_radius: 1.0
-    gvd_unconfident_unknown_ratio: 0.5
+    gvd_unconfident_unknown_ratio: 0.95
     gvd_hierarchical_state_migration_radius: 0.75
     gvd_hierarchical_local_half_extent: 2.5
     gvd_hierarchical_region_area_weight: 1.0
     gvd_hierarchical_region_squareness_weight: 1.0
     gvd_hierarchical_local_approx_graph_enabled: true
     gvd_hierarchical_local_probes_enabled: true
-    gvd_hierarchical_route_replan_interval: 0.5
+    gvd_hierarchical_route_replan_interval: 1.0
     gvd_stuck_recovery_enabled: true
     gvd_stuck_min_progress_distance: 0.15
     gvd_stuck_timeout: 10.0
