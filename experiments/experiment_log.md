@@ -528,6 +528,59 @@ Status: local Python compilation, `git diff --check`, focused GVD helper tests
 (`29 passed`), and the available pure Python regression suite (`91 passed`)
 passed. Remote ROS smoke validation is pending.
 
+## 2026-06-01 - Low-confidence fill for tiny frontier fragments
+
+- Increased the default minimum ordinary frontier cluster size from `5px` to
+  `10px`.
+- Added a conservative detector pre-pass for smaller frontier fragments.
+  Bounded adjacent unknown components use surrounding free and occupied
+  geometry votes and are filled with low-confidence occupancy values `25` or
+  `75` instead of remaining unknown.
+- Kept large unknown components and components touching the `/map` array edge
+  unchanged to avoid hiding genuine unexplored entrances.
+- Cached the inferred grid in the coordinator so frontier selection, GVD,
+  flood Regions, information gain, and explored-history updates share the same
+  occupancy interpretation. Low-confidence free cells remain invalid as safe
+  goals because safe-goal search still requires exact known-free value `0`.
+
+Status: local Python compilation, workspace and index `git diff --check`,
+focused detector helper tests (`14 passed`), and the available pure Python
+regression suite (`104 passed`) passed. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Hierarchical local cleanup goal freedom and probes
+
+- Removed the requirement that a hierarchical local-cleanup safe goal itself
+  lie inside the active flood Region. The selected frontier cluster must still
+  touch the Region, so completion remains defined by clearing Region-local
+  frontiers while Nav2 may choose a safer standoff cell just outside it.
+- Enabled frontier `Spin -> DriveOnHeading` probes during
+  `gvd_hierarchical` local flood cleanup without enabling probes for macro GVD
+  vertex traversal or the global tail-cleanup phase.
+- Added `gvd_hierarchical_local_probes_enabled: true` as an independent
+  ablation switch. `gvd_mode_probes_enabled` remains the broader GVD-mode
+  override.
+
+Status: local Python compilation, workspace and index `git diff --check`,
+focused frontier selection and safe-goal helper tests (`33 passed`), and the
+available pure Python regression suite (`106 passed`) passed. Remote ROS smoke
+validation is pending.
+
+## 2026-06-01 - Permissive switching bridges and distance-only macro targets
+
+- Kept `gvd_obstacle_clearance: 0.18` for skeleton construction, local GVD A*,
+  and active-path invalidation.
+- Added `gvd_reconnection_clearance: 0.04` only for switching-connection
+  fallback bidirectional A*. This prevents coarse inflation from discarding
+  narrow doorway hypotheses before Nav2 performs the real path check.
+- Updated the topology connection cache to validate native GVD bridges against
+  the strict mask and fallback A* bridges against the permissive mask.
+- Changed `gvd_hierarchical` macro target selection to use topology distance
+  only. Local unknown area no longer affects the ordering.
+
+Status: local Python compilation, workspace and index `git diff --check`,
+focused GVD helper tests (`33 passed`), and the available pure Python
+regression suite (`107 passed`) passed. Remote ROS smoke validation is pending.
+
 ## 2026-06-01 - Hierarchical Region RViz snapshot rendering
 
 - Stored the `/map` geometry snapshot together with the active local-cleanup
@@ -557,6 +610,34 @@ Status: local Python compilation, `git diff --check`, focused Region and
 safe-goal helper tests (`51 passed`), and the available pure Python regression
 suite (`95 passed`) passed. Remote ROS smoke validation is pending.
 
+## 2026-06-01 - Leaf-centered weighted Region selection
+
+- Replaced direction-priority rectangular growth with centered rectangle
+  enumeration. The active leaf remains at the Region center instead of
+  drifting toward an edge or corner.
+- Select the Region using a weighted sum of normalized area and squareness.
+- Added `gvd_hierarchical_region_area_weight` and
+  `gvd_hierarchical_region_squareness_weight`, both defaulting to `1.0`.
+
+Status: local Python compilation, `git diff --check`, focused GVD helper tests
+(`32 passed`), and the available pure Python regression suite (`96 passed`)
+passed. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Per-Region approximate graph cleanup scoring
+
+- Added an independent approximate pose-graph tracker for each hierarchical
+  local-cleanup Region. Its trajectory state is discarded when the Region is
+  complete instead of leaking across rooms.
+- Changed local cleanup from first-reachable dispatch to serial Nav2 path
+  checks followed by D-opt style comparison of every reachable Region-local
+  candidate.
+- Added `gvd_hierarchical_local_approx_graph_enabled: true` so the prior
+  first-reachable behavior remains available for ablation.
+
+Status: local Python compilation, workspace and index `git diff --check`,
+focused graph and GVD helper tests (`36 passed`), and the available pure Python
+regression suite (`98 passed`) passed. Remote ROS smoke validation is pending.
+
 ## 2026-06-01 - Relaxed hierarchical local-cleanup trigger
 
 - Restored eager local cleanup for GVD leaves with graph degree `<= 1`.
@@ -569,3 +650,58 @@ suite (`95 passed`) passed. Remote ROS smoke validation is pending.
 Status: local Python compilation, `git diff --check`, focused GVD helper tests
 (`29 passed`), and the available pure Python regression suite (`91 passed`)
 passed. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Dynamic open-TSP hierarchical GVD traversal
+
+- Replaced nearest-unexplored macro selection in `gvd_hierarchical` with a
+  NetworkX `3.4.x` open-TSP walk over uncleared live GVD vertices.
+- Kept cleared vertices as shortest-path transit nodes and retained
+  explored-but-uncleared vertices as revisit targets.
+- Added explicit corner vertices, increased support spacing to `2.0m`, and
+  replaced unrestricted pairwise merging with deterministic local GVD-chain
+  clustering that preserves switching-bridge metadata.
+- Added `0.5s` dirty-route throttling. Map updates refresh later TSP steps
+  without preempting an active macro Nav2 goal merely because the first step
+  changed. Region cleanup and bounded recovery remain uninterrupted.
+- Remap an in-flight macro target by world position after a live graph rebuild,
+  so the eventual Nav2 success callback still updates the corresponding new
+  graph vertex without changing the dispatched geometric goal.
+- Added an RViz marker for the remaining hierarchical TSP route.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+is blocked because the generic host environment does not provide NetworkX.
+Remote ROS smoke validation is pending.
+
+## 2026-06-01 - RViz rendering for switching A* bridges
+
+- Added an orange `gvd_astar_reconnections` marker that renders the stored
+  world-space segments of fallback bidirectional-A* topology bridges.
+- Kept raw thinned GVD skeleton edges cyan and the hierarchical TSP route
+  yellow so connectivity hypotheses remain visually distinguishable.
+- Added a pure helper regression test that excludes native GVD edges from the
+  rendered A* bridge segment list.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote RViz smoke validation is pending.
+
+## 2026-06-01 - Unknown-loop suppression for live GVD topology
+
+- Marked GVD vertices unconfident when the local `1.0m` disk contains at least
+  `50%` unknown or out-of-map cells.
+- Reduced each induced unconfident connected region to MST edges after
+  switching repair and stable clustering. Retained edges return to the normal
+  macro graph without a special TSP cost.
+- Added purple RViz node markers and route-rebuild logs with unconfident vertex
+  and removed-edge counts.
+- Kept throttled GVD rebuild and TSP regeneration active during hierarchical
+  Region cleanup, frontier navigation, and local probe actions without
+  preempting those local actions.
+- Added ablation parameters:
+  `gvd_unknown_cycle_suppression_enabled`,
+  `gvd_unconfident_unknown_radius`, and
+  `gvd_unconfident_unknown_ratio`.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS and RViz smoke validation are pending.

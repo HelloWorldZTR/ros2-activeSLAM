@@ -2,8 +2,12 @@ exploration_coordinator:
   ros__parameters:
     stability_duration: 10.0
     stability_threshold: 0.02
-    min_frontier_size: 5
+    min_frontier_size: 10
     frontier_include_open_map_edges: true
+    frontier_low_confidence_fill_enabled: true
+    frontier_low_confidence_fill_max_unknown_cells: 64
+    frontier_low_confidence_free_value: 25
+    frontier_low_confidence_occupied_value: 75
     slam_mode: "frontier"  # frontier, approx_graph, gbsae, gvd_gbsae, or gvd_hierarchical
     frontier_planning_attempts: 12
     frontier_goal_search_radius: 1.2
@@ -27,11 +31,11 @@ exploration_coordinator:
     frontier_probe_spin_tolerance: 0.10
     frontier_probe_spin_timeout: 8.0
     frontier_open_edge_probe_distance: 2.0
-    frontier_open_edge_probe_speed: 0.12
+    frontier_open_edge_probe_speed: 0.30
     frontier_open_edge_probe_timeout: 20.0
     frontier_unknown_probe_enabled: true
     frontier_unknown_probe_distance: 0.45
-    frontier_unknown_probe_speed: 0.08
+    frontier_unknown_probe_speed: 0.20
     frontier_unknown_probe_timeout: 8.0
     graph_max_frontier_candidates: 8
     graph_info_radius: 1.5
@@ -54,7 +58,8 @@ exploration_coordinator:
     gvd_overlap_radius: 0.35
     gvd_obstacle_clearance: 0.18  # TurtleBot radius used by GVD connectivity and local A*
     gvd_boundary_margin: 0.20
-    gvd_support_vertex_spacing: 1.0
+    gvd_support_vertex_spacing: 2.0
+    gvd_corner_turn_threshold_deg: 45.0
     gvd_min_vertex_spacing: 1.0
     gvd_min_goal_distance: 1.0
     gvd_max_goal_distance: 6.0
@@ -70,16 +75,24 @@ exploration_coordinator:
     gvd_switching_connections_enabled: true
     gvd_connection_neighbor_limit: 10
     gvd_connection_cache_size: 4096
+    gvd_reconnection_clearance: 0.04
+    gvd_unknown_cycle_suppression_enabled: true
+    gvd_unconfident_unknown_radius: 1.0
+    gvd_unconfident_unknown_ratio: 0.5
     gvd_hierarchical_state_migration_radius: 0.75
-    gvd_hierarchical_unknown_radius: 1.5
     gvd_hierarchical_local_half_extent: 2.5
+    gvd_hierarchical_region_area_weight: 1.0
+    gvd_hierarchical_region_squareness_weight: 1.0
+    gvd_hierarchical_local_approx_graph_enabled: true
+    gvd_hierarchical_local_probes_enabled: true
+    gvd_hierarchical_route_replan_interval: 0.5
     gvd_stuck_recovery_enabled: true
     gvd_stuck_min_progress_distance: 0.15
-    gvd_stuck_timeout: 5.0
+    gvd_stuck_timeout: 10.0
     gvd_random_recovery_attempts: 3
     gvd_random_recovery_min_abs_yaw: 0.6
     gvd_random_recovery_max_abs_yaw: 2.4
     gvd_random_recovery_spin_timeout: 5.0
     gvd_random_recovery_distance: 0.45
-    gvd_random_recovery_speed: 0.10
+    gvd_random_recovery_speed: 0.20
     gvd_random_recovery_drive_timeout: 6.0

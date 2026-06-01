@@ -75,6 +75,14 @@ def frontier_probes_enabled_for_mode(
     *,
     frontier_modes_enabled: bool,
     gvd_modes_enabled: bool,
+    hierarchical_local_cleanup: bool = False,
+    hierarchical_local_cleanup_enabled: bool = True,
 ) -> bool:
     """Apply distinct probe defaults to frontier-driven and GVD-driven modes."""
+    if (
+        slam_mode == 'gvd_hierarchical'
+        and hierarchical_local_cleanup
+        and hierarchical_local_cleanup_enabled
+    ):
+        return True
     return gvd_modes_enabled if slam_mode in GVD_SLAM_MODES else frontier_modes_enabled

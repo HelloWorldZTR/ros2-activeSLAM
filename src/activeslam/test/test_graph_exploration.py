@@ -100,3 +100,41 @@ def test_graph_score_reuses_cached_grid_without_changing_score():
     cached = scorer.score(graph, msg, path, data)
 
     assert cached == pytest.approx(uncached)
+
+
+def test_best_graph_candidate_returns_highest_scored_reachable_path():
+    low = (1.0, 'low-candidate', 'low-path')
+    high = (3.0, 'high-candidate', 'high-path')
+
+    assert graph_exploration.best_graph_candidate([low, high]) == high
+    assert graph_exploration.best_graph_candidate([]) is None
+
+
+def test_local_approximate_graph_trackers_do_not_share_region_state():
+    information = graph_exploration.make_information_matrix(0.04, 0.04, 0.008)
+    first = graph_exploration.ApproximatePoseGraphTracker(
+        node_spacing=0.5,
+        yaw_spacing=0.35,
+        loop_closure_radius=2.0,
+        loop_closure_min_separation=20,
+        loop_closure_weight=1.5,
+        max_loop_closures_per_node=3,
+        odom_information=information,
+    )
+    second = graph_exploration.ApproximatePoseGraphTracker(
+        node_spacing=0.5,
+        yaw_spacing=0.35,
+        loop_closure_radius=2.0,
+        loop_closure_min_separation=20,
+        loop_closure_weight=1.5,
+        max_loop_closures_per_node=3,
+        odom_information=information,
+    )
+
+    first.update((0.0, 0.0, 0.0))
+    first.update((1.0, 0.0, 0.0))
+    second.update((5.0, 5.0, 0.0))
+
+    assert len(first.graph.nodes) == 2
+    assert len(second.graph.nodes) == 1
+    assert second.graph.nodes[0].x == 5.0

@@ -3,6 +3,7 @@ import random
 
 import networkx as nx
 import numpy as np
+import pytest
 
 from activeslam.frontier_goal_utils import GridGeometry
 from activeslam.gvd_exploration import (
@@ -12,6 +13,9 @@ from activeslam.gvd_exploration import (
     TopologyConnectionCache,
     TrajectorySweepTracker,
     WorldBounds,
+    _cluster_close_vertices,
+    _split_chain_vertices,
+    astar_reconnection_segments,
     astar_path,
     bidirectional_astar_path,
     boundary_unknown_score,
@@ -23,6 +27,7 @@ from activeslam.gvd_exploration import (
     cluster_touches_mask,
     local_free_flood_mask,
     local_unknown_area,
+    local_unknown_ratio,
     path_crosses_new_obstacle,
     path_crosses_obstacle,
     path_suffix_from_nearest,
@@ -32,7 +37,9 @@ from activeslam.gvd_exploration import (
     rectangle_mask_outline,
     repair_topology_connectivity,
     robot_component_graph,
+    route_replan_due,
     sample_random_recovery_motion,
+    suppress_unconfident_cycles,
     update_translation_progress,
 )
 
@@ -270,29 +277,76 @@ def test_topology_repair_keeps_truly_isolated_components_separate():
     assert stats.unresolved_components == 2
 
 
-def test_hierarchical_tracker_prefers_unknown_area_over_similarly_near_vertex():
+def test_topology_repair_uses_relaxed_astar_mask_for_narrow_bridge():
+    geometry = _geometry(width=7, height=3)
+    traversable = np.ones((3, 7), dtype=bool)
+    traversable[:, 3] = False
+    astar_traversable = np.ones_like(traversable)
+    skeleton = np.zeros_like(traversable)
+    skeleton[1, :3] = True
+    skeleton[1, 4:] = True
+    graph = nx.Graph()
+    graph.add_node(0, x=0.5, y=1.5)
+    graph.add_node(1, x=6.5, y=1.5)
+
+    repaired, stats = repair_topology_connectivity(
+        graph,
+        skeleton,
+        traversable,
+        geometry,
+        TopologyConnectionCache(),
+        astar_traversable=astar_traversable,
+        neighbor_limit=10,
+        map_revision=1,
+    )
+
+    assert nx.is_connected(repaired)
+    assert repaired.edges[0, 1]['connection_mode'] == 'astar'
+    assert stats.astar_edges == 1
+
+
+def test_astar_reconnection_segments_render_only_fallback_bridge_paths():
+    graph = nx.Graph()
+    graph.add_edge(
+        0,
+        1,
+        connection_mode='astar',
+        path=((0.0, 0.0), (1.0, 0.5), (2.0, 0.0)),
+    )
+    graph.add_edge(
+        1,
+        2,
+        connection_mode='gvd',
+        path=((2.0, 0.0), (3.0, 0.0)),
+    )
+
+    assert astar_reconnection_segments(graph) == (
+        ((0.0, 0.0), (1.0, 0.5)),
+        ((1.0, 0.5), (2.0, 0.0)),
+    )
+
+
+def test_hierarchical_tracker_expands_tsp_walk_through_transit_vertices():
     graph = nx.Graph()
     graph.add_node(0, x=0.5, y=1.5)
     graph.add_node(1, x=2.5, y=1.5)
-    graph.add_node(2, x=0.5, y=3.5)
-    graph.add_edge(0, 1, weight=2.0)
-    graph.add_edge(0, 2, weight=2.0)
-    grid = np.zeros((5, 5), dtype=np.int8)
-    grid[2:5, :2] = -1
+    graph.add_node(2, x=4.5, y=1.5)
+    graph.add_edge(0, 1, weight=1.0)
+    graph.add_edge(1, 2, weight=1.0)
     tracker = HierarchicalGVDTracker(migration_radius=0.75)
     tracker.update_graph(graph)
-    tracker.mark_reached(0)
+    tracker.mark_local_cleared(1)
+    tracker.rebuild_route((0.5, 1.5))
 
     target = tracker.select_macro_target(
         (0.5, 1.5),
-        grid,
-        _geometry(width=5, height=5),
-        unknown_radius=1.5,
     )
 
     assert target is not None
-    assert target.vertex_id == 2
-    assert target.unknown_area > 0.0
+    assert target.vertex_id == 1
+    assert target.travel_cost == pytest.approx(1.0)
+    assert tracker.route_targets == (0, 2)
+    assert 1 in tracker.transit_route
 
 
 def test_hierarchical_tracker_migrates_explored_and_cleared_vertices():
@@ -316,7 +370,31 @@ def test_hierarchical_tracker_migrates_explored_and_cleared_vertices():
     assert tracker.active_vertex == 10
 
 
-def test_hierarchical_tracker_requests_cleanup_for_leaf_or_nearly_exhausted_branch():
+def test_hierarchical_tracker_remaps_inflight_target_after_graph_rebuild():
+    first = nx.Graph()
+    first.add_node(0, x=1.0, y=1.0)
+    first.add_node(1, x=2.0, y=1.0)
+    first.add_edge(0, 1, weight=1.0)
+    second = nx.Graph()
+    second.add_node(10, x=1.1, y=1.0)
+    second.add_node(11, x=2.1, y=1.0)
+    second.add_edge(10, 11, weight=1.0)
+    tracker = HierarchicalGVDTracker(migration_radius=0.25)
+    tracker.update_graph(first)
+    tracker.rebuild_route((1.0, 1.0))
+    target = tracker.select_macro_target((1.0, 1.0))
+    assert target is not None
+    assert target.vertex_id == 1
+
+    tracker.update_graph(second)
+    remapped = tracker.remap_target(target)
+
+    assert remapped is not None
+    assert remapped.vertex_id == 11
+    assert remapped.point == (2.1, 1.0)
+
+
+def test_hierarchical_tracker_requests_cleanup_only_after_final_route_occurrence():
     graph = nx.Graph()
     graph.add_edges_from(((0, 1), (1, 2), (1, 3)))
     for node_id in graph.nodes:
@@ -324,10 +402,75 @@ def test_hierarchical_tracker_requests_cleanup_for_leaf_or_nearly_exhausted_bran
     tracker = HierarchicalGVDTracker(migration_radius=0.5)
     tracker.update_graph(graph)
 
-    assert tracker.should_clear_local(0)
+    tracker.transit_route = (0, 1, 2, 1, 3)
+    tracker.route_index = 1
     assert not tracker.should_clear_local(1)
-    tracker.explored_vertices.update({0, 2})
+    tracker.route_index = 4
     assert tracker.should_clear_local(1)
+
+
+def test_hierarchical_tracker_keeps_explored_but_uncleared_vertex_as_tsp_target():
+    graph = nx.path_graph(3)
+    for node_id in graph.nodes:
+        graph.nodes[node_id].update(x=float(node_id), y=0.0)
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+    tracker.mark_reached(0)
+
+    tracker.rebuild_route((0.0, 0.0))
+
+    assert 0 in tracker.explored_vertices
+    assert 0 in tracker.route_targets
+
+
+def test_hierarchical_tracker_joins_open_tsp_from_nearer_endpoint():
+    graph = nx.path_graph(4)
+    for node_id in graph.nodes:
+        graph.nodes[node_id].update(x=float(node_id), y=0.0)
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+
+    route = tracker.rebuild_route((3.0, 0.0))
+
+    assert route[0] == 3
+    assert route[-1] == 0
+
+
+def test_split_chain_vertices_inserts_visible_corner():
+    chain = ((1, 1), (1, 2), (1, 3), (2, 3), (3, 3))
+
+    vertices = _split_chain_vertices(
+        chain,
+        resolution=1.0,
+        spacing=10.0,
+        corner_turn_threshold=math.pi / 4.0,
+    )
+
+    assert vertices == [(0, 'support'), (2, 'corner'), (4, 'support')]
+
+
+def test_stable_vertex_clustering_preserves_bridge_metadata_and_unrelated_neighbor():
+    graph = nx.Graph()
+    graph.add_node(0, x=0.0, y=0.0, kind='branch')
+    graph.add_node(1, x=0.2, y=0.0, kind='support')
+    graph.add_node(2, x=2.0, y=0.0, kind='endpoint')
+    graph.add_node(3, x=0.1, y=0.1, kind='endpoint')
+    graph.add_edge(0, 1, weight=0.2, connection_mode='gvd')
+    graph.add_edge(1, 2, weight=1.8, connection_mode='astar', path=((0.0, 0.0), (2.0, 0.0)))
+
+    clustered = _cluster_close_vertices(graph, min_spacing=1.0)
+
+    assert set(clustered.nodes) == {0, 2, 3}
+    assert clustered.edges[0, 2]['connection_mode'] == 'astar'
+    assert clustered.edges[0, 2]['path'] == ((0.0, 0.0), (2.0, 0.0))
+    assert clustered.edges[0, 2]['weight'] == pytest.approx(2.0)
+
+
+def test_route_replan_due_limits_dirty_route_refresh_rate():
+    assert not route_replan_due(10.0, interval=0.5, now=10.49)
+    assert route_replan_due(10.0, interval=0.5, now=10.5)
 
 
 def test_local_free_flood_stays_inside_room_and_filters_frontier_clusters():
@@ -376,26 +519,44 @@ def test_local_free_flood_stays_inside_coarse_prior_bounds():
     assert not np.any(mask[:, 6])
 
 
-def test_local_free_flood_selects_most_square_greedy_candidate():
-    geometry = _geometry(width=5, height=5)
-    free = np.asarray(
-        (
-            (1, 1, 1, 1, 1),
-            (1, 0, 1, 0, 1),
-            (1, 1, 1, 1, 1),
-            (1, 1, 1, 0, 1),
-            (1, 1, 0, 1, 1),
-        ),
-        dtype=bool,
-    )
-    grid = np.where(free, 0, 100).astype(np.int8)
+def test_local_free_flood_keeps_leaf_at_region_center():
+    geometry = _geometry(width=7, height=7)
+    grid = np.zeros((7, 7), dtype=np.int8)
 
-    mask = local_free_flood_mask(grid, geometry, (2.5, 2.5), half_extent=5.0)
+    mask = local_free_flood_mask(grid, geometry, (3.5, 3.5), half_extent=2.0)
     rows, columns = np.flatnonzero(np.any(mask, axis=1)), np.flatnonzero(np.any(mask, axis=0))
 
-    # Greedy expansion can produce a 4x1 vertical strip, a 1x5 horizontal
-    # strip, or this 2x3 rectangle.  The local Region should prefer 2x3.
-    assert (rows[0], rows[-1], columns[0], columns[-1]) == (2, 3, 0, 2)
+    assert (rows[0], rows[-1], columns[0], columns[-1]) == (1, 5, 1, 5)
+
+
+def test_local_free_flood_weights_trade_area_for_squareness():
+    geometry = _geometry(width=7, height=7)
+    grid = np.zeros((7, 7), dtype=np.int8)
+    grid[1, :] = 100
+    grid[5, :] = 100
+
+    area_mask = local_free_flood_mask(
+        grid,
+        geometry,
+        (3.5, 3.5),
+        half_extent=3.0,
+        area_weight=3.0,
+        squareness_weight=1.0,
+    )
+    square_mask = local_free_flood_mask(
+        grid,
+        geometry,
+        (3.5, 3.5),
+        half_extent=3.0,
+        area_weight=0.0,
+        squareness_weight=1.0,
+    )
+
+    assert np.all(area_mask[2:5, :])
+    assert not np.any(area_mask[:2, :])
+    assert not np.any(area_mask[5:, :])
+    assert np.all(square_mask[2:5, 2:5])
+    assert np.count_nonzero(square_mask) == 9
 
 
 def test_local_free_flood_stops_before_other_gvd_vertex():
@@ -458,6 +619,57 @@ def test_local_unknown_area_can_count_slam_map_exterior_as_unknown():
 
     assert inside_only == 0.0
     assert with_exterior > 0.0
+
+
+def test_local_unknown_ratio_counts_unknown_and_map_exterior():
+    geometry = _geometry(width=3, height=3)
+    grid = np.zeros((3, 3), dtype=np.int8)
+    grid[0, 0] = -1
+
+    ratio = local_unknown_ratio(grid, geometry, (0.5, 0.5), radius=1.0)
+
+    assert ratio > 0.0
+    assert ratio < 1.0
+
+
+def test_unknown_heavy_cycle_suppression_keeps_only_local_mst_edges():
+    graph = nx.cycle_graph(4)
+    for node_id, point in enumerate(((0.5, 0.5), (1.5, 0.5), (1.5, 1.5), (0.5, 1.5))):
+        graph.nodes[node_id].update(x=point[0], y=point[1])
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    grid = np.full((3, 3), -1, dtype=np.int8)
+
+    pruned, stats = suppress_unconfident_cycles(
+        graph,
+        grid,
+        _geometry(width=3, height=3),
+        radius=0.1,
+        ratio_threshold=0.5,
+    )
+
+    assert stats.unconfident_vertices == 4
+    assert stats.removed_edges == 1
+    assert nx.is_tree(pruned)
+
+
+def test_confident_cycle_is_not_suppressed():
+    graph = nx.cycle_graph(4)
+    for node_id, point in enumerate(((0.5, 0.5), (1.5, 0.5), (1.5, 1.5), (0.5, 1.5))):
+        graph.nodes[node_id].update(x=point[0], y=point[1])
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    grid = np.zeros((3, 3), dtype=np.int8)
+
+    pruned, stats = suppress_unconfident_cycles(
+        graph,
+        grid,
+        _geometry(width=3, height=3),
+        radius=0.1,
+        ratio_threshold=0.5,
+    )
+
+    assert stats.unconfident_vertices == 0
+    assert stats.removed_edges == 0
+    assert pruned.number_of_edges() == 4
 
 
 def test_astar_centerline_distance_penalty_prefers_medial_detour():

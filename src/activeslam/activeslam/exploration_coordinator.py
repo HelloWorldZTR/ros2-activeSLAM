@@ -40,6 +40,7 @@ from .frontier_selection import (
 from .graph_exploration import (
     ApproximatePoseGraphTracker,
     GraphBasedFrontierScorer,
+    best_graph_candidate,
     graph_to_marker_array,
     make_information_matrix,
 )
@@ -73,6 +74,7 @@ from .gvd_exploration import (
     rectangle_mask_outline,
     resolve_gvd_bounds_path,
     robot_component_graph,
+    route_replan_due,
     sample_random_recovery_motion,
     update_translation_progress,
 )
@@ -110,10 +112,25 @@ class ExplorationCoordinator(Node):
         # --- Parameters ---
         self.stability_duration = self.declare_parameter('stability_duration', 10.0).value
         self.stability_threshold = self.declare_parameter('stability_threshold', 0.02).value
-        self.min_frontier_size = self.declare_parameter('min_frontier_size', 5).value
+        self.min_frontier_size = self.declare_parameter('min_frontier_size', 10).value
         self.frontier_include_open_map_edges = self.declare_parameter(
             'frontier_include_open_map_edges', True
         ).value
+        self.frontier_low_confidence_fill_enabled = self.declare_parameter(
+            'frontier_low_confidence_fill_enabled', True
+        ).value
+        self.frontier_low_confidence_fill_max_unknown_cells = int(
+            self.declare_parameter(
+                'frontier_low_confidence_fill_max_unknown_cells',
+                64,
+            ).value
+        )
+        self.frontier_low_confidence_free_value = int(
+            self.declare_parameter('frontier_low_confidence_free_value', 25).value
+        )
+        self.frontier_low_confidence_occupied_value = int(
+            self.declare_parameter('frontier_low_confidence_occupied_value', 75).value
+        )
         self.slam_mode = self.declare_parameter('slam_mode', 'frontier').value
         self.world_name = self.declare_parameter('world_name', 'slam_rooms').value
         self.frontier_planning_attempts = int(
@@ -246,8 +263,11 @@ class ExplorationCoordinator(Node):
         ).value
         self.gvd_boundary_margin = self.declare_parameter('gvd_boundary_margin', 0.20).value
         self.gvd_support_vertex_spacing = self.declare_parameter(
-            'gvd_support_vertex_spacing', 1.0
+            'gvd_support_vertex_spacing', 2.0
         ).value
+        self.gvd_corner_turn_threshold = math.radians(
+            self.declare_parameter('gvd_corner_turn_threshold_deg', 45.0).value
+        )
         self.gvd_min_vertex_spacing = self.declare_parameter(
             'gvd_min_vertex_spacing', 1.0
         ).value
@@ -285,14 +305,38 @@ class ExplorationCoordinator(Node):
         self.gvd_connection_cache_size = int(
             self.declare_parameter('gvd_connection_cache_size', 4096).value
         )
+        self.gvd_reconnection_clearance = self.declare_parameter(
+            'gvd_reconnection_clearance', 0.04
+        ).value
+        self.gvd_unknown_cycle_suppression_enabled = self.declare_parameter(
+            'gvd_unknown_cycle_suppression_enabled', True
+        ).value
+        self.gvd_unconfident_unknown_radius = self.declare_parameter(
+            'gvd_unconfident_unknown_radius', 1.0
+        ).value
+        self.gvd_unconfident_unknown_ratio = self.declare_parameter(
+            'gvd_unconfident_unknown_ratio', 0.5
+        ).value
         self.gvd_hierarchical_state_migration_radius = self.declare_parameter(
             'gvd_hierarchical_state_migration_radius', 0.75
         ).value
-        self.gvd_hierarchical_unknown_radius = self.declare_parameter(
-            'gvd_hierarchical_unknown_radius', 1.5
-        ).value
         self.gvd_hierarchical_local_half_extent = self.declare_parameter(
             'gvd_hierarchical_local_half_extent', 2.5
+        ).value
+        self.gvd_hierarchical_region_area_weight = self.declare_parameter(
+            'gvd_hierarchical_region_area_weight', 1.0
+        ).value
+        self.gvd_hierarchical_region_squareness_weight = self.declare_parameter(
+            'gvd_hierarchical_region_squareness_weight', 1.0
+        ).value
+        self.gvd_hierarchical_local_approx_graph_enabled = self.declare_parameter(
+            'gvd_hierarchical_local_approx_graph_enabled', True
+        ).value
+        self.gvd_hierarchical_local_probes_enabled = self.declare_parameter(
+            'gvd_hierarchical_local_probes_enabled', True
+        ).value
+        self.gvd_hierarchical_route_replan_interval = self.declare_parameter(
+            'gvd_hierarchical_route_replan_interval', 0.5
         ).value
         self.gvd_stuck_recovery_enabled = self.declare_parameter(
             'gvd_stuck_recovery_enabled', True
@@ -348,10 +392,16 @@ class ExplorationCoordinator(Node):
         self.frontier_detector = FrontierDetector(
             min_frontier_size=self.min_frontier_size,
             include_open_map_edges=self.frontier_include_open_map_edges,
+            low_confidence_fill_enabled=self.frontier_low_confidence_fill_enabled,
+            low_confidence_fill_max_unknown_cells=(
+                self.frontier_low_confidence_fill_max_unknown_cells
+            ),
+            low_confidence_free_value=self.frontier_low_confidence_free_value,
+            low_confidence_occupied_value=self.frontier_low_confidence_occupied_value,
         )
         self.nav2 = Nav2Backend(self)
 
-        graph_odom_information = make_information_matrix(
+        self.graph_odom_information = make_information_matrix(
             self.graph_odom_cov_x,
             self.graph_odom_cov_y,
             self.graph_odom_cov_yaw,
@@ -363,7 +413,7 @@ class ExplorationCoordinator(Node):
             loop_closure_min_separation=self.graph_loop_closure_min_separation,
             loop_closure_weight=self.graph_loop_closure_weight,
             max_loop_closures_per_node=self.graph_max_loop_closures_per_node,
-            odom_information=graph_odom_information,
+            odom_information=self.graph_odom_information,
         )
         self.graph_scorer = GraphBasedFrontierScorer(
             info_radius=self.graph_info_radius,
@@ -374,7 +424,7 @@ class ExplorationCoordinator(Node):
             loop_closure_weight=self.graph_loop_closure_weight,
             max_loop_closures_per_node=self.graph_max_loop_closures_per_node,
             path_cost_weight=self.graph_path_cost_weight,
-            odom_information=graph_odom_information,
+            odom_information=self.graph_odom_information,
         )
         self.gbsae_prior_graph = None
         self.gbsae_planner: Optional[GBSAEPlanner] = None
@@ -438,11 +488,16 @@ class ExplorationCoordinator(Node):
             self.gvd_hierarchical_state_migration_radius
         )
         self.gvd_hierarchical_target: Optional[HierarchicalGVDTarget] = None
+        self.gvd_hierarchical_last_route_replan_wall_time = -math.inf
         self.gvd_hierarchical_local_mask: Optional[np.ndarray] = None
         self.gvd_hierarchical_local_geometry: Optional[GridGeometry] = None
         self.gvd_hierarchical_cleared_region_outlines: List[
             Tuple[Tuple[float, float], ...]
         ] = []
+        self.gvd_hierarchical_local_graph_tracker: Optional[
+            ApproximatePoseGraphTracker
+        ] = None
+        self.gvd_hierarchical_local_graph_candidates = []
         self.gvd_candidates: List[GVDGoal] = []
         self.gvd_candidate_index = 0
         self.gvd_active_path: Tuple[Tuple[float, float], ...] = ()
@@ -479,20 +534,25 @@ class ExplorationCoordinator(Node):
 
     def _map_callback(self, msg: OccupancyGrid):
         self.latest_map = msg
-        self.latest_grid = np.asarray(msg.data, dtype=np.int8).reshape(
+        raw_grid = np.asarray(msg.data, dtype=np.int8).reshape(
             msg.info.height,
             msg.info.width,
         )
+        self.latest_grid = self.frontier_detector.fill_small_unknown_regions(raw_grid)
         self.frontier_clusters, _ = self.frontier_detector.detect(msg, self.latest_grid)
         self._update_explored_history(self.latest_grid)
         if self.slam_mode in ('gvd_gbsae', 'gvd_hierarchical'):
             self.gvd_map_generation += 1
+        if self.slam_mode == 'gvd_hierarchical':
+            self.gvd_hierarchical_tracker.mark_route_dirty()
 
     def _control_loop(self):
         self._publish_visualizations()
         pose = self._get_robot_pose()
         if pose is not None:
             self.pose_graph_tracker.update(pose)
+            if self.gvd_hierarchical_local_graph_tracker is not None:
+                self.gvd_hierarchical_local_graph_tracker.update(pose)
             self._initialize_gbsae(pose)
             if self.gvd_sweep is not None:
                 self.gvd_sweep.mark_pose((pose[0], pose[1]))
@@ -508,10 +568,13 @@ class ExplorationCoordinator(Node):
             return
         if self.state == self.INITIAL_SPIN:
             return
+        self._maybe_refresh_hierarchical_background_route(pose)
         if self._gvd_bootstrap_stuck(pose):
             self._start_gvd_stuck_recovery()
             return
         if self.state == self.NAVIGATING:
+            if self._maybe_replan_hierarchical_navigation(pose):
+                return
             if self.current_navigation_kind == 'gvd_goal' and self._gvd_path_obstructed():
                 self._handle_gvd_path_obstructed()
                 return
@@ -577,6 +640,8 @@ class ExplorationCoordinator(Node):
             ):
                 self.get_logger().warn('Nav2 path request timed out; retrying frontier selection.')
                 self._mark_goal_failed(self.selection_request_goal)
+                if self.selection_kind == 'hierarchical_gvd_vertex':
+                    self.gvd_hierarchical_tracker.mark_route_dirty()
                 self.nav2.cancel_path_batch()
                 self.selection_request_goal = None
                 self._skip_unreachable_loop_revisit('Nav2 path request timed out')
@@ -657,51 +722,63 @@ class ExplorationCoordinator(Node):
             return
         self._start_hierarchical_macro_selection(rx, ry)
 
+    def _make_pose_graph_tracker(self) -> ApproximatePoseGraphTracker:
+        """Create an independent approximate graph tracker for one local Region."""
+        return ApproximatePoseGraphTracker(
+            node_spacing=self.graph_node_spacing,
+            yaw_spacing=self.graph_yaw_spacing,
+            loop_closure_radius=self.graph_loop_closure_radius,
+            loop_closure_min_separation=self.graph_loop_closure_min_separation,
+            loop_closure_weight=self.graph_loop_closure_weight,
+            max_loop_closures_per_node=self.graph_max_loop_closures_per_node,
+            odom_information=self.graph_odom_information,
+        )
+
     def _start_hierarchical_macro_selection(self, rx: float, ry: float):
         self.gvd_hierarchical_local_mask = None
         self.gvd_hierarchical_local_geometry = None
+        self.gvd_hierarchical_local_graph_tracker = None
+        self.gvd_hierarchical_local_graph_candidates = []
         if self.latest_map is None or self.latest_grid is None:
             self._schedule_retry()
             return
-        topology = self._build_gvd_topology()
-        component = robot_component_graph(topology.graph, (rx, ry))
-        self.gvd_topology = topology
         tracker = self.gvd_hierarchical_tracker
-        tracker.update_graph(component)
+        if not self._refresh_hierarchical_route(
+            rx,
+            ry,
+            force=self.gvd_topology is None,
+        ):
+            remaining = max(
+                0.0,
+                self.gvd_hierarchical_route_replan_interval
+                - (
+                    time.monotonic()
+                    - self.gvd_hierarchical_last_route_replan_wall_time
+                ),
+            )
+            self._schedule_retry(remaining)
+            return
+        topology = self.gvd_topology
+        assert topology is not None
+        component = tracker.graph
 
-        # After a graph rebuild the robot's last-reached vertex may have
-        # become a leaf (e.g. new obstacles narrowed the skeleton).  When
-        # that happens we interject a local-clearance cycle before
-        # continuing macro traversal.
-        if self.gvd_phase == 'macro' and tracker.active_vertex is not None:
-            active = tracker.active_vertex
-            active_point = _graph_node_point(component, active)
-            if (
-                tracker.should_clear_local(active)
-                and math.dist((rx, ry), active_point)
-                <= self.gvd_hierarchical_local_half_extent
-            ):
-                self.get_logger().info(
-                    f'Graph updated: vertex {active} is locally clearable; '
-                    'triggering local clearance.'
-                )
-                self.gvd_phase = 'local_clear'
-                self._start_hierarchical_local_selection(rx, ry)
-                return
+        if self._start_hierarchical_local_clear_if_ready(rx, ry):
+            return
 
         now = time.monotonic()
         self.failed_goals.expire(now)
         target = tracker.select_macro_target(
             (rx, ry),
-            self.latest_grid,
-            self._latest_map_geometry(),
-            self.gvd_hierarchical_unknown_radius,
             failed=lambda point: self.failed_goals.contains(point, now),
+            arrival_radius=self.nav2_goal_reach_radius,
         )
+        if self._start_hierarchical_local_clear_if_ready(rx, ry):
+            return
         if target is None:
-            if tracker.has_unexplored_vertices:
+            if tracker.has_uncleared_vertices:
+                tracker.mark_route_dirty()
                 self.get_logger().info(
-                    'Hierarchical GVD has unexplored macro vertices, but all are '
+                    'Hierarchical GVD has uncleared macro vertices, but all are '
                     f'temporarily unavailable; retrying in {self.frontier_retry_interval:.1f}s.'
                 )
                 self._schedule_retry()
@@ -725,7 +802,6 @@ class ExplorationCoordinator(Node):
         self.get_logger().info(
             f'Checking hierarchical GVD macro vertex={target.vertex_id} '
             f'goal=({target.point[0]:.2f}, {target.point[1]:.2f}), '
-            f'unknown={target.unknown_area:.2f}m^2, '
             f'travel={target.travel_cost:.2f}m, utility={target.utility:.3f}; '
             f'{self._gvd_repair_log(topology)}.'
         )
@@ -734,6 +810,148 @@ class ExplorationCoordinator(Node):
             self.selection_start_xy,
             target.point,
             self._hierarchical_gvd_path_computed,
+        )
+
+    def _start_hierarchical_local_clear_if_ready(self, rx: float, ry: float) -> bool:
+        """Interject Region cleanup when the live TSP route has left a final vertex."""
+        tracker = self.gvd_hierarchical_tracker
+        active = tracker.active_vertex
+        if active is None or active not in tracker.graph:
+            return False
+        active_point = _graph_node_point(tracker.graph, active)
+        if (
+            not tracker.should_clear_local(active)
+            or math.dist((rx, ry), active_point)
+            > self.gvd_hierarchical_local_half_extent
+        ):
+            return False
+        self.get_logger().info(
+            f'Hierarchical TSP vertex={active} reached its final route occurrence; '
+            'triggering local clearance.'
+        )
+        self.gvd_phase = 'local_clear'
+        self._start_hierarchical_local_selection(rx, ry)
+        return True
+
+    def _refresh_hierarchical_route(
+        self,
+        rx: float,
+        ry: float,
+        *,
+        force: bool = False,
+    ) -> bool:
+        """Rebuild the live component and its TSP route at a bounded rate."""
+        tracker = self.gvd_hierarchical_tracker
+        if not tracker.route_dirty and self.gvd_topology is not None:
+            return True
+        now = time.monotonic()
+        if not force and not route_replan_due(
+            self.gvd_hierarchical_last_route_replan_wall_time,
+            self.gvd_hierarchical_route_replan_interval,
+            now,
+        ):
+            return False
+        started = time.monotonic()
+        topology = self._build_gvd_topology()
+        component = robot_component_graph(topology.graph, (rx, ry))
+        self.failed_goals.expire(now)
+        tracker.update_graph(component)
+        tracker.rebuild_route(
+            (rx, ry),
+            failed=lambda point: self.failed_goals.contains(point, now),
+        )
+        self.gvd_topology = topology
+        self.gvd_hierarchical_last_route_replan_wall_time = now
+        elapsed_ms = (time.monotonic() - started) * 1000.0
+        self.get_logger().info(
+            f'Rebuilt hierarchical GVD TSP route version={tracker.graph_version}: '
+            f'{component.number_of_nodes()} nodes/{component.number_of_edges()} edges, '
+            f'targets={list(tracker.route_targets)}, '
+            f'transit={list(tracker.remaining_route)}, '
+            f'replan_ms={elapsed_ms:.1f}; {self._gvd_compression_log(topology)}, '
+            f'{self._gvd_unknown_cycle_log(topology)}, '
+            f'{self._gvd_repair_log(topology)}.'
+        )
+        return True
+
+    def _maybe_replan_hierarchical_navigation(
+        self,
+        pose: Optional[Tuple[float, float, float]],
+    ) -> bool:
+        """Refresh a dirty macro route without replacing an active Nav2 macro goal."""
+        if (
+            self.slam_mode != 'gvd_hierarchical'
+            or self.gvd_phase != 'macro'
+            or self.current_navigation_kind != 'hierarchical_gvd_vertex'
+            or pose is None
+            or not self.gvd_hierarchical_tracker.route_dirty
+            or not self._refresh_hierarchical_route(pose[0], pose[1])
+        ):
+            return False
+        tracker = self.gvd_hierarchical_tracker
+        self.gvd_hierarchical_target = tracker.remap_target(
+            self.gvd_hierarchical_target
+        )
+        now = time.monotonic()
+        desired = tracker.select_macro_target(
+            (pose[0], pose[1]),
+            failed=lambda point: self.failed_goals.contains(point, now),
+            arrival_radius=self.nav2_goal_reach_radius,
+        )
+        if self._hierarchical_local_clear_ready(pose[0], pose[1]):
+            self.get_logger().info(
+                'Hierarchical GVD map update exposed a final TSP vertex; '
+                'preempting macro navigation for local clearance.'
+            )
+            self.nav2.cancel_navigation()
+            self.gvd_hierarchical_target = None
+            self._clear_navigation()
+            self.gvd_phase = 'local_clear'
+            self._schedule_retry(0.0)
+            return True
+        if (
+            desired is not None
+            and self.current_goal is not None
+            and math.dist(desired.point, self.current_goal)
+            <= self.nav2_goal_reach_radius
+        ):
+            self.gvd_hierarchical_target = desired
+            return False
+        self.get_logger().info(
+            'Hierarchical GVD TSP first step changed after map update; '
+            'keeping the active Nav2 macro goal until it finishes.'
+        )
+        return False
+
+    def _maybe_refresh_hierarchical_background_route(
+        self,
+        pose: Optional[Tuple[float, float, float]],
+    ):
+        """Keep macro topology live during local cleanup without interrupting its actions."""
+        if (
+            self.slam_mode != 'gvd_hierarchical'
+            or self.gvd_phase != 'local_clear'
+            or pose is None
+            or not self.gvd_hierarchical_tracker.route_dirty
+            or self.latest_map is None
+            or self.latest_grid is None
+        ):
+            return
+        if self._refresh_hierarchical_route(pose[0], pose[1]):
+            self.get_logger().info(
+                f'Refreshed hierarchical GVD TSP route during local cleanup; '
+                f'state={self.state}.'
+            )
+
+    def _hierarchical_local_clear_ready(self, rx: float, ry: float) -> bool:
+        tracker = self.gvd_hierarchical_tracker
+        active = tracker.active_vertex
+        return (
+            active is not None
+            and active in tracker.graph
+            and tracker.should_clear_local(active)
+            and math.dist((rx, ry), _graph_node_point(tracker.graph, active))
+            <= self.gvd_hierarchical_local_half_extent
         )
 
     def _hierarchical_gvd_path_computed(self, planned_path: Optional[PlannedPath]):
@@ -758,6 +976,7 @@ class ExplorationCoordinator(Node):
             self.nav2.navigate(planned_path.goal_xy, 0.0, self._navigation_finished)
             return
         self._mark_goal_failed(self.selection_request_goal)
+        self.gvd_hierarchical_tracker.mark_route_dirty()
         self.selection_request_goal = None
         self.gvd_hierarchical_target = None
         self.nav2.cancel_path_batch()
@@ -773,6 +992,8 @@ class ExplorationCoordinator(Node):
             self.gvd_phase = 'macro'
             self.gvd_hierarchical_local_mask = None
             self.gvd_hierarchical_local_geometry = None
+            self.gvd_hierarchical_local_graph_tracker = None
+            self.gvd_hierarchical_local_graph_candidates = []
             self._schedule_retry(0.0)
             return
         local_geometry = self._latest_map_geometry()
@@ -787,9 +1008,18 @@ class ExplorationCoordinator(Node):
                 for vertex_id, attributes in tracker.graph.nodes(data=True)
                 if vertex_id != tracker.active_vertex
             ),
+            area_weight=self.gvd_hierarchical_region_area_weight,
+            squareness_weight=self.gvd_hierarchical_region_squareness_weight,
         )
         self.gvd_hierarchical_local_mask = local_mask
         self.gvd_hierarchical_local_geometry = local_geometry
+        if self.gvd_hierarchical_local_graph_tracker is None:
+            self.gvd_hierarchical_local_graph_tracker = self._make_pose_graph_tracker()
+            pose = self._get_robot_pose()
+            self.gvd_hierarchical_local_graph_tracker.update(
+                (rx, ry, 0.0 if pose is None else pose[2])
+            )
+        self.gvd_hierarchical_local_graph_candidates = []
         clusters = [
             cluster
             for cluster in self.frontier_clusters
@@ -805,7 +1035,6 @@ class ExplorationCoordinator(Node):
             self.frontier_planning_attempts,
             clusters=clusters,
             local_cleanup=True,
-            allowed_goal_mask=local_mask,
         )
         self.selection_generation = self.nav2.start_path_batch()
         self.selection_cluster_index = 0
@@ -831,6 +1060,16 @@ class ExplorationCoordinator(Node):
                 self._hierarchical_local_path_computed,
             )
             return
+        best = best_graph_candidate(self.gvd_hierarchical_local_graph_candidates)
+        if best is not None:
+            score, candidate, planned_path = best
+            self.get_logger().info(
+                f'Hierarchical GVD local approx-graph selected frontier '
+                f'score={score:.3f}, size={candidate.cluster.size}, '
+                f'source={candidate.cluster.source}.'
+            )
+            self._dispatch_navigation(candidate, planned_path)
+            return
         tracker = self.gvd_hierarchical_tracker
         tracker.mark_local_cleared(tracker.active_vertex)
         outline = (
@@ -850,6 +1089,8 @@ class ExplorationCoordinator(Node):
         self.gvd_phase = 'macro'
         self.gvd_hierarchical_local_mask = None
         self.gvd_hierarchical_local_geometry = None
+        self.gvd_hierarchical_local_graph_tracker = None
+        self.gvd_hierarchical_local_graph_candidates = []
         self.get_logger().info(
             f'Hierarchical GVD local cleanup completed for vertex={tracker.active_vertex}; '
             'returning to macro traversal.'
@@ -862,9 +1103,23 @@ class ExplorationCoordinator(Node):
         self.selection_request_wall_time = None
         candidate = self.selection_candidates[self.selection_cluster_index]
         if planned_path is not None:
-            self._dispatch_navigation(candidate, planned_path)
-            return
-        self._mark_goal_failed(self.selection_request_goal)
+            if not self.gvd_hierarchical_local_approx_graph_enabled:
+                self._dispatch_navigation(candidate, planned_path)
+                return
+            tracker = self.gvd_hierarchical_local_graph_tracker
+            if tracker is not None:
+                score = self.graph_scorer.score(
+                    tracker.graph,
+                    self.latest_map,
+                    planned_path.points,
+                    self.latest_grid,
+                )
+                if np.isfinite(score):
+                    self.gvd_hierarchical_local_graph_candidates.append(
+                        (score, candidate, planned_path)
+                    )
+        else:
+            self._mark_goal_failed(self.selection_request_goal)
         self.selection_request_goal = None
         self.selection_cluster_index += 1
         self._request_next_hierarchical_local_path()
@@ -1010,7 +1265,12 @@ class ExplorationCoordinator(Node):
             clearance=self.gvd_obstacle_clearance,
             boundary_margin=self.gvd_boundary_margin,
             support_vertex_spacing=self.gvd_support_vertex_spacing,
+            corner_turn_threshold=self.gvd_corner_turn_threshold,
             min_vertex_spacing=self.gvd_min_vertex_spacing,
+            suppress_unknown_cycles=self.gvd_unknown_cycle_suppression_enabled,
+            unconfident_unknown_radius=self.gvd_unconfident_unknown_radius,
+            unconfident_unknown_ratio=self.gvd_unconfident_unknown_ratio,
+            reconnection_clearance=self.gvd_reconnection_clearance,
             connection_cache=self.gvd_connection_cache,
             repair_connectivity=self.gvd_switching_connections_enabled,
             connection_neighbor_limit=self.gvd_connection_neighbor_limit,
@@ -1027,6 +1287,21 @@ class ExplorationCoordinator(Node):
             f'components:{stats.unresolved_components},'
             f'cache:{self.gvd_connection_cache.hits}/'
             f'{self.gvd_connection_cache.misses}'
+        )
+
+    def _gvd_compression_log(self, topology: GVDTopology) -> str:
+        stats = topology.compression_stats
+        if stats is None:
+            return 'vertex_clustering=unavailable'
+        return f'vertex_clustering={stats.before_vertices}->{stats.after_vertices}'
+
+    def _gvd_unknown_cycle_log(self, topology: GVDTopology) -> str:
+        stats = topology.cycle_suppression_stats
+        if stats is None:
+            return 'unknown_cycle_suppression=unavailable'
+        return (
+            f'unknown_cycle_suppression=vertices:{stats.unconfident_vertices},'
+            f'removed_edges:{stats.removed_edges}'
         )
 
     def _gvd_path_obstructed(self) -> bool:
@@ -1669,6 +1944,7 @@ class ExplorationCoordinator(Node):
                     'retrying.'
                 )
                 self._mark_goal_failed(self.current_goal)
+                self.gvd_hierarchical_tracker.mark_route_dirty()
             self.gvd_hierarchical_target = None
             self._clear_navigation()
             self._schedule_retry(0.0)
@@ -1795,6 +2071,13 @@ class ExplorationCoordinator(Node):
                 self.slam_mode,
                 frontier_modes_enabled=self.frontier_mode_probes_enabled,
                 gvd_modes_enabled=self.gvd_mode_probes_enabled,
+                hierarchical_local_cleanup=(
+                    self.slam_mode == 'gvd_hierarchical'
+                    and self.gvd_phase == 'local_clear'
+                ),
+                hierarchical_local_cleanup_enabled=(
+                    self.gvd_hierarchical_local_probes_enabled
+                ),
             )
         ):
             return None

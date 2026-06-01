@@ -31,6 +31,10 @@ def _grid(data):
     )
 
 
+def test_default_minimum_frontier_size_is_ten_pixels():
+    assert FrontierDetector().min_frontier_size == 10
+
+
 def test_cluster_connects_diagonal_frontier_cells():
     mask = np.zeros((4, 4), dtype=bool)
     mask[0, 0] = True
@@ -128,3 +132,57 @@ def test_detect_reuses_cached_grid_without_changing_clusters():
 
     assert cached_clusters == uncached_clusters
     assert np.array_equal(cached_mask, uncached_mask)
+
+
+def test_small_unknown_pocket_uses_low_confidence_free_fill_when_free_dominates():
+    data = np.zeros((5, 5), dtype=np.int8)
+    data[2, 2] = -1
+
+    filled = FrontierDetector().fill_small_unknown_regions(data)
+
+    assert filled[2, 2] == 25
+    assert data[2, 2] == -1
+
+
+def test_small_unknown_pocket_uses_low_confidence_occupied_fill_when_walls_dominate():
+    data = np.full((5, 5), 100, dtype=np.int8)
+    data[2, 2] = -1
+    data[2, 3] = 0
+
+    detector = FrontierDetector()
+    filled = detector.fill_small_unknown_regions(data)
+    clusters, _ = detector.detect(_grid(data.tolist()))
+
+    assert filled[2, 2] == 75
+    assert clusters == []
+
+
+def test_unknown_component_larger_than_fill_limit_remains_unknown():
+    data = np.zeros((5, 7), dtype=np.int8)
+    data[2, 2:5] = -1
+
+    filled = FrontierDetector(
+        low_confidence_fill_max_unknown_cells=2,
+    ).fill_small_unknown_regions(data)
+
+    assert np.all(filled[2, 2:5] == -1)
+
+
+def test_unknown_component_touching_map_edge_remains_unknown():
+    data = np.zeros((5, 5), dtype=np.int8)
+    data[0, 2] = -1
+
+    filled = FrontierDetector().fill_small_unknown_regions(data)
+
+    assert filled[0, 2] == -1
+
+
+def test_low_confidence_fill_can_be_disabled():
+    data = np.zeros((5, 5), dtype=np.int8)
+    data[2, 2] = -1
+
+    filled = FrontierDetector(
+        low_confidence_fill_enabled=False,
+    ).fill_small_unknown_regions(data)
+
+    assert filled[2, 2] == -1

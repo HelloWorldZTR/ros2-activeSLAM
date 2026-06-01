@@ -248,6 +248,11 @@ class GraphBasedFrontierScorer:
         return sampled
 
 
+def best_graph_candidate(candidates):
+    """Return the highest-scoring reachable frontier candidate, if any."""
+    return max(candidates, key=lambda item: item[0], default=None)
+
+
 def make_information_matrix(cov_x: float, cov_y: float, cov_yaw: float) -> np.ndarray:
     cov = np.diag([
         max(cov_x, 1e-6),

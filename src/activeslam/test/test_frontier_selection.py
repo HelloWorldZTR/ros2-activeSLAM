@@ -102,3 +102,28 @@ def test_gvd_probe_default_can_be_overridden_for_ablation():
         frontier_modes_enabled=True,
         gvd_modes_enabled=True,
     )
+
+
+def test_hierarchical_local_cleanup_enables_probes_without_enabling_macro_gvd_probes():
+    assert frontier_probes_enabled_for_mode(
+        'gvd_hierarchical',
+        frontier_modes_enabled=True,
+        gvd_modes_enabled=False,
+        hierarchical_local_cleanup=True,
+    )
+    assert not frontier_probes_enabled_for_mode(
+        'gvd_hierarchical',
+        frontier_modes_enabled=True,
+        gvd_modes_enabled=False,
+        hierarchical_local_cleanup=False,
+    )
+
+
+def test_hierarchical_local_cleanup_probe_can_be_disabled_for_ablation():
+    assert not frontier_probes_enabled_for_mode(
+        'gvd_hierarchical',
+        frontier_modes_enabled=True,
+        gvd_modes_enabled=False,
+        hierarchical_local_cleanup=True,
+        hierarchical_local_cleanup_enabled=False,
+    )
