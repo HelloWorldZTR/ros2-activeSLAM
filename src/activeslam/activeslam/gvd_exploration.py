@@ -247,7 +247,10 @@ class HierarchicalGVDTarget:
 class HierarchicalGVDTracker:
     """Track macro exploration and local-cleanup state across live GVD rebuilds."""
 
-    def __init__(self, migration_radius: float):
+    def __init__(
+        self,
+        migration_radius: float,
+    ):
         self.migration_radius = max(0.0, migration_radius)
         self.graph = nx.Graph()
         self.explored_points: List[Point] = []
@@ -261,11 +264,19 @@ class HierarchicalGVDTracker:
         self.graph_version = 0
         self.route_dirty = True
         self.route_targets: Tuple[int, ...] = ()
+        self.expansion_targets: Tuple[int, ...] = ()
+        self.cleanup_targets: Tuple[int, ...] = ()
+        self.route_phase = 'empty'
         self.transit_route: Tuple[int, ...] = ()
         self.route_index = 0
+        self.route_length = 0.0
+        self.continuation_successor: Optional[int] = None
+        self._continuation_direction: Optional[Point] = None
+        self._shortest_path_cache = {}
 
     def update_graph(self, graph: nx.Graph):
         """Install a rebuilt graph while migrating states by nearby world positions."""
+        self._continuation_direction = self._next_route_direction()
         self.graph = graph.copy()
         self.graph_version += 1
         self.explored_vertices = self._matching_vertices(self.explored_points)
@@ -273,9 +284,14 @@ class HierarchicalGVDTracker:
         self.previous_vertex = self._nearest_vertex(self.previous_point)
         self.active_vertex = self._nearest_vertex(self.active_point)
         self.route_targets = ()
+        self.expansion_targets = ()
+        self.cleanup_targets = ()
+        self.route_phase = 'empty'
         self.transit_route = ()
         self.route_index = 0
+        self.continuation_successor = None
         self.route_dirty = True
+        self._shortest_path_cache = {}
 
     def mark_route_dirty(self):
         """Record that the latest SLAM map requires a fresh macro route."""
@@ -301,32 +317,69 @@ class HierarchicalGVDTracker:
         robot_xy: Point,
         failed: Optional[Callable[[Point], bool]] = None,
     ) -> Tuple[int, ...]:
-        """Create an open TSP walk over uncleared vertices and expand graph transit."""
+        """Create an expansion-first open TSP walk over Region-bearing vertices."""
         self.route_dirty = False
         self.route_index = 0
         if self.graph.number_of_nodes() == 0:
             self.route_targets = ()
+            self.expansion_targets = ()
+            self.cleanup_targets = ()
+            self.route_phase = 'empty'
             self.transit_route = ()
+            self.route_length = 0.0
+            self.continuation_successor = None
             return self.transit_route
         start = self._nearest_graph_vertex(robot_xy)
+        if (
+            self.active_vertex is not None
+            and self.active_vertex in self.graph
+            and self.should_clear_local(self.active_vertex)
+        ):
+            self.route_targets = ()
+            self.expansion_targets = ()
+            self.cleanup_targets = ()
+            self.route_phase = 'cleanup_ready'
+            self.transit_route = ()
+            self.route_length = 0.0
+            self.continuation_successor = None
+            self._continuation_direction = None
+            return self.transit_route
+        forced_successor = self._select_continuation_successor(failed)
+        if forced_successor is not None and self.active_vertex is not None:
+            self._mark_vertex_reached(self.active_vertex)
+            start = forced_successor
+        self.expansion_targets = self._expansion_target_vertices()
+        self.cleanup_targets = self._cleanup_target_vertices(self.expansion_targets)
+        self.route_phase = 'expansion' if self.expansion_targets else 'cleanup'
+        phase_targets = (
+            self.expansion_targets
+            if self.route_phase == 'expansion'
+            else self.cleanup_targets
+        )
         targets = tuple(
             node_id
-            for node_id in sorted(set(self.graph.nodes) - self.cleared_vertices)
+            for node_id in phase_targets
             if failed is None or not failed(_graph_node_point(self.graph, node_id))
         )
         self.route_targets = targets
         if not targets:
             self.transit_route = ()
+            self.route_length = 0.0
+            self.continuation_successor = forced_successor
             return self.transit_route
+        self.transit_route = self._fresh_open_tsp_walk(start, targets)
+        self.route_length = self._walk_length(self.transit_route)
+        self.continuation_successor = forced_successor
+        return self.transit_route
+
+    def _fresh_open_tsp_walk(self, start: int, targets: Sequence[int]) -> Tuple[int, ...]:
+        """Return one NetworkX open-TSP walk joined to *start*."""
+        if not targets:
+            return ()
         if len(targets) == 1:
             tsp_route = list(targets)
         elif len(targets) == 2:
-            tsp_route = nx.shortest_path(
-                self.graph,
-                targets[0],
-                targets[1],
-                weight='weight',
-            )
+            tsp_route = list(self._shortest_path(targets[0], targets[1]))
         else:
             tsp_route = nx.approximation.traveling_salesman_problem(
                 self.graph,
@@ -339,9 +392,63 @@ class HierarchicalGVDTracker:
             tsp_route[0],
         ):
             tsp_route.reverse()
-        prefix = nx.shortest_path(self.graph, start, tsp_route[0], weight='weight')
-        self.transit_route = tuple(_deduplicate_adjacent(prefix[:-1] + tsp_route))
-        return self.transit_route
+        prefix = list(self._shortest_path(start, tsp_route[0]))
+        return tuple(_deduplicate_adjacent(prefix[:-1] + tsp_route))
+
+    def _shortest_path(self, source: int, target: int) -> Tuple[int, ...]:
+        """Return one cached weighted shortest path inside the current graph version."""
+        key = source, target
+        if key not in self._shortest_path_cache:
+            path = tuple(nx.shortest_path(self.graph, source, target, weight='weight'))
+            self._shortest_path_cache[key] = path
+            self._shortest_path_cache[target, source] = tuple(reversed(path))
+        return self._shortest_path_cache[key]
+
+    def _walk_length(self, route: Sequence[int]) -> float:
+        return sum(
+            float(self.graph.edges[source, target].get('weight', 1.0))
+            for source, target in zip(route, route[1:])
+        )
+
+    def _next_route_direction(self) -> Optional[Point]:
+        """Capture the old active-to-next-step direction before replacing the graph."""
+        if self.active_point is None:
+            return None
+        for node_id in self.remaining_route:
+            if node_id not in self.graph:
+                continue
+            point = _graph_node_point(self.graph, node_id)
+            direction = point[0] - self.active_point[0], point[1] - self.active_point[1]
+            if math.hypot(*direction) > 1e-9:
+                return direction
+        return None
+
+    def _select_continuation_successor(
+        self,
+        failed: Optional[Callable[[Point], bool]],
+    ) -> Optional[int]:
+        """Pick the rebuilt active neighbor closest to the pre-rebuild direction."""
+        direction = self._continuation_direction
+        self._continuation_direction = None
+        active = self.active_vertex
+        if direction is None or active is None or active not in self.graph:
+            return None
+        direction_length = math.hypot(*direction)
+        candidates = []
+        active_point = _graph_node_point(self.graph, active)
+        for neighbor in self.graph.neighbors(active):
+            point = _graph_node_point(self.graph, neighbor)
+            if failed is not None and failed(point):
+                continue
+            offset = point[0] - active_point[0], point[1] - active_point[1]
+            offset_length = math.hypot(*offset)
+            if offset_length <= 1e-9:
+                continue
+            cosine = (
+                direction[0] * offset[0] + direction[1] * offset[1]
+            ) / (direction_length * offset_length)
+            candidates.append((cosine, -neighbor, neighbor))
+        return None if not candidates else max(candidates)[2]
 
     def select_macro_target(
         self,
@@ -392,6 +499,14 @@ class HierarchicalGVDTracker:
         ):
             self.route_index += 1
 
+    def mark_reached_point(self, point: Point) -> Optional[int]:
+        """Mark the latest graph vertex near a completed world-space Nav2 goal."""
+        vertex_id = self._nearest_vertex(point)
+        if vertex_id is None:
+            return None
+        self.mark_reached(vertex_id)
+        return vertex_id
+
     def _mark_vertex_reached(self, vertex_id: int):
         """Record one reached transit step without changing the route cursor."""
         if self.previous_vertex in self.graph and self.graph.has_edge(
@@ -408,10 +523,75 @@ class HierarchicalGVDTracker:
         self.active_point = self.previous_point
 
     def should_clear_local(self, vertex_id: int) -> bool:
-        """Return whether the expanded route will never revisit *vertex_id*."""
-        if vertex_id not in self.graph or vertex_id in self.cleared_vertices:
+        """Return whether one uncleared Region-bearing vertex is locally completeable."""
+        if (
+            vertex_id not in self.graph
+            or vertex_id in self.cleared_vertices
+            or self._macro_vertex_kind(vertex_id) not in ('endpoint', 'branch')
+        ):
             return False
-        return vertex_id not in self.transit_route[self.route_index:]
+        return self.graph.degree(vertex_id) <= 1 or self._is_degenerate_leaf(vertex_id)
+
+    def _expansion_target_vertices(self) -> Tuple[int, ...]:
+        """Return unexplored endpoints, with branches as component fallbacks."""
+        targets = set()
+        unexplored = set(self.graph.nodes) - self.explored_vertices - self.cleared_vertices
+        for component in nx.connected_components(self.graph):
+            component = set(component)
+            component_unexplored = component & unexplored
+            endpoints = {
+                node_id
+                for node_id in component_unexplored
+                if self._macro_vertex_kind(node_id) == 'endpoint'
+            }
+            targets.update(endpoints)
+            # A branch normally becomes explored while traveling to an endpoint. Keep
+            # one as a target only when this component has no endpoint representative.
+            if not endpoints:
+                targets.update(
+                    node_id
+                    for node_id in component_unexplored
+                    if self._macro_vertex_kind(node_id) == 'branch'
+                )
+        return tuple(sorted(targets))
+
+    def _cleanup_target_vertices(
+        self,
+        expansion_targets: Sequence[int],
+    ) -> Tuple[int, ...]:
+        """Return uncleared leaves after expansion routing has been exhausted."""
+        return tuple(
+            node_id
+            for node_id in sorted(self.graph.nodes)
+            if self.should_clear_local(node_id)
+            and node_id not in expansion_targets
+        )
+
+    def _is_degenerate_leaf(self, vertex_id: int) -> bool:
+        """Return whether every branch beyond one branch vertex lacks expansion work."""
+        if self._macro_vertex_kind(vertex_id) != 'branch':
+            return False
+        expansion_targets = set(self._expansion_target_vertices()) - {vertex_id}
+        for neighbor in self.graph.neighbors(vertex_id):
+            reachable = nx.node_connected_component(
+                nx.restricted_view(self.graph, (vertex_id,), ()),
+                neighbor,
+            )
+            if expansion_targets.intersection(reachable):
+                return False
+        return True
+
+    def _macro_vertex_kind(self, vertex_id: int) -> str:
+        """Read compressed-node kind with a degree-based fallback for legacy graphs."""
+        kind = self.graph.nodes[vertex_id].get('kind')
+        if kind is not None:
+            return kind
+        degree = self.graph.degree(vertex_id)
+        if degree <= 1:
+            return 'endpoint'
+        if degree > 2:
+            return 'branch'
+        return 'support'
 
     def mark_local_cleared(self, vertex_id: Optional[int]):
         if vertex_id is None or vertex_id not in self.graph:
@@ -422,12 +602,8 @@ class HierarchicalGVDTracker:
         self.route_dirty = True
 
     @property
-    def has_unexplored_vertices(self) -> bool:
-        return bool(set(self.graph.nodes) - self.explored_vertices)
-
-    @property
-    def has_uncleared_vertices(self) -> bool:
-        return bool(set(self.graph.nodes) - self.cleared_vertices)
+    def has_pending_macro_targets(self) -> bool:
+        return bool(self.expansion_targets or self.cleanup_targets)
 
     @property
     def remaining_route(self) -> Tuple[int, ...]:
@@ -608,6 +784,7 @@ def build_obstacle_gvd_topology(
             radius=unconfident_unknown_radius,
             ratio_threshold=unconfident_unknown_ratio,
         )
+    graph = normalize_topology_vertex_kinds(graph)
     return GVDTopology(
         graph,
         geometry,
@@ -866,6 +1043,62 @@ def local_unknown_ratio(
     if include_outside_map:
         unknown += int(np.count_nonzero(np.logical_and(disk, ~inside_map)))
     return float(unknown) / float(total)
+
+
+def local_region_known_ratio(
+    grid: np.ndarray,
+    region_mask: np.ndarray,
+    *,
+    grid_geometry: Optional[GridGeometry] = None,
+    region_geometry: Optional[GridGeometry] = None,
+) -> float:
+    """Return the observed-cell fraction inside one local cleanup Region."""
+    if (grid_geometry is None) != (region_geometry is None):
+        return 0.0
+    region_cells = int(np.count_nonzero(region_mask))
+    if region_cells == 0:
+        return 0.0
+    if grid_geometry is None:
+        if grid.shape != region_mask.shape:
+            return 0.0
+        known_cells = int(np.count_nonzero(np.logical_and(region_mask, grid != -1)))
+        return float(known_cells) / float(region_cells)
+    if (
+        grid_geometry.resolution <= 0.0
+        or region_geometry.resolution <= 0.0
+        or grid.shape != (grid_geometry.height, grid_geometry.width)
+        or region_mask.shape != (region_geometry.height, region_geometry.width)
+    ):
+        return 0.0
+    region_rows, region_cols = np.nonzero(region_mask)
+    world_x = (
+        region_geometry.origin_x
+        + (region_cols.astype(float) + 0.5) * region_geometry.resolution
+    )
+    world_y = (
+        region_geometry.origin_y
+        + (region_rows.astype(float) + 0.5) * region_geometry.resolution
+    )
+    grid_cols = np.floor(
+        (world_x - grid_geometry.origin_x) / grid_geometry.resolution
+    ).astype(int)
+    grid_rows = np.floor(
+        (world_y - grid_geometry.origin_y) / grid_geometry.resolution
+    ).astype(int)
+    inside = np.logical_and.reduce(
+        (
+            grid_rows >= 0,
+            grid_rows < grid_geometry.height,
+            grid_cols >= 0,
+            grid_cols < grid_geometry.width,
+        )
+    )
+    known_cells = int(
+        np.count_nonzero(
+            grid[grid_rows[inside], grid_cols[inside]] != -1
+        )
+    )
+    return float(known_cells) / float(region_cells)
 
 
 def local_free_flood_mask(
@@ -1558,10 +1791,21 @@ def suppress_unconfident_cycles(
     radius: float,
     ratio_threshold: float,
 ) -> Tuple[nx.Graph, UnknownCycleSuppressionStats]:
-    """Replace unknown-heavy induced regions with MST edges before macro planning."""
+    """Globally prune prunable edges that form cycles with confident structure.
+
+    1. **Confident–confident** edges are unconditionally kept (even when
+       they form cycles among themselves).
+    2. Every edge that touches at least one unconfident endpoint is
+       *prunable* and competes in a single Union-Find pass ordered by
+       descending confidence.  An edge that would close a cycle is
+       removed so that fake loops through unknown-heavy territory cannot
+       distort the TSP.
+    """
     pruned = graph.copy()
     threshold = min(1.0, max(0.0, float(ratio_threshold)))
-    unconfident = set()
+
+    # ---- tag every vertex ----
+    unconfident_ids = set()
     for node_id in pruned.nodes:
         ratio = local_unknown_ratio(
             grid,
@@ -1572,28 +1816,72 @@ def suppress_unconfident_cycles(
         pruned.nodes[node_id]['unknown_ratio'] = ratio
         pruned.nodes[node_id]['unconfident'] = ratio >= threshold
         if ratio >= threshold:
-            unconfident.add(node_id)
-    removed_edges = 0
-    induced = pruned.subgraph(unconfident)
-    for component in nx.connected_components(induced):
-        local = induced.subgraph(component)
-        if local.number_of_edges() <= max(0, local.number_of_nodes() - 1):
-            continue
-        tree_edges = {
-            cell_edge(source, target)
-            for source, target in nx.minimum_spanning_edges(
-                local,
-                algorithm='kruskal',
-                weight='weight',
-                data=False,
+            unconfident_ids.add(node_id)
+
+    # ---- classify edges ----
+    # Confidence = 1 – effective_unknown_ratio.
+    # Pure unconfident edges use the worse endpoint directly.
+    # Cross edges (one confident endpoint) are strongly preferred:
+    # the confident side contributes −0.5 instead of 0, giving them
+    # an effective bonus of 0.5 in confidence space.
+    prunable = []  # (-confidence, u_tie, v_tie, u, v)
+    for u, v in pruned.edges:
+        u_unconf = pruned.nodes[u]['unconfident']
+        v_unconf = pruned.nodes[v]['unconfident']
+        if not u_unconf and not v_unconf:
+            continue  # confident–confident  → never removed
+        if u_unconf and v_unconf:
+            # Both unconfident — full penalty.
+            effective = max(
+                pruned.nodes[u]['unknown_ratio'],
+                pruned.nodes[v]['unknown_ratio'],
             )
-        }
-        for source, target in list(local.edges):
-            if cell_edge(source, target) in tree_edges:
-                continue
-            pruned.remove_edge(source, target)
-            removed_edges += 1
-    return pruned, UnknownCycleSuppressionStats(len(unconfident), removed_edges)
+        else:
+            # Cross edge — confident side gives a bonus.
+            unconf_ratio = (
+                pruned.nodes[u]['unknown_ratio'] if u_unconf
+                else pruned.nodes[v]['unknown_ratio']
+            )
+            effective = max(0.0, unconf_ratio - 0.5)
+        confidence = 1.0 - effective
+        prunable.append((-confidence, u, v, u, v))
+
+    # ---- Union-Find ----
+    parent = {n: n for n in pruned.nodes}
+
+    def _find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def _union(x, y):
+        rx, ry = _find(x), _find(y)
+        if rx != ry:
+            parent[rx] = ry
+            return True
+        return False
+
+    # Confident–confident edges establish the initial skeleton.
+    for u, v in pruned.edges:
+        if (
+            not pruned.nodes[u]['unconfident']
+            and not pruned.nodes[v]['unconfident']
+        ):
+            _union(u, v)
+
+    # All prunable edges compete by descending confidence.
+    prunable.sort()
+    removed_edges = 0
+    for _neg_conf, _tu, _tv, u, v in prunable:
+        if _union(u, v):
+            continue
+        pruned.remove_edge(u, v)
+        removed_edges += 1
+
+    return pruned, UnknownCycleSuppressionStats(
+        len(unconfident_ids), removed_edges,
+    )
 
 
 def repair_topology_connectivity(
@@ -1752,6 +2040,41 @@ def astar_reconnection_segments(graph: nx.Graph) -> Tuple[Tuple[Point, Point], .
     return tuple(segments)
 
 
+def offset_repeated_route_segments(
+    route_points: Sequence[Point],
+    spacing: float = 0.10,
+) -> Tuple[Tuple[Point, Point], ...]:
+    """Offset repeated undirected route segments so every traversal stays visible."""
+    segments = tuple(zip(route_points, route_points[1:]))
+    counts = {}
+    for source, target in segments:
+        key = tuple(sorted((source, target)))
+        counts[key] = counts.get(key, 0) + 1
+    occurrences = {}
+    shifted = []
+    for source, target in segments:
+        key = tuple(sorted((source, target)))
+        occurrence = occurrences.get(key, 0)
+        occurrences[key] = occurrence + 1
+        offset = (occurrence - 0.5 * (counts[key] - 1)) * max(0.0, spacing)
+        canonical_source, canonical_target = key
+        dx = canonical_target[0] - canonical_source[0]
+        dy = canonical_target[1] - canonical_source[1]
+        length = math.hypot(dx, dy)
+        if length <= 1e-9:
+            shifted.append((source, target))
+            continue
+        ox = -dy * offset / length
+        oy = dx * offset / length
+        shifted.append(
+            (
+                (source[0] + ox, source[1] + oy),
+                (target[0] + ox, target[1] + oy),
+            )
+        )
+    return tuple(shifted)
+
+
 def gvd_to_marker_array(
     topology: GVDTopology,
     bounds: WorldBounds,
@@ -1803,6 +2126,25 @@ def gvd_to_marker_array(
             skeleton.points.append(_marker_point(MarkerPoint, target_point, 0.06))
     markers.markers.append(skeleton)
 
+    # Topological graph edges — this is what the TSP actually sees after
+    # clustering, repair, and cycle suppression.
+    topo_graph = _marker(
+        Marker, frame_id, stamp, 'gvd_topo_graph', 11, Marker.LINE_LIST,
+    )
+    topo_graph.scale.x = 0.04
+    topo_graph.color.a = 0.8
+    topo_graph.color.r = 0.2
+    topo_graph.color.g = 0.9
+    topo_graph.color.b = 0.5
+    for source, target in topology.graph.edges:
+        topo_graph.points.append(
+            _marker_point(MarkerPoint, _graph_node_point(topology.graph, source), 0.0),
+        )
+        topo_graph.points.append(
+            _marker_point(MarkerPoint, _graph_node_point(topology.graph, target), 0.0),
+        )
+    markers.markers.append(topo_graph)
+
     path = _marker(Marker, frame_id, stamp, 'gvd_active_path', 2, Marker.LINE_STRIP)
     path.scale.x = 0.07
     path.color.a = 0.95
@@ -1812,26 +2154,54 @@ def gvd_to_marker_array(
         path.points.append(_marker_point(MarkerPoint, point, 0.12))
     markers.markers.append(path)
     if hierarchical_tracker is not None:
+        unexplored = _marker(
+            Marker,
+            frame_id,
+            stamp,
+            'gvd_unexplored_nodes',
+            12,
+            Marker.SPHERE_LIST,
+        )
+        unexplored.scale.x = unexplored.scale.y = unexplored.scale.z = 0.17
+        unexplored.color.a = 0.95
+        unexplored.color.r = 0.62
+        unexplored.color.b = 0.95
+        for node_id in sorted(
+            set(topology.graph.nodes)
+            - hierarchical_tracker.explored_vertices
+            - hierarchical_tracker.cleared_vertices
+        ):
+            unexplored.points.append(
+                _marker_point(MarkerPoint, _graph_node_point(topology.graph, node_id), 0.10)
+            )
+        markers.markers.append(unexplored)
+
         explored = _marker(Marker, frame_id, stamp, 'gvd_explored_nodes', 3, Marker.SPHERE_LIST)
         explored.scale.x = explored.scale.y = explored.scale.z = 0.16
-        explored.color.a = 0.9
-        explored.color.g = 0.7
-        for node_id in sorted(hierarchical_tracker.explored_vertices):
-            if node_id in hierarchical_tracker.graph:
+        explored.color.a = 0.95
+        explored.color.r = 1.0
+        explored.color.g = 0.42
+        explored.color.b = 0.68
+        for node_id in sorted(
+            hierarchical_tracker.explored_vertices
+            - hierarchical_tracker.cleared_vertices
+        ):
+            if node_id in topology.graph:
                 explored.points.append(
-                    _marker_point(MarkerPoint, _graph_node_point(hierarchical_tracker.graph, node_id), 0.10)
+                    _marker_point(MarkerPoint, _graph_node_point(topology.graph, node_id), 0.10)
                 )
         markers.markers.append(explored)
 
         cleared = _marker(Marker, frame_id, stamp, 'gvd_cleared_nodes', 4, Marker.SPHERE_LIST)
         cleared.scale.x = cleared.scale.y = cleared.scale.z = 0.20
         cleared.color.a = 0.95
-        cleared.color.g = 1.0
-        cleared.color.b = 0.35
+        cleared.color.r = 1.0
+        cleared.color.g = 0.52
+        cleared.color.b = 0.05
         for node_id in sorted(hierarchical_tracker.cleared_vertices):
-            if node_id in hierarchical_tracker.graph:
+            if node_id in topology.graph:
                 cleared.points.append(
-                    _marker_point(MarkerPoint, _graph_node_point(hierarchical_tracker.graph, node_id), 0.13)
+                    _marker_point(MarkerPoint, _graph_node_point(topology.graph, node_id), 0.13)
                 )
         markers.markers.append(cleared)
 
@@ -1886,21 +2256,45 @@ def gvd_to_marker_array(
             cleared_regions.points.append(_marker_point(MarkerPoint, target, 0.035))
     markers.markers.append(cleared_regions)
     if hierarchical_tracker is not None:
+        route_points = hierarchical_tracker.route_points
+        route_segments = offset_repeated_route_segments(route_points)
         tsp_route = _marker(
             Marker,
             frame_id,
             stamp,
             'gvd_hierarchical_tsp_route',
             8,
-            Marker.LINE_STRIP,
+            Marker.LINE_LIST,
         )
         tsp_route.scale.x = 0.065
         tsp_route.color.a = 0.9
         tsp_route.color.r = 1.0
         tsp_route.color.g = 0.75
-        for point in hierarchical_tracker.route_points:
-            tsp_route.points.append(_marker_point(MarkerPoint, point, 0.11))
+        for source, target in route_segments:
+            tsp_route.points.append(_marker_point(MarkerPoint, source, 0.11))
+            tsp_route.points.append(_marker_point(MarkerPoint, target, 0.11))
         markers.markers.append(tsp_route)
+
+        # Draw every traversal independently, including repeated reverse segments.
+        for index, (source, target) in enumerate(route_segments):
+            arrow = _marker(
+                Marker,
+                frame_id,
+                stamp,
+                'gvd_hierarchical_tsp_arrows',
+                100 + index,
+                Marker.ARROW,
+            )
+            arrow.scale.x = 0.04   # shaft diameter
+            arrow.scale.y = 0.08   # head diameter
+            arrow.scale.z = 0.12   # head length
+            arrow.color.a = 0.85
+            arrow.color.r = 1.0
+            arrow.color.g = 0.45
+            arrow.color.b = 0.0
+            arrow.points.append(_marker_point(MarkerPoint, source, 0.12))
+            arrow.points.append(_marker_point(MarkerPoint, target, 0.12))
+            markers.markers.append(arrow)
     astar_bridges = _marker(
         Marker,
         frame_id,
@@ -2191,6 +2585,23 @@ def _structural_vertex_kind(cell: GridCell, adjacency) -> str:
     if degree >= 3:
         return 'branch'
     return 'support'
+
+
+def normalize_topology_vertex_kinds(graph: nx.Graph) -> nx.Graph:
+    """Refresh structural kinds after clustering, repair, and cycle pruning."""
+    normalized = graph.copy()
+    for node_id in normalized.nodes:
+        degree = normalized.degree(node_id)
+        if degree <= 1:
+            kind = 'endpoint'
+        elif degree >= 3:
+            kind = 'branch'
+        elif normalized.nodes[node_id].get('kind') == 'corner':
+            kind = 'corner'
+        else:
+            kind = 'support'
+        normalized.nodes[node_id]['kind'] = kind
+    return normalized
 
 
 def _vertex_kind_priority(kind: str) -> int:

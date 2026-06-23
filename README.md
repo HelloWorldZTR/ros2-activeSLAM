@@ -9,7 +9,7 @@ cd /home/ubuntu/ros2_ws
 source setup.sh
 cb
 source /home/ubuntu/ros2_ws/install/setup.bash
-ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gvd_hierarchical
+ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=frontier
 ```
 
 探索节点会先调用 Nav2 `Spin` 完成一圈初始扫描，再持续选择 frontier
@@ -28,9 +28,10 @@ ros2 launch activeslam slam.launch.py map:=slam_rooms
 
 ## 查看 SLAM 地图
 
-主 launch 默认使用项目自带 RViz 配置，直接显示 `/map`、`/scan`、机器人、
-`/plan`、`/goal_point`、`/frontier_markers`、`/pose_graph_markers` 和半透明
-`/global_costmap/costmap`。Fixed Frame 已设为 `map`。
+主 launch 默认使用项目自带 RViz 配置。默认保留 `/map` 作为底图，并显示
+`/pose_graph_markers` 中剪环后的 GVD 拓扑节点与带方向 TSP 路线。`/scan`、机器人、
+`/plan`、`/goal_point`、`/frontier_markers`、costmap 和其余 GVD 调试 namespace
+仍可在 RViz 中手动开启。Fixed Frame 已设为 `map`。
 
 `/map` 只包含 SLAM 当前发布的有限矩形栅格。矩形内部的灰色区域是
 `data == -1` 的 unknown 栅格；矩形外部的深色区域只是 RViz 背景，不属于
@@ -103,7 +104,7 @@ ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
   由实时骨架生成的 GBSAE 路线。第一阶段将 unknown 和 free 都视为可通行区域，
   但仍由 Nav2 做最终路径规划、DWB 控制和恢复。
 - `gvd_hierarchical`：单次分层探索。宏观层使用动态开放 TSP 路线遍历在线 GVD
-  节点，在路线最后一次经过某节点时切入矩形 flood 限定的局部 frontier 清空，
+  节点，抵达未清空普通叶节点或退化叶节点时切入矩形 flood 限定的局部 frontier 清空，
   最后执行全局 frontier 扫尾。
 
 启用近似图评分策略：
@@ -150,12 +151,13 @@ RViz 中原始 GVD 骨架保持青色，fallback 双向 A* 补出的重连路径
 `gvd_unknown_cycle_suppression_enabled` 关闭该行为进行 ablation。RViz 中紫色点
 表示当前 unconfident 节点。
 
-如果 GVD bootstrap 阶段 TF 位姿长时间没有产生足够的有效平移，节点会启动有界的轻量
-随机脱困：随机调用一次 Nav2 `Spin`，再调用短距离 `DriveOnHeading`。原地旋转
-和微小位置抖动不会刷新进展计时器。恢复动作仍使用 Nav2 local costmap 做碰撞
-检查，不会让探索节点直接发布 `/cmd_vel`。对应参数均以 `gvd_stuck_*` 和
-`gvd_random_recovery_*` 开头，可用于 ablation study。空闲、选点、预检和导航
-执行期间统一使用同一套进展 watchdog，避免机器人静止在原地重复空选点。
+Nav2 与首张地图就绪后，所有 baseline 共用 TF 有效位移 watchdog。若机器人连续
+默认 `10s` 没有产生足够平移，节点会启动有界的轻量随机脱困：随机调用一次 Nav2
+`Spin`，再调用短距离 `DriveOnHeading`。原地旋转和微小位置抖动不会刷新进展
+计时器。恢复动作仍使用 Nav2 local costmap 做碰撞检查，不会让探索节点直接发布
+`/cmd_vel`。为保持配置兼容，对应参数继续使用 `gvd_stuck_*` 和
+`gvd_random_recovery_*` 前缀，可用于 ablation study。空闲、选点、预检、导航和
+局部 probe 执行期间统一使用同一套 watchdog。
 
 无需切换到 GBSAE 第二阶段、直接完成宏观到微观一次探索的实验模式：
 
@@ -166,29 +168,42 @@ ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gvd_hierarchica
 该模式按空间半径迁移 live GVD 重建前后的节点状态。骨架链每隔最多 `2m` 插入
 support vertex，并在明显转角处保留 corner vertex。宏观层使用 NetworkX
 `traveling_salesman_problem(..., cycle=False)` 生成开放路线：已清空节点不再
-作为必访目标，但仍可作为最短路 transit；已探索但尚未清空的节点仍允许回访。
+作为必访目标，但仍可作为最短路 transit；已探索节点默认也只作为 transit。
+抵达未清空普通叶节点或退化叶节点时立即触发局部清扫，A* 重连边和原生 GVD 边按相同方式计入
+叶节点度数。
 地图变化会将路线标记为 dirty，宏观导航阶段最多每 `0.5s` 重建一次路线；仅当
 图更新要求切入局部清扫时才抢占 Nav2。普通 TSP 首目标变化只更新后续路线，
 不会打断当前宏观导航。局部清扫及其 frontier probe 期间也会实时重建 GVD 和
 TSP，但不会取消当前局部动作；新的宏观路线在返回宏观阶段后生效。
-局部清空从路线最后一次经过的节点出发，生成多个受墙体、
+重规划先执行 expansion TSP，仅访问未探索 endpoint 和必要 branch fallback；
+扩张目标耗尽后再执行 cleanup TSP，访问尚未清空的普通叶节点和退化叶节点。
+图重建前会记录当前节点到下一跳的方向。重建后若当前节点可清扫，则立即进入
+局部清扫；否则从当前节点的新邻居中选择与历史方向最接近的一项作为强制首跳，
+将当前节点标记为 explored，并从该邻居开始只运行一次开放 TSP。该机制避免在
+频繁地图更新时穷举路线并反复改变分支方向。
+局部清空从机器人抵达的未清空叶节点或退化叶节点出发，生成多个受墙体、
 粗先验边界和其他 live GVD 顶点约束的矩形 Region。候选始终以当前叶节点为中心，
 不会将叶节点挤到矩形角落；选择 utility 是归一化面积与方形度的加权和，可使用
 `gvd_hierarchical_region_area_weight` 和
 `gvd_hierarchical_region_squareness_weight` 调节。Region 可以覆盖 unknown，
 但不能跨过占据栅格；它表示局部探索范围，不表示已验证可通行空间。Region 内仍按
 `frontier cluster size / distance` 依次派发 Nav2 目标。frontier 必须接触 Region，
-但 safe goal 可以位于 Region 外部；局部阶段的完成条件是 Region 内不再存在可清扫
-frontier，而不是机器人必须停在 Region 内。每次 Region 清扫使用一张独立的局部
+但 safe goal 可以位于 Region 外部；当 Region 内已知栅格比例达到默认 `90%`，
+或不再存在可清扫 frontier 时，局部阶段标记为完成。阈值可使用
+`gvd_hierarchical_local_clear_progress_threshold` 调节。覆盖率达到阈值时会取消仍在
+执行的局部 Nav2 导航或 probe。机器人不必停在 Region 内。
+每次 Region 清扫使用一张独立的局部
 approximate pose graph：
 对 Region 内候选依次请求 Nav2 实际路径，再按 D-opt 风格得分派发最高分目标。
 局部图在离开 Region 后丢弃，可使用
 `gvd_hierarchical_local_approx_graph_enabled` 关闭该行为进行 ablation。
-宏观图遍历结束后，剩余 frontier 会由全局贪心扫尾收集。RViz 中绿色节点表示
-宏观已探索，黄绿色节点表示局部已清空，红色节点表示当前宏观位置；局部清空
-期间的半透明青色格子表示当前选中的矩形 Region，已经清扫完成的 Region 会保留
-青色矩形轮廓。Region 使用生成时的 `/map` geometry 快照，因此地图扩张后不会
-因栅格 origin 或尺寸变化发生错位。
+若 live GVD 重建后当前节点不再是叶节点，局部清扫会立即中止：节点保留 explored
+状态并返回宏观 TSP，不会被错误标记为 cleared。
+宏观图遍历结束后，剩余 frontier 会由全局贪心扫尾收集。RViz 默认状态节点使用
+紫色表示未探索、粉色表示已探索但未清空、橙色表示已清空。红色 active node、
+青色 Region 和其他细节 namespace 仍保留但默认关闭。TSP 重复经过同一边时会使用
+平行偏移与独立方向箭头，避免多次 traversal 重叠成一条线。Region 使用生成时的
+`/map` geometry 快照，因此地图扩张后不会因栅格 origin 或尺寸变化发生错位。
 
 `gvd_hierarchical` 的动态 TSP 依赖 NetworkX `3.4.x`。Ubuntu Jammy 仓库中的
 `python3-networkx` 版本过旧，请在 ROS 环境使用：

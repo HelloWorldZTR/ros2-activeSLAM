@@ -705,3 +705,196 @@ NetworkX. Remote RViz smoke validation is pending.
 Status: local Python compilation and `git diff --check` passed. Local pytest
 remains blocked because the generic host environment does not provide
 NetworkX. Remote ROS and RViz smoke validation are pending.
+
+## 2026-06-01 - History-aware hierarchical TSP replanning
+
+- Preserved the previous remaining macro-route geometry across live GVD
+  rebuilds and mapped it onto nearby vertices in the rebuilt graph.
+- Compared fresh NetworkX TSP, unexplored-first, and history-preserving route
+  candidates. Candidates outside a configurable `10%` shortest-route slack are
+  rejected before continuity scoring.
+- Added a geometric directed-segment continuity score so similarly short
+  routes prefer the previous macro direction instead of changing branches on
+  small map updates.
+- Reduced explored-but-uncleared target priority to `0.25` while retaining
+  those vertices as valid cleanup targets and shortest-path transit.
+- Logged the selected route strategy, length, history distance, and unexplored
+  priority score for remote tuning.
+- Added bounded heuristic TSP refinement over the initial route pool. Each
+  rebuild interleaves up to `30` deterministic `2-opt`, swap, and insertion
+  mutations, expands target orders through cached weighted shortest paths, and
+  rejects candidates outside the configured shortest-route slack.
+- Added a normalized turn penalty so similarly short, history-compatible
+  routes favor smoother macro motion through the live topology.
+- Logged the selected route turn penalty and added tuning parameters:
+  `gvd_hierarchical_turn_penalty_weight` and
+  `gvd_hierarchical_tsp_local_search_iterations`.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-02 - Refresh endpoint kinds after live GVD transforms
+
+- Normalize compressed topology node kinds after connectivity repair,
+  clustering, and unknown-heavy cycle pruning.
+- Promote every final degree-0/1 vertex to `endpoint`, so newly exposed leaves
+  enter the hierarchical expansion TSP instead of remaining stale
+  `support`/`corner` transit-only nodes.
+- Added a regression test for a pruned chain whose stale support labels must
+  become endpoint labels at both ends.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-02 - Direction-locked hierarchical TSP rebuilds
+
+- Replaced route-candidate enumeration, length slack, turn scoring, and bounded
+  `2-opt` / swap / insertion refinement with one open NetworkX TSP call.
+- Before a live graph replacement, cache the old active-to-next-step direction.
+  If the rebuilt active vertex remains non-leaf, mark it explored and force the
+  most direction-aligned available neighbor as the next macro hop.
+- If the rebuilt active vertex is cleanup-eligible, skip macro route generation
+  so the coordinator immediately enters Region cleanup.
+- Removed `gvd_hierarchical_route_length_slack`,
+  `gvd_hierarchical_turn_penalty_weight`, and
+  `gvd_hierarchical_tsp_local_search_iterations`.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-02 - Layered hierarchical expansion and Region cleanup
+
+- Replaced mixed unexplored-versus-cleanup TSP weighting with two explicit
+  phases: expansion over unexplored endpoints and necessary branch fallbacks,
+  followed by cleanup over uncleared ordinary and degenerate leaves.
+- Removed `gvd_hierarchical_unexplored_priority_weight` and related telemetry.
+  Within each route phase, length slack, turn penalty, and bounded local search
+  remain active.
+- Simplified Region eligibility to uncleared Region-bearing leaves. A branch is
+  also eligible once none of its outgoing subtrees contains expansion work.
+  Native GVD and fallback A* edges participate equally.
+- Kept immediate cleanup when the robot is near an eligible active vertex and
+  retained non-preemptive Nav2 macro navigation across live topology rebuilds.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-02 - Remove historical-route similarity from hierarchical TSP
+
+- Removed previous-route geometry migration, historical-route candidate
+  generation, similarity scoring, telemetry, and the
+  `gvd_hierarchical_route_history_weight` parameter.
+- Restored an explicit unexplored-first preference. Among near-shortest route
+  candidates, unexplored macro targets receive a larger score when visited
+  earlier than reached-but-uncleared leaf Region revisits.
+- Added `gvd_hierarchical_unexplored_priority_weight: 1.0`.
+- Retained route-length slack, turn penalty, and bounded `2-opt`, swap, and
+  insertion local search.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-02 - Resolve completed macro goals against the latest GVD graph
+
+- Kept the intended behavior that a live TSP refresh does not cancel an
+  already dispatched Nav2 macro goal.
+- Resolve a completed macro goal by world-space position before marking a GVD
+  vertex reached. Rebuilt GVD graphs assign fresh numeric IDs, so trusting the
+  pre-rebuild vertex ID could mark an unrelated node or skip leaf cleanup.
+- If the completed goal no longer maps near any current graph vertex, return
+  to macro replanning without clearing an unrelated Region.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-02 - Region-bearing hierarchical GVD TSP targets
+
+- Restricted hierarchical macro TSP targets to unexplored endpoints, necessary
+  branch fallbacks for components without endpoint targets, and reached
+  uncleared leaf Regions.
+- Kept support and corner vertices in the compressed graph as shortest-path
+  transit steps only.
+- Added degree-based node-kind inference for legacy tests and graphs without
+  explicit compressed-node metadata.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-02 - Lean hierarchical startup and RViz topology view
+
+- Removed the unconditional initial exploration Spin. Start selecting goals
+  as soon as Nav2 and the first map are ready; recovery and probe Spin actions
+  remain available.
+- Added mutually exclusive pruned-topology node markers: purple unexplored,
+  pink explored-but-uncleared, and orange cleared.
+- Render each directed TSP traversal independently. Repeated use of the same
+  undirected edge receives parallel offsets so reverse trips remain visible.
+- Kept detailed GVD markers published for manual debugging, while the default
+  RViz profile enables only `/map`, the three state-node namespaces, and the
+  directed TSP route namespaces.
+- Abort Region cleanup after a live rebuild if its active explored vertex is
+  no longer a leaf. Preserve explored state and return to macro routing
+  without marking the vertex cleared.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS and RViz smoke validation are pending.
+
+## 2026-06-02 - Global high-priority random-walk recovery
+
+- Extended the effective-translation watchdog from GVD macro phases to every
+  baseline once Nav2 and the first map are ready.
+- Keep the existing `gvd_stuck_*` and `gvd_random_recovery_*` parameter names
+  for compatibility; `gvd_stuck_timeout` remains `10.0s`.
+- Allow the bounded Nav2 `Spin -> DriveOnHeading` recovery to preempt idle,
+  path selection, navigation, frontier-probe alignment, and frontier-probe
+  drive states.
+- Exclude recovery actions themselves from watchdog triggering to prevent
+  recursive recovery.
+- Fixed Region coverage projection by replacing the incorrect two-dimensional
+  `np.flatnonzero()` unpack with `np.nonzero()`.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Early completion for hierarchical local cleanup
+
+- Added `gvd_hierarchical_local_clear_progress_threshold: 0.90`.
+- Measure local cleanup progress as the fraction of non-unknown cells inside
+  the current rectangular Region mask.
+- Mark a Region locally cleared once its observed coverage reaches the
+  threshold, without waiting for every residual frontier to disappear.
+- Check progress from the `0.2s` coordinator loop and cancel an in-flight
+  local path request, navigation goal, Spin, or DriveOnHeading probe once the
+  threshold is reached.
+- Kept the existing no-reachable-local-frontier completion path as a fallback
+  and routed both completion reasons through one Region archival helper.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
+
+## 2026-06-01 - Transit-only explored hierarchical GVD vertices
+
+- Removed explored-but-uncleared vertices from the hierarchical open-TSP
+  target set. They remain available as shortest-path transit steps.
+- Replaced final-route-occurrence cleanup with a topological leaf rule:
+  a reached vertex triggers Region cleanup only when its full graph degree is
+  at most one.
+- Counted native GVD and fallback A* reconnection edges equally for leaf
+  detection.
+- Removed the explored-target weight, unexplored-priority weight, and related
+  route telemetry. History alignment, length slack, turn penalty, and bounded
+  local search remain active.
+
+Status: local Python compilation and `git diff --check` passed. Local pytest
+remains blocked because the generic host environment does not provide
+NetworkX. Remote ROS smoke validation is pending.
