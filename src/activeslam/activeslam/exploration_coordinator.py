@@ -67,6 +67,7 @@ from .gvd_exploration import (
     gvd_to_marker_array,
     load_world_bounds,
     local_free_flood_mask,
+    local_region_known_ratio,
     path_crosses_new_obstacle,
     path_suffix_from_nearest,
     progress_watchdog_expired,
@@ -96,7 +97,6 @@ class ExplorationCoordinator(Node):
     """Select exploration goals while Nav2 owns planning, control, and recovery."""
 
     WAITING_FOR_NAV2 = 'waiting_for_nav2'
-    INITIAL_SPIN = 'initial_spin'
     IDLE = 'idle'
     SELECTING = 'selecting'
     NAVIGATING = 'navigating'
@@ -168,12 +168,6 @@ class ExplorationCoordinator(Node):
         ).value
         self.nav2_request_timeout = self.declare_parameter(
             'nav2_request_timeout', 5.0
-        ).value
-        self.initial_spin_yaw = self.declare_parameter(
-            'initial_spin_yaw', 2.0 * math.pi
-        ).value
-        self.initial_spin_timeout = self.declare_parameter(
-            'initial_spin_timeout', 30.0
         ).value
         self.nav2_goal_timeout = self.declare_parameter(
             'nav2_goal_timeout', 60.0
@@ -335,6 +329,18 @@ class ExplorationCoordinator(Node):
         self.gvd_hierarchical_local_probes_enabled = self.declare_parameter(
             'gvd_hierarchical_local_probes_enabled', True
         ).value
+        self.gvd_hierarchical_local_clear_progress_threshold = max(
+            0.0,
+            min(
+                1.0,
+                float(
+                    self.declare_parameter(
+                        'gvd_hierarchical_local_clear_progress_threshold',
+                        0.90,
+                    ).value
+                ),
+            ),
+        )
         self.gvd_hierarchical_route_replan_interval = self.declare_parameter(
             'gvd_hierarchical_route_replan_interval', 0.5
         ).value
@@ -344,7 +350,7 @@ class ExplorationCoordinator(Node):
         self.gvd_stuck_min_progress_distance = self.declare_parameter(
             'gvd_stuck_min_progress_distance', 0.15
         ).value
-        self.gvd_stuck_timeout = self.declare_parameter('gvd_stuck_timeout', 5.0).value
+        self.gvd_stuck_timeout = self.declare_parameter('gvd_stuck_timeout', 10.0).value
         self.gvd_random_recovery_attempts = int(
             self.declare_parameter('gvd_random_recovery_attempts', 3).value
         )
@@ -485,7 +491,7 @@ class ExplorationCoordinator(Node):
             self.gvd_connection_cache_size
         )
         self.gvd_hierarchical_tracker = HierarchicalGVDTracker(
-            self.gvd_hierarchical_state_migration_radius
+            self.gvd_hierarchical_state_migration_radius,
         )
         self.gvd_hierarchical_target: Optional[HierarchicalGVDTarget] = None
         self.gvd_hierarchical_last_route_replan_wall_time = -math.inf
@@ -564,13 +570,18 @@ class ExplorationCoordinator(Node):
             return
         if self.state == self.WAITING_FOR_NAV2:
             if self.latest_map is not None:
-                self._start_initial_spin()
+                self.get_logger().info(
+                    'Nav2 and the first map are ready; starting exploration.'
+                )
+                self._schedule_retry(0.0)
             return
-        if self.state == self.INITIAL_SPIN:
+        if self._exploration_stuck(pose):
+            self._start_gvd_stuck_recovery()
             return
         self._maybe_refresh_hierarchical_background_route(pose)
-        if self._gvd_bootstrap_stuck(pose):
-            self._start_gvd_stuck_recovery()
+        if self._maybe_abort_hierarchical_local_cleanup_if_not_leaf():
+            return
+        if self._maybe_finish_hierarchical_local_cleanup_by_progress():
             return
         if self.state == self.NAVIGATING:
             if self._maybe_replan_hierarchical_navigation(pose):
@@ -670,26 +681,6 @@ class ExplorationCoordinator(Node):
             f'{route}; loop_edges={self.gbsae_planner.loop_edges}.'
         )
 
-    def _start_initial_spin(self):
-        self.state = self.INITIAL_SPIN
-        self.get_logger().info('Nav2 is ready. Starting initial 360 degree scan.')
-        self.nav2.spin_once(
-            self.initial_spin_yaw,
-            self.initial_spin_timeout,
-            self._initial_spin_finished,
-        )
-
-    def _initial_spin_finished(self, status: int):
-        if self.state != self.INITIAL_SPIN:
-            return
-        if status == GOAL_STATUS_SUCCEEDED:
-            self.get_logger().info('Initial Nav2 spin completed.')
-        else:
-            self.get_logger().warn(
-                f'Initial Nav2 spin ended with status={status}; continuing exploration.'
-            )
-        self._schedule_retry(0.0)
-
     def _start_selection(self, rx: float, ry: float):
         if self.slam_mode == 'gvd_hierarchical':
             self._start_hierarchical_selection(rx, ry)
@@ -775,10 +766,10 @@ class ExplorationCoordinator(Node):
         if self._start_hierarchical_local_clear_if_ready(rx, ry):
             return
         if target is None:
-            if tracker.has_uncleared_vertices:
+            if tracker.has_pending_macro_targets:
                 tracker.mark_route_dirty()
                 self.get_logger().info(
-                    'Hierarchical GVD has uncleared macro vertices, but all are '
+                    'Hierarchical GVD has pending macro vertices, but all are '
                     f'temporarily unavailable; retrying in {self.frontier_retry_interval:.1f}s.'
                 )
                 self._schedule_retry()
@@ -813,7 +804,7 @@ class ExplorationCoordinator(Node):
         )
 
     def _start_hierarchical_local_clear_if_ready(self, rx: float, ry: float) -> bool:
-        """Interject Region cleanup when the live TSP route has left a final vertex."""
+        """Interject Region cleanup when the active reached vertex is a leaf."""
         tracker = self.gvd_hierarchical_tracker
         active = tracker.active_vertex
         if active is None or active not in tracker.graph:
@@ -826,7 +817,7 @@ class ExplorationCoordinator(Node):
         ):
             return False
         self.get_logger().info(
-            f'Hierarchical TSP vertex={active} reached its final route occurrence; '
+            f'Hierarchical GVD vertex={active} is a reached leaf; '
             'triggering local clearance.'
         )
         self.gvd_phase = 'local_clear'
@@ -866,8 +857,13 @@ class ExplorationCoordinator(Node):
         self.get_logger().info(
             f'Rebuilt hierarchical GVD TSP route version={tracker.graph_version}: '
             f'{component.number_of_nodes()} nodes/{component.number_of_edges()} edges, '
+            f'route_phase={tracker.route_phase}, '
+            f'expansion_targets={list(tracker.expansion_targets)}, '
+            f'cleanup_targets={list(tracker.cleanup_targets)}, '
             f'targets={list(tracker.route_targets)}, '
             f'transit={list(tracker.remaining_route)}, '
+            f'continuation_successor={tracker.continuation_successor}, '
+            f'length={tracker.route_length:.2f}m, '
             f'replan_ms={elapsed_ms:.1f}; {self._gvd_compression_log(topology)}, '
             f'{self._gvd_unknown_cycle_log(topology)}, '
             f'{self._gvd_repair_log(topology)}.'
@@ -900,7 +896,7 @@ class ExplorationCoordinator(Node):
         )
         if self._hierarchical_local_clear_ready(pose[0], pose[1]):
             self.get_logger().info(
-                'Hierarchical GVD map update exposed a final TSP vertex; '
+                'Hierarchical GVD map update exposed a reached leaf vertex; '
                 'preempting macro navigation for local clearance.'
             )
             self.nav2.cancel_navigation()
@@ -984,6 +980,8 @@ class ExplorationCoordinator(Node):
 
     def _start_hierarchical_local_selection(self, rx: float, ry: float):
         tracker = self.gvd_hierarchical_tracker
+        if self._maybe_abort_hierarchical_local_cleanup_if_not_leaf():
+            return
         if (
             self.latest_map is None
             or self.latest_grid is None
@@ -1013,6 +1011,9 @@ class ExplorationCoordinator(Node):
         )
         self.gvd_hierarchical_local_mask = local_mask
         self.gvd_hierarchical_local_geometry = local_geometry
+        progress = self._hierarchical_local_cleanup_progress()
+        if self._maybe_finish_hierarchical_local_cleanup_by_progress():
+            return
         if self.gvd_hierarchical_local_graph_tracker is None:
             self.gvd_hierarchical_local_graph_tracker = self._make_pose_graph_tracker()
             pose = self._get_robot_pose()
@@ -1044,6 +1045,7 @@ class ExplorationCoordinator(Node):
         self.state = self.SELECTING
         self.get_logger().info(
             f'Hierarchical GVD local cleanup around vertex={tracker.active_vertex}: '
+            f'known_coverage={progress:.1%}, '
             f'{len(clusters)} clusters, {len(self.selection_candidates)} safe candidates.'
         )
         self._request_next_hierarchical_local_path()
@@ -1070,8 +1072,88 @@ class ExplorationCoordinator(Node):
             )
             self._dispatch_navigation(candidate, planned_path)
             return
+        self._finish_hierarchical_local_cleanup(
+            reason='no Nav2-reachable Region-local frontier remains',
+        )
+
+    def _hierarchical_local_cleanup_progress(self) -> float:
+        """Return observed coverage for the active Region snapshot."""
+        if (
+            self.latest_grid is None
+            or self.gvd_hierarchical_local_mask is None
+        ):
+            return 0.0
+        return local_region_known_ratio(
+            self.latest_grid,
+            self.gvd_hierarchical_local_mask,
+            grid_geometry=self._latest_map_geometry(),
+            region_geometry=self.gvd_hierarchical_local_geometry,
+        )
+
+    def _maybe_abort_hierarchical_local_cleanup_if_not_leaf(self) -> bool:
+        """Return to macro traversal if a live rebuild invalidates the active leaf."""
+        if self.slam_mode != 'gvd_hierarchical' or self.gvd_phase != 'local_clear':
+            return False
         tracker = self.gvd_hierarchical_tracker
-        tracker.mark_local_cleared(tracker.active_vertex)
+        active = tracker.active_vertex
+        if (
+            active is not None
+            and active in tracker.graph
+            and tracker.should_clear_local(active)
+        ):
+            return False
+        if self.state == self.NAVIGATING:
+            self.nav2.cancel_navigation()
+        elif self.state == self.ALIGNING_FRONTIER_PROBE:
+            self.nav2.cancel_spin()
+        elif self.state == self.PROBING_FRONTIER:
+            self.nav2.cancel_drive_on_heading()
+        self.nav2.cancel_path_batch()
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        self._clear_navigation()
+        self.gvd_phase = 'macro'
+        self.gvd_hierarchical_local_mask = None
+        self.gvd_hierarchical_local_geometry = None
+        self.gvd_hierarchical_local_graph_tracker = None
+        self.gvd_hierarchical_local_graph_candidates = []
+        tracker.mark_route_dirty()
+        self.get_logger().info(
+            f'Hierarchical GVD vertex={active} no longer maps to a reached leaf; '
+            'aborting local cleanup and returning to macro traversal.'
+        )
+        self._schedule_retry(0.0)
+        return True
+
+    def _maybe_finish_hierarchical_local_cleanup_by_progress(self) -> bool:
+        """Stop an active local action once the Region is sufficiently observed."""
+        if self.slam_mode != 'gvd_hierarchical' or self.gvd_phase != 'local_clear':
+            return False
+        progress = self._hierarchical_local_cleanup_progress()
+        if progress < self.gvd_hierarchical_local_clear_progress_threshold:
+            return False
+        if self.state == self.NAVIGATING:
+            self.nav2.cancel_navigation()
+        elif self.state == self.ALIGNING_FRONTIER_PROBE:
+            self.nav2.cancel_spin()
+        elif self.state == self.PROBING_FRONTIER:
+            self.nav2.cancel_drive_on_heading()
+        elif self.state == self.SELECTING:
+            self.nav2.cancel_path_batch()
+        self._clear_navigation()
+        self._finish_hierarchical_local_cleanup(
+            reason=(
+                f'Region known coverage {progress:.1%} reached '
+                f'{self.gvd_hierarchical_local_clear_progress_threshold:.1%}'
+            ),
+        )
+        return True
+
+    def _finish_hierarchical_local_cleanup(self, *, reason: str):
+        """Archive one completed local Region and resume macro traversal."""
+        tracker = self.gvd_hierarchical_tracker
+        cleared_vertex = tracker.active_vertex
+        tracker.mark_local_cleared(cleared_vertex)
         outline = (
             rectangle_mask_outline(
                 self.gvd_hierarchical_local_mask,
@@ -1086,14 +1168,16 @@ class ExplorationCoordinator(Node):
         if outline and outline not in self.gvd_hierarchical_cleared_region_outlines:
             self.gvd_hierarchical_cleared_region_outlines.append(outline)
         self.nav2.cancel_path_batch()
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
         self.gvd_phase = 'macro'
         self.gvd_hierarchical_local_mask = None
         self.gvd_hierarchical_local_geometry = None
         self.gvd_hierarchical_local_graph_tracker = None
         self.gvd_hierarchical_local_graph_candidates = []
         self.get_logger().info(
-            f'Hierarchical GVD local cleanup completed for vertex={tracker.active_vertex}; '
-            'returning to macro traversal.'
+            f'Hierarchical GVD local cleanup completed for vertex={cleared_vertex}: '
+            f'{reason}; returning to macro traversal.'
         )
         self._schedule_retry(0.0)
 
@@ -1341,16 +1425,16 @@ class ExplorationCoordinator(Node):
             boundary_margin=self.gvd_boundary_margin,
         )
 
-    def _gvd_bootstrap_stuck(self, pose: Optional[Tuple[float, float, float]]) -> bool:
-        watchdog_phase = (
-            self.slam_mode == 'gvd_gbsae' and self.gvd_phase == 'bootstrap'
-        ) or (
-            self.slam_mode == 'gvd_hierarchical' and self.gvd_phase == 'macro'
-        )
+    def _exploration_stuck(self, pose: Optional[Tuple[float, float, float]]) -> bool:
+        """Return whether ordinary exploration has stopped translating."""
         if (
             not self.gvd_stuck_recovery_enabled
-            or not watchdog_phase
-            or self.state not in (self.IDLE, self.SELECTING, self.NAVIGATING)
+            or self.state in (
+                self.COMPLETE,
+                self.WAITING_FOR_NAV2,
+                self.RANDOM_RECOVERY_SPIN,
+                self.RANDOM_RECOVERY_DRIVE,
+            )
             or pose is None
         ):
             return False
@@ -1363,7 +1447,7 @@ class ExplorationCoordinator(Node):
 
     def _start_gvd_stuck_recovery(self):
         self.get_logger().warn(
-            f'GVD macro exploration has made no effective translation for '
+            f'Exploration has made no effective translation for '
             f'{self.gvd_stuck_timeout:.1f}s; starting bounded random-walk recovery.'
         )
         if self.state == self.NAVIGATING:
@@ -1374,6 +1458,14 @@ class ExplorationCoordinator(Node):
             self.nav2.cancel_path_batch()
             self.selection_request_wall_time = None
             self.selection_request_goal = None
+        elif self.state == self.ALIGNING_FRONTIER_PROBE:
+            self.nav2.cancel_spin()
+            self._mark_goal_failed(self.current_goal)
+            self._clear_navigation()
+        elif self.state == self.PROBING_FRONTIER:
+            self.nav2.cancel_drive_on_heading()
+            self._mark_goal_failed(self.current_goal)
+            self._clear_navigation()
         self._start_gvd_random_recovery()
 
     def _start_gvd_progress_watchdog(self, anchor_xy: Tuple[float, float]):
@@ -1928,16 +2020,25 @@ class ExplorationCoordinator(Node):
             target = self.gvd_hierarchical_target
             if status == GOAL_STATUS_SUCCEEDED and target is not None:
                 tracker = self.gvd_hierarchical_tracker
-                tracker.mark_reached(target.vertex_id)
-                self.gvd_phase = (
-                    'local_clear'
-                    if tracker.should_clear_local(target.vertex_id)
-                    else 'macro'
-                )
-                self.get_logger().info(
-                    f'Nav2 reached hierarchical GVD macro vertex={target.vertex_id}; '
-                    f'next_phase={self.gvd_phase}.'
-                )
+                reached_vertex = tracker.mark_reached_point(target.point)
+                if reached_vertex is None:
+                    tracker.mark_route_dirty()
+                    self.gvd_phase = 'macro'
+                    self.get_logger().warn(
+                        'Nav2 reached a hierarchical GVD macro goal that no longer '
+                        'maps to the rebuilt topology; replanning.'
+                    )
+                else:
+                    self.gvd_phase = (
+                        'local_clear'
+                        if tracker.should_clear_local(reached_vertex)
+                        else 'macro'
+                    )
+                    self.get_logger().info(
+                        f'Nav2 reached hierarchical GVD macro vertex={reached_vertex}; '
+                        f'degree={tracker.graph.degree(reached_vertex)}, '
+                        f'next_phase={self.gvd_phase}.'
+                    )
             else:
                 self.get_logger().warn(
                     f'Nav2 hierarchical GVD macro navigation ended with status={status}; '

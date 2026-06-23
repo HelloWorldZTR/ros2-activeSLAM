@@ -21,8 +21,6 @@ exploration_coordinator:
     failed_goal_radius: 0.6
     frontier_retry_interval: 3.0
     nav2_request_timeout: 5.0
-    initial_spin_yaw: 6.283185307
-    initial_spin_timeout: 30.0
     nav2_goal_timeout: 30.0
     frontier_mode_probes_enabled: true
     gvd_mode_probes_enabled: false
@@ -85,6 +83,7 @@ exploration_coordinator:
     gvd_hierarchical_region_squareness_weight: 1.0
     gvd_hierarchical_local_approx_graph_enabled: true
     gvd_hierarchical_local_probes_enabled: true
+    gvd_hierarchical_local_clear_progress_threshold: 0.90
     gvd_hierarchical_route_replan_interval: 1.0
     gvd_stuck_recovery_enabled: true
     gvd_stuck_min_progress_distance: 0.15

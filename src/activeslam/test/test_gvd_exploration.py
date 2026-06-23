@@ -26,8 +26,11 @@ from activeslam.gvd_exploration import (
     grid_to_world,
     cluster_touches_mask,
     local_free_flood_mask,
+    local_region_known_ratio,
     local_unknown_area,
     local_unknown_ratio,
+    normalize_topology_vertex_kinds,
+    offset_repeated_route_segments,
     path_crosses_new_obstacle,
     path_crosses_obstacle,
     path_suffix_from_nearest,
@@ -326,6 +329,18 @@ def test_astar_reconnection_segments_render_only_fallback_bridge_paths():
     )
 
 
+def test_repeated_tsp_route_segments_are_offset_and_keep_direction():
+    segments = offset_repeated_route_segments(
+        ((0.0, 0.0), (1.0, 0.0), (0.0, 0.0)),
+        spacing=0.10,
+    )
+
+    assert segments == (
+        ((0.0, -0.05), (1.0, -0.05)),
+        ((1.0, 0.05), (0.0, 0.05)),
+    )
+
+
 def test_hierarchical_tracker_expands_tsp_walk_through_transit_vertices():
     graph = nx.Graph()
     graph.add_node(0, x=0.5, y=1.5)
@@ -394,7 +409,34 @@ def test_hierarchical_tracker_remaps_inflight_target_after_graph_rebuild():
     assert remapped.point == (2.1, 1.0)
 
 
-def test_hierarchical_tracker_requests_cleanup_only_after_final_route_occurrence():
+def test_hierarchical_tracker_marks_rebuilt_vertex_reached_by_goal_point():
+    graph = nx.Graph()
+    graph.add_node(10, x=1.1, y=1.0)
+    graph.add_node(11, x=2.1, y=1.0)
+    graph.add_edge(10, 11, weight=1.0)
+    tracker = HierarchicalGVDTracker(migration_radius=0.25)
+    tracker.update_graph(graph)
+
+    reached = tracker.mark_reached_point((1.0, 1.0))
+
+    assert reached == 10
+    assert tracker.active_vertex == 10
+    assert tracker.should_clear_local(10)
+
+
+def test_hierarchical_tracker_does_not_reuse_stale_vertex_id_for_completed_goal():
+    graph = nx.Graph()
+    graph.add_node(0, x=10.0, y=10.0)
+    tracker = HierarchicalGVDTracker(migration_radius=0.25)
+    tracker.update_graph(graph)
+
+    reached = tracker.mark_reached_point((1.0, 1.0))
+
+    assert reached is None
+    assert tracker.explored_vertices == set()
+
+
+def test_hierarchical_tracker_allows_uncleared_leaf_cleanup_without_explored_state():
     graph = nx.Graph()
     graph.add_edges_from(((0, 1), (1, 2), (1, 3)))
     for node_id in graph.nodes:
@@ -402,14 +444,27 @@ def test_hierarchical_tracker_requests_cleanup_only_after_final_route_occurrence
     tracker = HierarchicalGVDTracker(migration_radius=0.5)
     tracker.update_graph(graph)
 
-    tracker.transit_route = (0, 1, 2, 1, 3)
-    tracker.route_index = 1
+    assert tracker.should_clear_local(0)
+    tracker.mark_local_cleared(0)
+    assert not tracker.should_clear_local(0)
+    tracker.mark_reached(1)
     assert not tracker.should_clear_local(1)
-    tracker.route_index = 4
-    assert tracker.should_clear_local(1)
 
 
-def test_hierarchical_tracker_keeps_explored_but_uncleared_vertex_as_tsp_target():
+def test_hierarchical_tracker_counts_astar_bridge_as_an_ordinary_leaf_edge():
+    graph = nx.Graph()
+    graph.add_node(0, x=0.0, y=0.0)
+    graph.add_node(1, x=1.0, y=0.0)
+    graph.add_edge(0, 1, weight=1.0, connection_mode='astar')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+
+    tracker.mark_reached(0)
+
+    assert tracker.should_clear_local(0)
+
+
+def test_hierarchical_tracker_keeps_explored_but_uncleared_vertex_as_transit_only():
     graph = nx.path_graph(3)
     for node_id in graph.nodes:
         graph.nodes[node_id].update(x=float(node_id), y=0.0)
@@ -417,11 +472,108 @@ def test_hierarchical_tracker_keeps_explored_but_uncleared_vertex_as_tsp_target(
     tracker = HierarchicalGVDTracker(migration_radius=0.5)
     tracker.update_graph(graph)
     tracker.mark_reached(0)
+    tracker.mark_reached(1)
 
     tracker.rebuild_route((0.0, 0.0))
 
-    assert 0 in tracker.explored_vertices
-    assert 0 in tracker.route_targets
+    assert tracker.route_targets == (2,)
+    assert 1 in tracker.transit_route
+
+
+def test_hierarchical_tracker_keeps_support_and_corner_vertices_as_transit_only():
+    graph = nx.path_graph(4)
+    kinds = ('endpoint', 'support', 'corner', 'endpoint')
+    for node_id, kind in enumerate(kinds):
+        graph.nodes[node_id].update(x=float(node_id), y=0.0, kind=kind)
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+
+    tracker.rebuild_route((0.0, 0.0))
+
+    assert tracker.route_targets == (0, 3)
+    assert 1 in tracker.transit_route
+    assert 2 in tracker.transit_route
+
+
+def test_hierarchical_tracker_keeps_branch_when_component_has_no_endpoint_target():
+    graph = nx.cycle_graph(4)
+    for node_id in graph.nodes:
+        graph.nodes[node_id].update(x=float(node_id), y=0.0, kind='support')
+    graph.nodes[0]['kind'] = 'branch'
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+
+    tracker.rebuild_route((1.0, 0.0))
+
+    assert tracker.route_targets == (0,)
+
+
+def test_hierarchical_tracker_runs_expansion_before_deferred_leaf_cleanup():
+    graph = nx.path_graph(3)
+    for node_id in graph.nodes:
+        graph.nodes[node_id].update(x=float(node_id), y=0.0, kind='endpoint')
+    graph.nodes[1]['kind'] = 'support'
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+    tracker.mark_reached(0)
+    tracker.mark_reached(1)
+
+    tracker.rebuild_route((1.0, 0.0))
+
+    assert tracker.route_phase == 'expansion'
+    assert tracker.expansion_targets == (2,)
+    assert tracker.cleanup_targets == (0,)
+    assert tracker.route_targets == (2,)
+
+
+def test_hierarchical_tracker_switches_to_cleanup_route_after_expansion():
+    graph = nx.path_graph(3)
+    for node_id in graph.nodes:
+        graph.nodes[node_id].update(x=float(node_id), y=0.0, kind='endpoint')
+    graph.nodes[1]['kind'] = 'support'
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+    tracker.mark_reached(0)
+    tracker.mark_reached(1)
+    tracker.mark_reached(2)
+
+    tracker.rebuild_route((1.0, 0.0))
+
+    assert tracker.route_phase == 'cleanup'
+    assert tracker.expansion_targets == ()
+    assert tracker.cleanup_targets == (0, 2)
+    assert tracker.route_targets == (0, 2)
+
+
+def test_hierarchical_tracker_treats_completed_branch_as_degenerate_leaf():
+    graph = nx.Graph()
+    for node_id, kind in ((0, 'branch'), (1, 'endpoint'), (2, 'endpoint')):
+        graph.add_node(node_id, x=float(node_id), y=0.0, kind=kind)
+    graph.add_edge(0, 1, weight=1.0)
+    graph.add_edge(0, 2, weight=1.0, connection_mode='astar')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+    tracker.mark_reached(1)
+    tracker.mark_reached(2)
+
+    assert tracker.should_clear_local(0)
+
+
+def test_hierarchical_tracker_keeps_branch_open_while_one_subtree_needs_expansion():
+    graph = nx.Graph()
+    for node_id, kind in ((0, 'branch'), (1, 'endpoint'), (2, 'endpoint')):
+        graph.add_node(node_id, x=float(node_id), y=0.0, kind=kind)
+    graph.add_edge(0, 1, weight=1.0)
+    graph.add_edge(0, 2, weight=1.0, connection_mode='astar')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+    tracker.mark_reached(1)
+
+    assert not tracker.should_clear_local(0)
 
 
 def test_hierarchical_tracker_joins_open_tsp_from_nearer_endpoint():
@@ -436,6 +588,85 @@ def test_hierarchical_tracker_joins_open_tsp_from_nearer_endpoint():
 
     assert route[0] == 3
     assert route[-1] == 0
+
+
+def test_hierarchical_tracker_preserves_rebuild_direction_with_one_forced_successor():
+    first = nx.Graph()
+    for node_id, point, kind in (
+        (0, (0.0, 0.0), 'branch'),
+        (1, (1.0, 0.0), 'endpoint'),
+        (2, (0.0, 1.0), 'endpoint'),
+    ):
+        first.add_node(node_id, x=point[0], y=point[1], kind=kind)
+    first.add_edge(0, 1, weight=1.0)
+    first.add_edge(0, 2, weight=1.0)
+    second = nx.Graph()
+    for node_id, point, kind in (
+        (10, (0.0, 0.0), 'branch'),
+        (11, (1.0, 0.1), 'endpoint'),
+        (12, (-0.1, 1.0), 'endpoint'),
+    ):
+        second.add_node(node_id, x=point[0], y=point[1], kind=kind)
+    second.add_edge(10, 11, weight=1.0)
+    second.add_edge(10, 12, weight=1.0)
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(first)
+    tracker.mark_reached(0)
+    tracker.transit_route = (1,)
+
+    tracker.update_graph(second)
+    route = tracker.rebuild_route((0.0, 0.0))
+
+    assert tracker.continuation_successor == 11
+    assert route[0] == 11
+    assert 10 in tracker.explored_vertices
+
+
+def test_hierarchical_tracker_rebuild_stops_at_active_leaf_for_immediate_cleanup():
+    graph = nx.path_graph(2)
+    graph.nodes[0].update(x=0.0, y=0.0, kind='endpoint')
+    graph.nodes[1].update(x=1.0, y=0.0, kind='endpoint')
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+    tracker.mark_reached(0)
+    tracker.transit_route = (1,)
+
+    tracker.update_graph(graph)
+    route = tracker.rebuild_route((0.0, 0.0))
+
+    assert route == ()
+    assert tracker.route_phase == 'cleanup_ready'
+    assert tracker.continuation_successor is None
+
+
+def test_hierarchical_tracker_runs_networkx_tsp_once_after_forced_successor(monkeypatch):
+    graph = nx.Graph()
+    for node_id, point, kind in (
+        (0, (0.0, 0.0), 'branch'),
+        (1, (1.0, 0.0), 'endpoint'),
+        (2, (0.0, 1.0), 'endpoint'),
+        (3, (-1.0, 0.0), 'endpoint'),
+    ):
+        graph.add_node(node_id, x=point[0], y=point[1], kind=kind)
+    graph.add_edges_from(((0, 1), (0, 2), (0, 3)), weight=1.0)
+    tracker = HierarchicalGVDTracker(migration_radius=0.5)
+    tracker.update_graph(graph)
+    tracker.mark_reached(0)
+    tracker.transit_route = (1,)
+    calls = []
+
+    def fake_tsp(*args, **kwargs):
+        calls.append((args, kwargs))
+        return [1, 0, 2, 0, 3]
+
+    monkeypatch.setattr(nx.approximation, 'traveling_salesman_problem', fake_tsp)
+    tracker.update_graph(graph)
+    route = tracker.rebuild_route((0.0, 0.0))
+
+    assert len(calls) == 1
+    assert tracker.continuation_successor == 1
+    assert route == (1, 0, 2, 0, 3)
 
 
 def test_split_chain_vertices_inserts_visible_corner():
@@ -593,6 +824,47 @@ def test_rectangle_mask_outline_uses_snapshot_geometry_origin():
     )
 
 
+def test_local_region_known_ratio_counts_only_masked_observed_cells():
+    grid = np.array(
+        (
+            (0, -1, 100),
+            (25, 75, -1),
+        ),
+        dtype=np.int8,
+    )
+    mask = np.array(
+        (
+            (True, True, False),
+            (True, False, True),
+        ),
+        dtype=bool,
+    )
+
+    assert local_region_known_ratio(grid, mask) == pytest.approx(0.5)
+
+
+def test_local_region_known_ratio_rejects_empty_or_mismatched_region():
+    grid = np.zeros((2, 2), dtype=np.int8)
+
+    assert local_region_known_ratio(grid, np.zeros((2, 2), dtype=bool)) == 0.0
+    assert local_region_known_ratio(grid, np.zeros((1, 1), dtype=bool)) == 0.0
+
+
+def test_local_region_known_ratio_projects_snapshot_after_map_expansion():
+    grid = np.zeros((4, 4), dtype=np.int8)
+    grid[1, 2] = -1
+    region_mask = np.ones((2, 2), dtype=bool)
+
+    ratio = local_region_known_ratio(
+        grid,
+        region_mask,
+        grid_geometry=GridGeometry(-1.0, -1.0, 1.0, 4, 4),
+        region_geometry=GridGeometry(0.0, 0.0, 1.0, 2, 2),
+    )
+
+    assert ratio == pytest.approx(0.75)
+
+
 def test_local_unknown_area_counts_only_disk_cells():
     geometry = _geometry(width=5, height=5)
     grid = np.zeros((5, 5), dtype=np.int8)
@@ -650,6 +922,18 @@ def test_unknown_heavy_cycle_suppression_keeps_only_local_mst_edges():
     assert stats.unconfident_vertices == 4
     assert stats.removed_edges == 1
     assert nx.is_tree(pruned)
+
+
+def test_topology_kind_normalization_promotes_pruned_chain_ends_to_endpoints():
+    graph = nx.path_graph(3)
+    for node_id in graph.nodes:
+        graph.nodes[node_id].update(x=float(node_id), y=0.0, kind='support')
+
+    normalized = normalize_topology_vertex_kinds(graph)
+
+    assert normalized.nodes[0]['kind'] == 'endpoint'
+    assert normalized.nodes[1]['kind'] == 'support'
+    assert normalized.nodes[2]['kind'] == 'endpoint'
 
 
 def test_confident_cycle_is_not_suppressed():

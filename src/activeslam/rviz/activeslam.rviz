@@ -14,12 +14,12 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz_default_plugins/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Name: Grid
       Plane: XY
       Plane Cell Count: 20
       Reference Frame: <Fixed Frame>
-      Value: true
+      Value: false
     - Alpha: 0.75
       Class: rviz_default_plugins/Map
       Color Scheme: map
@@ -43,7 +43,7 @@ Visualization Manager:
       Class: rviz_default_plugins/Map
       Color Scheme: costmap
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Nav2 Global Costmap
       Topic:
         Depth: 5
@@ -57,12 +57,12 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /global_costmap/costmap_updates
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
       Color: 0; 255; 0
-      Enabled: true
+      Enabled: false
       Head Diameter: 0.3
       Head Length: 0.2
       Length: 0.3
@@ -84,9 +84,9 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /plan
-      Value: true
+      Value: false
     - Class: rviz_default_plugins/MarkerArray
-      Enabled: true
+      Enabled: false
       Name: Frontiers
       Namespaces:
         frontiers: true
@@ -96,9 +96,9 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /frontier_markers
-      Value: true
+      Value: false
     - Class: rviz_default_plugins/Marker
-      Enabled: true
+      Enabled: false
       Name: Active Goal
       Namespaces:
         goal: true
@@ -108,10 +108,25 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /goal_point
-      Value: true
+      Value: false
     - Class: rviz_default_plugins/MarkerArray
       Enabled: true
-      Name: Approximate Pose Graph
+      Name: Hierarchical GVD Topology
+      Namespaces:
+        gvd_active_macro_node: false
+        gvd_active_path: false
+        gvd_astar_reconnections: false
+        gvd_bounds: false
+        gvd_cleared_nodes: true
+        gvd_cleared_region_outlines: false
+        gvd_explored_nodes: true
+        gvd_hierarchical_tsp_arrows: true
+        gvd_hierarchical_tsp_route: true
+        gvd_local_cleanup_flood: false
+        gvd_skeleton: false
+        gvd_topo_graph: false
+        gvd_unconfident_nodes: false
+        gvd_unexplored_nodes: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -131,7 +146,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
@@ -145,7 +160,7 @@ Visualization Manager:
         Reliability Policy: Best Effort
         Value: /scan
       Use Fixed Frame: true
-      Value: true
+      Value: false
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
@@ -157,11 +172,11 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: robot_description
-      Enabled: true
+      Enabled: false
       Name: RobotModel
       TF Prefix: ""
       Update Interval: 0
-      Value: true
+      Value: false
       Visual Enabled: true
   Enabled: true
   Global Options:
