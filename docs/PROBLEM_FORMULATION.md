@@ -6,6 +6,61 @@
 恢复行为和 `/cmd_vel`，`exploration_coordinator` 负责观测、候选生成、目标选择
 和 action 调度。
 
+## 0. 论文式问题表述
+
+Active SLAM 的目标是在未知二维环境中同时完成在线建图、定位约束维护与自主探索。
+机器人从初始位姿出发，只能通过有限视野传感器逐步观测环境，并在每个决策时刻基于
+当前 SLAM belief 选择下一个可执行运动目标。整个过程可以理解为一个闭环：
+机器人执行动作、获得新观测、更新地图与位姿估计、重新评估尚未探索区域，再选择下一步动作。
+
+令 $\mathcal{M}_t$ 表示时刻 $t$ 的占据栅格 belief，$\mathbf{x}_t$ 表示机器人位姿，
+$\mathcal{H}_t$ 表示截至当前的轨迹、观测和辅助图结构。主动 SLAM 策略 $\pi$ 在每个时刻
+选择一个可由运动规划器验证的目标或行为：
+
+$$
+a_t = \pi(\mathcal{M}_t,\mathbf{x}_t,\mathcal{H}_t),
+\qquad
+a_t \in \mathcal{A}^{\mathrm{safe}}_t.
+$$
+
+问题的核心不是单次到达某个目标，而是在有限路径代价和安全约束下，持续减少未知区域、
+提升地图覆盖，并尽可能保持有利于定位和回环的运动轨迹。因此，整体目标可写为：
+
+$$
+\pi^\star
+=
+\arg\max_{\pi}
+\mathbb{E}
+\left[
+\sum_{t=0}^{T}
+\Delta \mathcal{I}(\mathcal{M}_t,\mathcal{H}_t,a_t)
+-
+\lambda
+c(a_t)
+\right],
+$$
+
+subject to
+
+$$
+a_t \in \mathcal{A}^{\mathrm{safe}}_t,
+\qquad
+P_t(a_t) \neq \varnothing,
+\qquad
+\mathbf{x}_{t+1},\mathcal{M}_{t+1}
+\sim
+p(\cdot \mid \mathbf{x}_t,\mathcal{M}_t,a_t,z_{t+1}).
+$$
+
+其中 $\Delta \mathcal{I}$ 表示动作带来的预期探索和 SLAM 信息收益，可以由未知面积减少、
+frontier 消除、拓扑覆盖、或近似 pose graph 信息增益来刻画；$c(a_t)$ 是路径长度、
+时间或执行风险等代价；$P_t(a_t)$ 表示当前地图上由 Nav2 验证得到的可执行路径。
+
+本文档中的各个方法都可以看作对上述问题的不同近似：`frontier` 用局部未知面积作为信息收益；
+`approx_graph` 进一步估计候选路径对近似 pose graph 的贡献；`gbsae` 使用先验拓扑图组织全局访问顺序；
+`gvd_gbsae` 从在线 GVD 骨架中生成可覆盖的拓扑先验；`gvd_hierarchical` 将问题分解为宏观 GVD 遍历和局部
+frontier 清扫。它们共享同一个基本形式：在当前 belief 下生成候选、过滤不可执行目标、按信息收益与运动代价选择下一步。
+
 ## 1. 统一符号
 
 ### 1.1 时间、状态与地图
