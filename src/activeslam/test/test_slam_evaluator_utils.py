@@ -33,6 +33,24 @@ def test_compute_coverage_counts_known_cells_inside_bounds():
     assert total == 6
 
 
+def test_compute_coverage_uses_fixed_bounds_denominator():
+    data = [0, 100]
+
+    coverage, known, total = compute_coverage(
+        data,
+        width=2,
+        height=1,
+        resolution=1.0,
+        origin_x=0.0,
+        origin_y=0.0,
+        bounds=(0.0, 4.0, 0.0, 1.0),
+    )
+
+    assert coverage == 2 / 4
+    assert known == 2
+    assert total == 4
+
+
 def test_accumulate_path_length_uses_consecutive_positions():
     total, previous = accumulate_path_length(None, (0.0, 0.0), 0.0)
     total, previous = accumulate_path_length(previous, (3.0, 4.0), total)

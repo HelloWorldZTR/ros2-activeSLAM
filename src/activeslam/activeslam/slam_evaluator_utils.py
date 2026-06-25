@@ -147,11 +147,25 @@ def compute_coverage(
 ) -> Tuple[float, int, int]:
     data = np.array(list(grid_data), dtype=np.int16).reshape(height, width)
     mask = evaluation_mask(width, height, resolution, origin_x, origin_y, bounds)
-    total = int(np.count_nonzero(mask))
+    total = (
+        _fixed_bounds_cell_count(bounds, resolution)
+        if bounds is not None
+        else int(np.count_nonzero(mask))
+    )
     if total == 0:
         return 0.0, 0, 0
     known = int(np.count_nonzero((data != -1) & mask))
     return known / total, known, total
+
+
+def _fixed_bounds_cell_count(bounds: Bounds, resolution: float) -> int:
+    """Return the full evaluation-region cell count independent of map extent."""
+    if resolution <= 0.0:
+        return 0
+    min_x, max_x, min_y, max_y = bounds
+    width = max(0, int(math.ceil((max_x - min_x) / resolution)))
+    height = max(0, int(math.ceil((max_y - min_y) / resolution)))
+    return width * height
 
 
 def accumulate_path_length(

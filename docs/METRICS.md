@@ -22,7 +22,7 @@
 - 否则从 world 文件中的 box collision obstacles 推导边界，并向外扩展 `eval_margin`。
 - 如果无法从 world 提取障碍物，则使用整张 OccupancyGrid 地图。
 
-设评价区域 mask 为：
+设当前 OccupancyGrid 内的评价区域 mask 为：
 
 ```text
 M(i, j) = 1, if cell center (x_j, y_i) is inside evaluation bounds
@@ -40,11 +40,15 @@ y_i = origin_y + (i + 0.5) * resolution
 
 Coverage 表示评价区域内，SLAM 地图已经变为已知状态的栅格比例。OccupancyGrid 中 `-1` 表示未知，其他值都视为已知。
 
-设地图栅格值为 `G(i, j)`，评价区域为 `M(i, j)`：
+设地图栅格值为 `G(i, j)`，当前 OccupancyGrid 内的评价区域为 `M(i, j)`。
+如果配置或推导出了有限评价边界，coverage 使用完整评价边界的固定格子数作为分母；
+当前 OccupancyGrid 尚未覆盖到的评价区域按 unknown 处理。只有在没有评价边界时，
+才退化为当前整张 OccupancyGrid 的已知比例。
 
 ```text
 known_cells = count((G(i, j) != -1) and M(i, j))
-total_cells = count(M(i, j))
+total_cells = count(full evaluation bounds at map resolution), if bounds exist
+total_cells = count(M(i, j)), otherwise
 coverage = known_cells / total_cells
 ```
 
@@ -55,7 +59,7 @@ $$
 $$
 
 $$
-\mathcal{E} = \{(i,j) \mid M_{ij}=1\}
+\mathcal{E} = \text{all cells in the fixed evaluation bounds}
 $$
 
 $$

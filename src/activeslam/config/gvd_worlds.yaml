@@ -1,3 +1,5 @@
 slam_rooms: [-6.0, 6.0, -5.0, 5.0]
 slam_rooms_corridor: [-6.0, 18.0, -5.0, 5.0]
 slam_office: [-26.0, 20.0, 1.5, 21.5]
+slam_loop: [-5.5, 5.5, -4.0, 4.0]
+slam_landmarks: [-6.0, 6.0, -5.0, 5.0]

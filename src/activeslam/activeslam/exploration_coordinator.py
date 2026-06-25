@@ -964,6 +964,7 @@ class ExplorationCoordinator(Node):
             self.current_navigation_kind = 'hierarchical_gvd_vertex'
             self.state = self.NAVIGATING
             self.navigation_start_wall_time = time.monotonic()
+            self._start_gvd_progress_watchdog(self.selection_start_xy)
             self.get_logger().info(
                 f'Navigating to hierarchical GVD macro vertex={target.vertex_id}: '
                 f'goal=({planned_path.goal_xy[0]:.2f}, {planned_path.goal_xy[1]:.2f}), '
@@ -1426,15 +1427,10 @@ class ExplorationCoordinator(Node):
         )
 
     def _exploration_stuck(self, pose: Optional[Tuple[float, float, float]]) -> bool:
-        """Return whether ordinary exploration has stopped translating."""
+        """Return whether an active Nav2 motion has stopped translating."""
         if (
             not self.gvd_stuck_recovery_enabled
-            or self.state in (
-                self.COMPLETE,
-                self.WAITING_FOR_NAV2,
-                self.RANDOM_RECOVERY_SPIN,
-                self.RANDOM_RECOVERY_DRIVE,
-            )
+            or self.state not in self._translation_watchdog_states()
             or pose is None
         ):
             return False
@@ -1443,6 +1439,13 @@ class ExplorationCoordinator(Node):
             self.gvd_last_progress_wall_time,
             self.gvd_stuck_timeout,
             time.monotonic(),
+        )
+
+    def _translation_watchdog_states(self):
+        return (
+            self.NAVIGATING,
+            self.ALIGNING_FRONTIER_PROBE,
+            self.PROBING_FRONTIER,
         )
 
     def _start_gvd_stuck_recovery(self):
@@ -1469,12 +1472,8 @@ class ExplorationCoordinator(Node):
         self._start_gvd_random_recovery()
 
     def _start_gvd_progress_watchdog(self, anchor_xy: Tuple[float, float]):
-        if (
-            self.gvd_progress_anchor_xy is None
-            or self.gvd_last_progress_wall_time is None
-        ):
-            self.gvd_progress_anchor_xy = anchor_xy
-            self.gvd_last_progress_wall_time = time.monotonic()
+        self.gvd_progress_anchor_xy = anchor_xy
+        self.gvd_last_progress_wall_time = time.monotonic()
 
     def _record_gvd_navigation_progress(self, robot_xy: Tuple[float, float]):
         (
@@ -1982,6 +1981,7 @@ class ExplorationCoordinator(Node):
         self.current_navigation_kind = 'frontier'
         self.state = self.NAVIGATING
         self.navigation_start_wall_time = time.monotonic()
+        self._start_gvd_progress_watchdog(self.selection_start_xy)
         yaw = heading_to_target(planned_path.goal_xy, (cluster.centroid_x, cluster.centroid_y))
         self.get_logger().info(
             f'Navigating to frontier goal=({planned_path.goal_xy[0]:.2f}, '
@@ -2001,6 +2001,7 @@ class ExplorationCoordinator(Node):
         self.current_navigation_kind = 'gbsae_vertex'
         self.state = self.NAVIGATING
         self.navigation_start_wall_time = time.monotonic()
+        self._start_gvd_progress_watchdog(self.selection_start_xy)
         planner = self.gbsae_planner
         assert planner is not None
         step = planner.active_step
@@ -2114,6 +2115,7 @@ class ExplorationCoordinator(Node):
 
         self.state = self.ALIGNING_FRONTIER_PROBE
         self.frontier_probe_action_start_wall_time = time.monotonic()
+        self._start_gvd_progress_watchdog((pose[0], pose[1]))
         self.get_logger().info(
             f'Aligning with {self.target_cluster.source} frontier normal using '
             f'Nav2 Spin: delta={yaw_delta:.2f} rad.'
@@ -2143,6 +2145,9 @@ class ExplorationCoordinator(Node):
         distance, speed, timeout = settings
         self.state = self.PROBING_FRONTIER
         self.frontier_probe_action_start_wall_time = time.monotonic()
+        pose = self._get_robot_pose()
+        if pose is not None:
+            self._start_gvd_progress_watchdog((pose[0], pose[1]))
         self.get_logger().info(
             f'Probing beyond {self.target_cluster.source} frontier with '
             f'Nav2 DriveOnHeading: distance={distance:.2f}m, speed={speed:.2f}m/s.'
@@ -2216,6 +2221,8 @@ class ExplorationCoordinator(Node):
         self.frontier_probe_action_start_wall_time = None
         self.gvd_active_path = ()
         self.gvd_active_traversability = None
+        self.gvd_progress_anchor_xy = None
+        self.gvd_last_progress_wall_time = None
         self.current_navigation_kind = 'frontier'
 
     def _handle_navigation_failure(self, reason: str):
@@ -2239,6 +2246,8 @@ class ExplorationCoordinator(Node):
 
     def _schedule_retry(self, delay: Optional[float] = None):
         self.state = self.IDLE
+        self.gvd_progress_anchor_xy = None
+        self.gvd_last_progress_wall_time = None
         self.next_retry_wall_time = time.monotonic() + (
             self.frontier_retry_interval if delay is None else delay
         )
