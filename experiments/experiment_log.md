@@ -15,7 +15,8 @@ Implementation:
   multi-method trajectory comparison.
 - It recomputes ATE RMSE by nearest-timestamp matching
   `trajectory_est.csv` against `trajectory_gt.csv`, using a default maximum
-  match offset of `0.5s`, and writes one ATE RMSE comparison per map.
+  match offset of `0.5s`, and writes one ATE RMSE comparison plus one ATE
+  over time comparison per map.
 - `gvd_hierarchical` is labeled as `GVD-Hierarchical (Ours)` and drawn with a
   thicker red line; the remaining methods are treated as baselines.
 - Figures are saved as both PNG and PDF, and `paper_figure_runs.csv` records
@@ -27,12 +28,15 @@ Products:
 - `src/experiments/ results/paper_figures/slam_landmarks_coverage_comparison.png`
 - `src/experiments/ results/paper_figures/slam_landmarks_trajectory_comparison.png`
 - `src/experiments/ results/paper_figures/slam_landmarks_ate_comparison.png`
+- `src/experiments/ results/paper_figures/slam_landmarks_ate_time_comparison.png`
 - `src/experiments/ results/paper_figures/slam_loop_coverage_comparison.png`
 - `src/experiments/ results/paper_figures/slam_loop_trajectory_comparison.png`
 - `src/experiments/ results/paper_figures/slam_loop_ate_comparison.png`
+- `src/experiments/ results/paper_figures/slam_loop_ate_time_comparison.png`
 - `src/experiments/ results/paper_figures/slam_rooms_coverage_comparison.png`
 - `src/experiments/ results/paper_figures/slam_rooms_trajectory_comparison.png`
 - `src/experiments/ results/paper_figures/slam_rooms_ate_comparison.png`
+- `src/experiments/ results/paper_figures/slam_rooms_ate_time_comparison.png`
 - `src/experiments/ results/paper_figures/paper_figure_runs.csv`
 
 Verification:
@@ -40,7 +44,7 @@ Verification:
 - `python3 -m py_compile src/experiments/make_paper_figures.py`
 - `/home/psirobot/miniconda3/envs/handeye/bin/python src/experiments/make_paper_figures.py`
 
-Status: generated 3 maps x 3 comparison figures, with PNG and PDF outputs.
+Status: generated 3 maps x 4 comparison figures, with PNG and PDF outputs.
 
 ## 2026-05-27 - Frontier Baseline Evaluation Polish
 

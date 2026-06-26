@@ -5,7 +5,7 @@ The script scans a result root containing directories named like
 ``run_<world>_<method>_<timestamp>`` and writes one coverage comparison and one
 multi-method trajectory comparison for every detected world. It also recomputes
 ATE RMSE from estimated and ground-truth trajectories and writes one ATE
-comparison per world.
+RMSE comparison plus one ATE-over-time comparison per world.
 """
 
 from __future__ import annotations
@@ -124,8 +124,8 @@ def finite_xy(
     return xs, ys
 
 
-def compute_ate_rmse(run: RunData, max_dt: float) -> tuple[float | None, int]:
-    """Match estimated poses to nearest ground-truth poses and compute ATE RMSE."""
+def compute_ate_series(run: RunData, max_dt: float) -> tuple[list[float], list[float]]:
+    """Match estimated poses to nearest ground-truth poses and return ATE over time."""
     estimated = [
         row
         for row in read_csv_rows(run.run_dir / "trajectory_est.csv")
@@ -137,12 +137,13 @@ def compute_ate_rmse(run: RunData, max_dt: float) -> tuple[float | None, int]:
         if all(math.isfinite(row.get(key, math.nan)) for key in ("time_sec", "x", "y"))
     ]
     if not estimated or not ground_truth:
-        return None, 0
+        return [], []
 
     estimated.sort(key=lambda row: row["time_sec"])
     ground_truth.sort(key=lambda row: row["time_sec"])
     gt_times = [row["time_sec"] for row in ground_truth]
-    squared_errors: list[float] = []
+    times: list[float] = []
+    errors: list[float] = []
 
     for row in estimated:
         index = bisect_left(gt_times, row["time_sec"])
@@ -161,10 +162,19 @@ def compute_ate_rmse(run: RunData, max_dt: float) -> tuple[float | None, int]:
             continue
 
         error = math.hypot(row["x"] - best["x"], row["y"] - best["y"])
-        squared_errors.append(error * error)
+        times.append(row["time_sec"])
+        errors.append(error)
 
-    if not squared_errors:
+    return times, errors
+
+
+def compute_ate_rmse(run: RunData, max_dt: float) -> tuple[float | None, int]:
+    """Compute ATE RMSE from the nearest-timestamp ATE time series."""
+    _, errors = compute_ate_series(run, max_dt)
+    if not errors:
         return None, 0
+
+    squared_errors = [error * error for error in errors]
     return math.sqrt(sum(squared_errors) / len(squared_errors)), len(squared_errors)
 
 
@@ -544,6 +554,50 @@ def plot_ate_comparison(
     return written
 
 
+def plot_ate_time_comparison(
+    plt,
+    world: str,
+    runs_by_method: dict[str, RunData],
+    output_dir: Path,
+    dpi: int,
+    ate_max_dt: float,
+) -> list[Path]:
+    fig, axis = plt.subplots(figsize=(10.5, 6.4))
+    plotted = False
+
+    for method in sorted(runs_by_method, key=method_sort_key):
+        run = runs_by_method[method]
+        times, errors = compute_ate_series(run, ate_max_dt)
+        if not times:
+            continue
+
+        rmse = math.sqrt(sum(error * error for error in errors) / len(errors))
+        axis.plot(
+            times,
+            errors,
+            color=METHOD_COLORS.get(method),
+            linestyle=METHOD_LINESTYLES.get(method, "-"),
+            linewidth=3.0 if method == "gvd_hierarchical" else 2.0,
+            label=f"{method_label(method)}  RMSE={rmse:.3f}m",
+            alpha=1.0 if method == "gvd_hierarchical" else 0.9,
+        )
+        plotted = True
+
+    configure_axis(
+        axis,
+        f"{world_title(world)}: ATE Over Time",
+        "Time [s]",
+        "ATE [m]",
+    )
+    axis.set_ylim(bottom=0)
+    axis.legend(fontsize=12, loc="best", frameon=True, framealpha=0.95)
+    fig.tight_layout()
+
+    written = save_figure(fig, output_dir / f"{world}_ate_time_comparison", dpi)
+    plt.close(fig)
+    return written if plotted else []
+
+
 def write_summary_csv(
     worlds: dict[str, dict[str, RunData]], output_dir: Path, ate_max_dt: float
 ) -> Path:
@@ -651,6 +705,16 @@ def main() -> int:
         written.extend(plot_trajectory_comparison(plt, world, worlds[world], output_dir, args.dpi))
         written.extend(
             plot_ate_comparison(
+                plt,
+                world,
+                worlds[world],
+                output_dir,
+                args.dpi,
+                args.ate_max_dt,
+            )
+        )
+        written.extend(
+            plot_ate_time_comparison(
                 plt,
                 world,
                 worlds[world],
