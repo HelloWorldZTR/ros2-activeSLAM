@@ -8,7 +8,7 @@ exploration_coordinator:
     frontier_low_confidence_fill_max_unknown_cells: 64
     frontier_low_confidence_free_value: 25
     frontier_low_confidence_occupied_value: 75
-    slam_mode: "frontier"  # frontier, approx_graph, gbsae, gvd_gbsae, or gvd_hierarchical
+    slam_mode: "frontier"  # frontier, approx_graph, gbsae, gvd_gbsae, gvd_hierarchical, or gvd_guide
     frontier_planning_attempts: 12
     frontier_goal_search_radius: 1.2
     frontier_goal_clearance: 0.20
@@ -16,6 +16,7 @@ exploration_coordinator:
     frontier_goal_map_edge_clearance: 0.0
     frontier_goal_point_sample_limit: 40
     frontier_information_gain_radius: 1.0
+    frontier_nav2_segment_distance: 6.0
     nav2_goal_reach_radius: 0.25  # Keep in sync with Nav2 xy_goal_tolerance.
     failed_goal_cooldown: 20.0
     failed_goal_radius: 0.6
@@ -50,6 +51,18 @@ exploration_coordinator:
     graph_odom_cov_y: 0.04
     graph_odom_cov_yaw: 0.008
     gbsae_loop_path_cost_weight: 0.01
+    gvd_guide_expansion_distance: 0.50
+    gvd_guide_expansion_area_threshold: 3.0
+    gvd_guide_edge_blocked_run_threshold: 0.36
+    gvd_guide_loop_path_cost_weight: 0.01
+    gvd_guide_frontier_detour_weight: 1.0
+    gvd_guide_frontier_detour_max_extra_distance: 2.0
+    gvd_guide_frontier_detour_min_gain: 1.0
+    gvd_guide_rebuild_cooldown: 5.0
+    gvd_guide_explored_migration_radius: 1.25
+    gvd_guide_waypoint_sample_count: 8
+    gvd_guide_waypoint_sample_sigma: 0.30
+    gvd_guide_waypoint_sample_max_radius: 0.75
     gvd_sweep_switch_ratio: 0.8
     gvd_raster_resolution: 0.15
     gvd_sweep_radius: 2.0
@@ -87,7 +100,7 @@ exploration_coordinator:
     gvd_hierarchical_route_replan_interval: 1.0
     gvd_stuck_recovery_enabled: true
     gvd_stuck_min_progress_distance: 0.15
-    gvd_stuck_timeout: 10.0
+    gvd_stuck_timeout: 20.0
     gvd_random_recovery_attempts: 3
     gvd_random_recovery_min_abs_yaw: 0.6
     gvd_random_recovery_max_abs_yaw: 2.4

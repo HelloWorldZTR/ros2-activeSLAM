@@ -64,6 +64,7 @@ def _launch_explorer(
         'gbsae',
         'gvd_gbsae',
         'gvd_hierarchical',
+        'gvd_guide',
     ):
         raise RuntimeError(f'Unsupported slam_mode={mode}.')
     if legacy_strategy and legacy_strategy not in ('frontier', 'graph', 'graph_based'):
@@ -239,7 +240,7 @@ def generate_launch_description():
             default_value='',
             description=(
                 'Optional exploration policy override: frontier, approx_graph, '
-                'gbsae, gvd_gbsae, or gvd_hierarchical.'
+                'gbsae, gvd_gbsae, gvd_hierarchical, or gvd_guide.'
             ),
         ),
         DeclareLaunchArgument(

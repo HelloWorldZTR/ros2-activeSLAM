@@ -5,7 +5,7 @@ from typing import Any, Iterable, List, Optional
 
 UNKNOWN_FRONTIER = 'unknown'
 OPEN_EDGE_FRONTIER = 'open_edge'
-GVD_SLAM_MODES = frozenset(('gvd_gbsae', 'gvd_hierarchical'))
+GVD_SLAM_MODES = frozenset(('gvd_gbsae', 'gvd_hierarchical', 'gvd_guide'))
 
 
 @dataclass(frozen=True)

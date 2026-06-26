@@ -1,5 +1,6 @@
 import math
 import random
+from dataclasses import dataclass
 
 import networkx as nx
 import numpy as np
@@ -7,6 +8,7 @@ import pytest
 
 from activeslam.frontier_goal_utils import GridGeometry
 from activeslam.gvd_exploration import (
+    GVDGuidePlanner,
     GVDTopology,
     GVDWeights,
     HierarchicalGVDTracker,
@@ -20,16 +22,22 @@ from activeslam.gvd_exploration import (
     bidirectional_astar_path,
     boundary_unknown_score,
     bounds_geometry,
+    build_sparse_gvd_graph,
+    build_sparse_gvd_graph_from_topology,
     build_obstacle_gvd_topology,
     build_obstacle_traversability,
     distance_to_mask,
+    gvd_guide_edge_blocked_run,
+    gvd_guide_plan_steps,
     grid_to_world,
     cluster_touches_mask,
+    insert_gvd_guide_loop_revisits,
     local_free_flood_mask,
     local_region_known_ratio,
     local_unknown_area,
     local_unknown_ratio,
     normalize_topology_vertex_kinds,
+    off_graph_new_free_area,
     offset_repeated_route_segments,
     path_crosses_new_obstacle,
     path_crosses_obstacle,
@@ -42,6 +50,8 @@ from activeslam.gvd_exploration import (
     robot_component_graph,
     route_replan_due,
     sample_random_recovery_motion,
+    sparse_open_tsp_route,
+    shortcut_gvd_guide_route,
     suppress_unconfident_cycles,
     update_translation_progress,
 )
@@ -137,6 +147,396 @@ def test_bidirectional_astar_routes_around_wall_without_cutting_corners():
     assert path[-1] == (3, 5)
     assert all(traversable[cell] for cell in path)
     assert any(row in (0, 6) for row, _ in path)
+
+
+def test_sparse_gvd_graph_keeps_only_chain_endpoints_and_edge_polyline():
+    skeleton = np.zeros((5, 7), dtype=bool)
+    skeleton[2, 1:6] = True
+
+    graph = build_sparse_gvd_graph(skeleton, _geometry(width=7, height=5))
+
+    assert graph.number_of_nodes() == 2
+    assert graph.number_of_edges() == 1
+    assert all(graph.degree[node_id] == 1 for node_id in graph.nodes)
+    edge = next(iter(graph.edges(data=True)))
+    assert len(edge[2]['polyline']) == 5
+    assert edge[2]['weight'] == pytest.approx(4.0)
+
+
+def test_sparse_gvd_graph_anchors_cycle_without_structural_vertices():
+    skeleton = np.zeros((5, 5), dtype=bool)
+    for cell in ((1, 2), (2, 3), (3, 2), (2, 1)):
+        skeleton[cell] = True
+
+    graph = build_sparse_gvd_graph(skeleton, _geometry(width=5, height=5))
+
+    assert graph.number_of_nodes() == 2
+    assert graph.number_of_edges() >= 1
+    assert nx.is_connected(graph)
+    assert {data['kind'] for _, data in graph.nodes(data=True)} == {'cycle_anchor'}
+
+
+def test_gvd_guide_sparse_graph_uses_repaired_processed_topology():
+    topology_graph = nx.Graph()
+    topology_graph.add_node(10, x=0.0, y=0.0, kind='endpoint')
+    topology_graph.add_node(11, x=1.0, y=0.0, kind='support')
+    topology_graph.add_node(12, x=2.0, y=0.0, kind='support')
+    topology_graph.add_node(13, x=3.0, y=0.0, kind='endpoint')
+    topology_graph.add_edge(
+        10,
+        11,
+        weight=1.0,
+        connection_mode='gvd',
+        polyline=((0.0, 0.0), (1.0, 0.0)),
+    )
+    topology_graph.add_edge(
+        11,
+        12,
+        weight=1.0,
+        connection_mode='gvd',
+        polyline=((1.0, 0.0), (2.0, 0.0)),
+    )
+    topology_graph.add_edge(
+        12,
+        13,
+        weight=1.4,
+        connection_mode='astar',
+        path=((2.0, 0.0), (2.5, 0.5), (3.0, 0.0)),
+    )
+
+    graph = build_sparse_gvd_graph_from_topology(topology_graph, _geometry())
+
+    assert set(graph.nodes) == {10, 13}
+    assert graph.number_of_edges() == 1
+    edge = graph.edges[10, 13]
+    assert edge['source_graph_nodes'] == (10, 11, 12, 13)
+    assert edge['connection_mode'] == 'mixed'
+    assert edge['connection_modes'] == ('gvd', 'gvd', 'astar')
+    assert edge['weight'] == pytest.approx(3.4)
+    assert (2.5, 0.5) in edge['polyline']
+
+
+def test_gvd_guide_plan_migrates_explored_vertices_across_rebuilds():
+    graph = nx.Graph()
+    graph.add_node(0, x=0.0, y=0.0, kind='branch')
+    graph.add_node(1, x=1.0, y=0.0, kind='endpoint')
+    graph.add_node(2, x=0.0, y=1.0, kind='endpoint')
+    graph.add_edge(0, 1, weight=1.0, polyline=((0.0, 0.0), (1.0, 0.0)))
+    graph.add_edge(0, 2, weight=1.0, polyline=((0.0, 0.0), (0.0, 1.0)))
+    topology = GVDTopology(
+        graph=graph,
+        geometry=_geometry(),
+        skeleton=np.zeros((1, 1), dtype=bool),
+        traversable=np.ones((1, 1), dtype=bool),
+    )
+
+    planner = GVDGuidePlanner.build(
+        topology,
+        np.zeros((1, 1), dtype=np.int8),
+        (0.0, 0.0),
+        (),
+        loop_path_cost_weight=10.0,
+        frontier_detour_weight=1.0,
+        frontier_detour_max_extra_distance=1.0,
+        frontier_detour_min_gain=1.0,
+        explored_points=((1.05, 0.0),),
+        migration_radius=0.2,
+    )
+
+    assert planner.explored_vertices == (1,)
+    assert all(step.vertex_id != 1 for step in planner.plan_queue)
+    assert any(step.vertex_id == 2 for step in planner.plan_queue)
+
+
+def test_gvd_guide_rebuild_start_prefers_target_hint_over_robot_nearest():
+    graph = nx.Graph()
+    graph.add_node(0, x=0.0, y=0.0, kind='endpoint')
+    graph.add_node(1, x=1.0, y=0.0, kind='support')
+    graph.add_node(2, x=2.0, y=0.0, kind='endpoint')
+    graph.add_edge(0, 1, weight=1.0, polyline=((0.0, 0.0), (1.0, 0.0)))
+    graph.add_edge(1, 2, weight=1.0, polyline=((1.0, 0.0), (2.0, 0.0)))
+    topology = GVDTopology(
+        graph=graph,
+        geometry=_geometry(width=3, height=1),
+        skeleton=np.ones((1, 3), dtype=bool),
+        traversable=np.ones((1, 3), dtype=bool),
+    )
+
+    planner = GVDGuidePlanner.build(
+        topology,
+        np.zeros((1, 3), dtype=np.int8),
+        robot_xy=(0.05, 0.0),
+        frontiers=[],
+        loop_path_cost_weight=10.0,
+        frontier_detour_weight=1.0,
+        frontier_detour_max_extra_distance=1.0,
+        frontier_detour_min_gain=1.0,
+        start_hint=(2.0, 0.0),
+    )
+
+    assert planner.route_vertices[0] == 2
+    assert planner.start_hint == (2.0, 0.0)
+
+
+def test_gvd_guide_rebuild_start_hint_uses_obstacle_aware_astar_estimate():
+    graph = nx.Graph()
+    graph.add_node(1, x=2.5, y=0.5, kind='endpoint')
+    graph.add_node(2, x=0.5, y=2.5, kind='endpoint')
+    graph.add_edge(
+        1,
+        2,
+        weight=4.0,
+        polyline=((2.5, 0.5), (0.5, 2.5)),
+    )
+    traversable = np.ones((4, 4), dtype=bool)
+    traversable[0, 2] = False
+    topology = GVDTopology(
+        graph=graph,
+        geometry=_geometry(width=4, height=4),
+        skeleton=np.zeros((4, 4), dtype=bool),
+        traversable=traversable,
+    )
+
+    planner = GVDGuidePlanner.build(
+        topology,
+        np.zeros((4, 4), dtype=np.int8),
+        robot_xy=(0.5, 2.5),
+        frontiers=[],
+        loop_path_cost_weight=10.0,
+        frontier_detour_weight=1.0,
+        frontier_detour_max_extra_distance=1.0,
+        frontier_detour_min_gain=1.0,
+        start_hint=(2.5, 1.5),
+    )
+
+    assert planner.route_vertices[0] == 2
+
+
+def test_gvd_guide_edge_blocked_run_rewards_contiguous_obstruction():
+    geometry = _geometry(width=6, height=1)
+    polyline = tuple((col + 0.5, 0.5) for col in range(6))
+    isolated = np.ones((1, 6), dtype=bool)
+    isolated[0, 2] = False
+    contiguous = np.ones((1, 6), dtype=bool)
+    contiguous[0, 2:5] = False
+
+    assert gvd_guide_edge_blocked_run(polyline, geometry, contiguous) > (
+        gvd_guide_edge_blocked_run(polyline, geometry, isolated)
+    )
+    assert gvd_guide_edge_blocked_run(polyline, geometry, contiguous) > 0.36
+
+
+def test_off_graph_new_free_area_counts_only_far_unknown_to_free_cells():
+    geometry = _geometry(width=5, height=5)
+    graph = nx.Graph()
+    graph.add_node(0, x=0.5, y=0.5)
+    graph.add_node(1, x=4.5, y=0.5)
+    graph.add_edge(
+        0,
+        1,
+        polyline=tuple((col + 0.5, 0.5) for col in range(5)),
+        weight=4.0,
+    )
+    rebuild = np.full((5, 5), -1, dtype=np.int8)
+    current = rebuild.copy()
+    current[0, 2] = 0
+    current[4, 3] = 0
+    current[4, 4] = 0
+
+    area = off_graph_new_free_area(
+        rebuild,
+        current,
+        geometry,
+        graph,
+        distance_threshold=1.0,
+    )
+
+    assert area == pytest.approx(2.0)
+
+
+def test_sparse_open_tsp_route_connects_current_start_to_required_targets():
+    graph = nx.path_graph(3)
+    for node_id in graph.nodes:
+        graph.nodes[node_id].update(x=float(node_id), y=0.0)
+    nx.set_edge_attributes(graph, 1.0, 'weight')
+
+    route = sparse_open_tsp_route(graph, start=1, targets=(0, 2))
+
+    assert route[0] == 1
+    assert set(route) == {0, 1, 2}
+
+
+def test_gvd_guide_route_shortcut_removes_clear_repeated_interior_vertices():
+    graph = nx.Graph()
+    graph.add_node(0, x=1.5, y=1.5)
+    graph.add_node(1, x=1.5, y=3.5)
+    graph.add_node(2, x=3.5, y=1.5)
+    graph.add_node(3, x=3.5, y=3.5)
+    for source, target in ((0, 1), (0, 2), (0, 3)):
+        graph.add_edge(source, target, weight=2.0, information_weight=0.5)
+    traversable = np.ones((5, 5), dtype=bool)
+
+    route, shortcuts = shortcut_gvd_guide_route(
+        graph,
+        (0, 1, 0, 2, 0, 3, 0),
+        _geometry(width=5, height=5),
+        traversable,
+    )
+
+    assert route == (0, 1, 2, 3, 0)
+    assert shortcuts == 2
+    assert graph.edges[1, 2]['connection_mode'] == 'shortcut'
+    assert graph.edges[2, 3]['connection_mode'] == 'shortcut'
+
+
+def test_gvd_guide_route_shortcut_keeps_repeated_vertex_when_blocked():
+    graph = nx.Graph()
+    graph.add_node(0, x=1.5, y=1.5)
+    graph.add_node(1, x=1.5, y=3.5)
+    graph.add_node(2, x=3.5, y=1.5)
+    graph.add_edge(0, 1, weight=2.0, information_weight=0.5)
+    graph.add_edge(0, 2, weight=2.0, information_weight=0.5)
+    traversable = np.ones((5, 5), dtype=bool)
+    traversable[2, 2] = False
+
+    route, shortcuts = shortcut_gvd_guide_route(
+        graph,
+        (0, 1, 0, 2, 0),
+        _geometry(width=5, height=5),
+        traversable,
+    )
+
+    assert route == (0, 1, 0, 2, 0)
+    assert shortcuts == 0
+    assert not graph.has_edge(1, 2)
+
+
+def test_gvd_guide_spectral_loop_insertion_uses_positive_dopt_gain():
+    graph = nx.Graph()
+    for node_id, point in ((0, (0.0, 0.0)), (1, (1.0, 0.0)), (2, (0.5, 1.0))):
+        graph.add_node(node_id, x=point[0], y=point[1])
+    for source, target in ((0, 1), (1, 2), (0, 2)):
+        graph.add_edge(source, target, weight=1.0, information_weight=1.0)
+
+    steps, loop_edges = insert_gvd_guide_loop_revisits(graph, (0, 1, 2), 0.0)
+
+    assert loop_edges == ((0, 2),)
+    assert [(step.vertex_id, step.loop_revisit) for step in steps] == [
+        (0, False),
+        (1, False),
+        (2, False),
+        (0, True),
+        (2, True),
+    ]
+
+
+@dataclass
+class _GuideGoal:
+    point: tuple
+
+
+@dataclass
+class _GuideFrontier:
+    safe_goal: _GuideGoal
+    information_gain: float
+
+
+def test_gvd_guide_frontier_detour_inserted_only_when_gain_beats_extra_distance():
+    graph = nx.path_graph(2)
+    graph.nodes[0].update(x=0.0, y=0.0)
+    graph.nodes[1].update(x=2.0, y=0.0)
+    graph.edges[0, 1].update(weight=2.0, information_weight=0.5)
+    route_steps, _ = insert_gvd_guide_loop_revisits(graph, (0, 1), 10.0)
+    good = _GuideFrontier(_GuideGoal((1.0, 0.2)), information_gain=3.0)
+    weak = _GuideFrontier(_GuideGoal((1.0, 0.3)), information_gain=0.2)
+
+    queue = gvd_guide_plan_steps(
+        graph,
+        route_steps,
+        {1: [weak, good]},
+        frontier_detour_weight=1.0,
+        frontier_detour_max_extra_distance=1.0,
+        frontier_detour_min_gain=1.0,
+    )
+
+    assert [step.kind for step in queue] == ['frontier_detour', 'gvd_vertex']
+    assert queue[0].frontier is good
+
+
+def test_gvd_guide_online_detour_refresh_updates_next_local_segment():
+    graph = nx.path_graph(3)
+    graph.nodes[0].update(x=0.0, y=0.0)
+    graph.nodes[1].update(x=2.0, y=0.0)
+    graph.nodes[2].update(x=4.0, y=0.0)
+    graph.edges[0, 1].update(weight=2.0, information_weight=0.5)
+    graph.edges[1, 2].update(weight=2.0, information_weight=0.5)
+    route_steps, _ = insert_gvd_guide_loop_revisits(graph, (0, 1, 2), 10.0)
+    queue = gvd_guide_plan_steps(
+        graph,
+        route_steps,
+        {},
+        frontier_detour_weight=1.0,
+        frontier_detour_max_extra_distance=1.0,
+        frontier_detour_min_gain=1.0,
+    )
+    planner = GVDGuidePlanner(graph, np.zeros((2, 2), dtype=np.int8), (0, 1, 2), queue)
+    reached = planner.advance_active_step()
+    assert reached.vertex_id == 1
+
+    good = _GuideFrontier(_GuideGoal((3.0, 0.2)), information_gain=3.0)
+    update = planner.refresh_online_frontier_detour(
+        1,
+        [good],
+        frontier_detour_weight=1.0,
+        frontier_detour_max_extra_distance=1.0,
+        frontier_detour_min_gain=1.0,
+    )
+
+    assert update.inserted
+    assert update.target_vertex == 2
+    assert planner.online_detour_updates == 1
+    assert planner.online_detour_insertions == 1
+    assert planner.active_step.kind == 'frontier_detour'
+    assert planner.active_step.frontier is good
+
+    update = planner.refresh_online_frontier_detour(
+        1,
+        [],
+        frontier_detour_weight=1.0,
+        frontier_detour_max_extra_distance=1.0,
+        frontier_detour_min_gain=1.0,
+    )
+
+    assert not update.inserted
+    assert update.removed_detours == 1
+    assert planner.active_step.kind == 'gvd_vertex'
+    assert planner.active_step.vertex_id == 2
+
+
+def test_gvd_guide_macro_edge_is_split_into_bounded_waypoints():
+    graph = nx.path_graph(2)
+    graph.nodes[0].update(x=0.0, y=0.0)
+    graph.nodes[1].update(x=10.0, y=0.0)
+    graph.edges[0, 1].update(
+        weight=10.0,
+        information_weight=0.1,
+        polyline=((0.0, 0.0), (10.0, 0.0)),
+    )
+    route_steps, _ = insert_gvd_guide_loop_revisits(graph, (0, 1), 10.0)
+
+    queue = gvd_guide_plan_steps(
+        graph,
+        route_steps,
+        {},
+        frontier_detour_weight=1.0,
+        frontier_detour_max_extra_distance=1.0,
+        frontier_detour_min_gain=1.0,
+        max_waypoint_distance=4.0,
+    )
+
+    assert [step.goal_xy for step in queue] == [(4.0, 0.0), (8.0, 0.0), (10.0, 0.0)]
+    assert [step.vertex_id for step in queue] == [None, None, 1]
+    assert [step.expected_cost for step in queue] == pytest.approx([4.0, 4.0, 2.0])
 
 
 def test_topology_connection_cache_prefers_gvd_and_reuses_reverse_query():

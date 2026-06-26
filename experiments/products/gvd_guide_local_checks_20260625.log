@@ -1,0 +1,232 @@
+2026-06-25 gvd_guide local checks
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/frontier_selection.py
+- git diff --check
+- PYTHONPATH=src/activeslam conda run -n ros2 pytest src/activeslam/test/test_gvd_exploration.py src/activeslam/test/test_gbsae_exploration.py src/activeslam/test/test_frontier_selection.py
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- Pytest did not run to completion in the local environment because neither the system Python nor the available conda `ros2` environment provides `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+
+2026-06-26 generic guide route shortcut update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/exploration_coordinator.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 14 passed.
+- GVD pytest did not run to completion in the local environment because the system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+
+2026-06-26 gvd_guide rebuild start-hint history consistency update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/exploration_coordinator.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- Sparse guide rebuilds choose the open-TSP start by matching the current target
+  node coordinate, not the robot's current coordinate, when a current target
+  hint is available.
+- Rebuilds without an active or queued guide target still fall back to the robot
+  nearest sparse node.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 14 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting
+  `test_gvd_exploration.py`.
+
+2026-06-26 gvd_guide obstacle-aware rebuild start-hint update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/exploration_coordinator.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- When a rebuild has a current target-node hint, the rebuilt sparse open-TSP
+  start is selected by a bounded obstacle-aware A* path estimate over the three
+  Euclidean-nearest sparse candidates on the current traversability grid instead
+  of pure Euclidean nearest-neighbor.
+- If the hint cell or candidate paths cannot be evaluated safely, matching
+  falls back to Euclidean nearest-neighbor.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 14 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting
+  `test_gvd_exploration.py`.
+
+2026-06-26 guide macro waypoint Gaussian sampling update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/gvd_exploration.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 14 passed.
+- GVD pytest did not run to completion in the local environment because the system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+
+2026-06-25 frontier staging decomposition update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/gvd_exploration.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py src/activeslam/test/test_gbsae_exploration.py -q
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 14 passed.
+- GVD/GBSAE pytest did not run to completion in the local environment because the system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gbsae_exploration.py`.
+
+2026-06-26 guide explored migration radius and online detour refresh update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/gvd_exploration.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 14 passed.
+- GVD pytest did not run to completion in the local environment because the system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+
+2026-06-25 gvd_guide active blockage suffix update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/gvd_exploration.py
+- git diff --check
+- pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- Pytest did not run to completion in the local environment because the system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+
+2026-06-25 gvd_guide bounded macro waypoint update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/exploration_coordinator.py
+- git diff --check
+- pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- Pytest did not run to completion in the local environment because the system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gbsae_exploration.py`.
+
+2026-06-25 gvd_guide processed-topology sparse graph update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/exploration_coordinator.py
+- pytest src/activeslam/test/test_gvd_exploration.py -q
+- git diff --check
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- Pytest did not run to completion in the local environment because the system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+
+2026-06-25 gvd_guide explored-state migration update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/exploration_coordinator.py
+- git diff --check
+- pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- Pytest did not run to completion in the local environment because the system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.

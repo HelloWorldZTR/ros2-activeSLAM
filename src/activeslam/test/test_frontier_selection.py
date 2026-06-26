@@ -87,7 +87,7 @@ def test_frontier_driven_modes_enable_probes_by_default(slam_mode):
     )
 
 
-@pytest.mark.parametrize('slam_mode', ('gvd_gbsae', 'gvd_hierarchical'))
+@pytest.mark.parametrize('slam_mode', ('gvd_gbsae', 'gvd_hierarchical', 'gvd_guide'))
 def test_gvd_driven_modes_disable_probes_by_default(slam_mode):
     assert not frontier_probes_enabled_for_mode(
         slam_mode,

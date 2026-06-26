@@ -827,6 +827,65 @@ Status: local Python compilation and `git diff --check` passed. Local pytest
 remains blocked because the generic host environment does not provide
 NetworkX. Remote ROS smoke validation is pending.
 
+## 2026-06-25 - Sparse GVD guide exploration mode
+
+- Added experimental `slam_mode:=gvd_guide` as a separate sparse planning mode.
+- Compressed live obstacle GVD skeletons into branch/leaf sparse graphs while
+  preserving original chains as edge polylines.
+- Updated guide sparse graph construction to compress the same repaired,
+  clustered, and unknown-cycle-pruned topology graph used by
+  `gvd_hierarchical`, rather than rebuilding from the raw skeleton.
+- Added guide explored-state migration: reached sparse vertices are persisted
+  as world-space points and mapped onto rebuilt sparse graphs so completed
+  leaves are not reintroduced as expansion targets.
+- Split guide explored-state migration from hierarchical migration with
+  `gvd_guide_explored_migration_radius: 1.25`, and render reached sparse guide
+  nodes as a separate blue RViz marker namespace.
+- Split long `gvd_guide` sparse-edge macro steps into bounded intermediate
+  waypoints using the existing `gvd_max_goal_distance`, preventing a single
+  Nav2 goal from jumping beyond the rolling global costmap.
+- Added frontier target staging for ordinary, GBSAE, hierarchical-local, and
+  `gvd_guide` frontier detours: far frontier goals are split into known-free
+  Nav2-sized approach segments instead of being deferred or marked unreachable
+  solely because the final point is outside the practical planning window.
+- Added online `gvd_guide` detour refresh: after each reached sparse guide
+  node, the coordinator rebuilds current frontier assignments, reruns local
+  detour cost analysis for the next guide segment, removes stale detours, and
+  updates the remaining plan queue without forcing a full sparse graph rebuild.
+- Added randomized Gaussian landing-point sampling for `gvd_guide` macro and
+  loop waypoints. Each planning request samples nearby clearance-valid map
+  cells and randomly sends one to Nav2, falling back to the original topology
+  point only when no local legal sample is available.
+- Added generic `gvd_guide` route shortcutting after open-TSP routing and before
+  loop/frontier insertion. Any repeated interior transit vertex can be removed
+  when its predecessor and successor have a robot-radius-clear straight
+  connection; the planner adds a temporary `shortcut` edge for the shortened
+  local segment.
+- Preserved guide rebuild history consistency by starting the rebuilt sparse
+  open-TSP route from the nearest node to the current target node coordinate
+  when such a target exists, falling back to robot-position nearest only when
+  no target hint is available.
+- Changed guide rebuild start-hint matching from pure Euclidean nearest-neighbor
+  to a bounded obstacle-aware A* estimate over the current traversability grid,
+  using only the three Euclidean-nearest sparse candidates and falling back to
+  Euclidean matching when the hint cannot be evaluated safely.
+- Scoped active-edge blockage checks to the current Nav2 path suffix during
+  `gvd_guide` navigation, avoiding premature cancellation from obstacles on
+  later portions of a long sparse edge.
+- Added sparse rebuild triggers for newly blocked planned edges and accumulated
+  off-graph `unknown -> free` area since the previous rebuild.
+- Added one-epoch guide planning with open-TSP macro routing, GBSAE-style D-opt
+  loop revisits, and at most one high-gain frontier detour per macro segment.
+- Wired Nav2 waypoint validation/execution, RViz guide markers, launch-mode
+  validation, YAML defaults, and focused unit tests.
+
+Products: [local check log](products/gvd_guide_local_checks_20260625.log).
+
+Status: local Python compilation, `git diff --check`, and
+`test_frontier_selection.py` passed. Local GVD/GBSAE pytest collection remains
+blocked because the available local Python environments do not provide
+NetworkX. Remote ROS smoke validation is pending.
+
 ## 2026-06-02 - Lean hierarchical startup and RViz topology view
 
 - Removed the unconditional initial exploration Spin. Start selecting goals

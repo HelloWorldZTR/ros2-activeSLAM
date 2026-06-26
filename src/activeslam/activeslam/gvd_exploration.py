@@ -5,7 +5,7 @@ import math
 from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, Optional, Sequence, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 import networkx as nx
 import numpy as np
@@ -50,6 +50,53 @@ class GVDGoal:
     goal_distance: float
     path_overlap: float
     straightness: float
+
+
+@dataclass(frozen=True)
+class SparseGVDEdge:
+    """One compressed GVD chain between structural skeleton vertices."""
+
+    source: int
+    target: int
+    polyline: Tuple[Point, ...]
+    length: float
+    blocked_run: float = 0.0
+    stale: bool = False
+
+
+@dataclass(frozen=True)
+class GVDGuidePlanStep:
+    """One queued sparse-guide waypoint or optional local detour."""
+
+    kind: str
+    goal_xy: Point
+    vertex_id: Optional[int] = None
+    source_vertex: Optional[int] = None
+    target_vertex: Optional[int] = None
+    frontier: Any = None
+    edge: Optional[Tuple[int, int]] = None
+    expected_cost: float = 0.0
+    optional: bool = False
+
+
+@dataclass(frozen=True)
+class GVDGuideOnlineDetourUpdate:
+    """Summary of one online frontier-detour refresh around the reached vertex."""
+
+    source_vertex: Optional[int]
+    target_vertex: Optional[int]
+    assigned_frontiers: int = 0
+    target_frontiers: int = 0
+    removed_detours: int = 0
+    inserted: bool = False
+    selected_goal: Optional[Point] = None
+    expected_extra_cost: float = 0.0
+
+
+@dataclass(frozen=True)
+class _GVDGuideRouteVertex:
+    vertex_id: int
+    loop_revisit: bool = False
 
 
 @dataclass(frozen=True)
@@ -657,6 +704,1160 @@ class HierarchicalGVDTracker:
     def _append_unique_point(self, points: List[Point], point: Point):
         if not any(math.dist(existing, point) <= self.migration_radius for existing in points):
             points.append(point)
+
+
+class GVDGuidePlanner:
+    """Sparse GVD route epoch with optional loops and local frontier detours."""
+
+    def __init__(
+        self,
+        graph: nx.Graph,
+        rebuild_grid: np.ndarray,
+        route_vertices: Sequence[int],
+        plan_queue: Sequence[GVDGuidePlanStep],
+        *,
+        loop_edges: Sequence[Tuple[int, int]] = (),
+        frontier_assignments: Optional[Dict[int, List[Any]]] = None,
+        explored_vertices: Sequence[int] = (),
+        expansion_area: float = 0.0,
+        route_shortcuts: int = 0,
+        start_hint: Optional[Point] = None,
+    ):
+        self.graph = graph.copy()
+        self.rebuild_grid = np.asarray(rebuild_grid, dtype=np.int8).copy()
+        self.route_vertices = tuple(route_vertices)
+        self.plan_queue = tuple(plan_queue)
+        self.loop_edges = tuple(loop_edges)
+        self.explored_vertices = tuple(sorted(explored_vertices))
+        self.route_shortcuts = int(route_shortcuts)
+        self.start_hint = start_hint
+        self.frontier_assignments = (
+            {key: list(value) for key, value in frontier_assignments.items()}
+            if frontier_assignments is not None
+            else {}
+        )
+        self.expansion_area = float(expansion_area)
+        self.active_index = 0
+        self.online_detour_updates = 0
+        self.online_detour_insertions = 0
+        self.online_detour_last_update: Optional[GVDGuideOnlineDetourUpdate] = None
+
+    @classmethod
+    def build(
+        cls,
+        topology: GVDTopology,
+        rebuild_grid: np.ndarray,
+        robot_xy: Point,
+        frontiers: Iterable[Any],
+        *,
+        loop_path_cost_weight: float,
+        frontier_detour_weight: float,
+        frontier_detour_max_extra_distance: float,
+        frontier_detour_min_gain: float,
+        explored_points: Sequence[Point] = (),
+        migration_radius: float = 0.0,
+        max_waypoint_distance: float = math.inf,
+        start_hint: Optional[Point] = None,
+    ) -> 'GVDGuidePlanner':
+        """Create one sparse-guide plan epoch from the current GVD and frontiers."""
+        sparse = build_sparse_gvd_graph_from_topology(topology.graph, topology.geometry)
+        if sparse.number_of_nodes() > 0:
+            sparse = robot_component_graph(sparse, robot_xy)
+        explored_vertices = guide_matching_vertices(
+            sparse,
+            explored_points,
+            migration_radius,
+        )
+        for node_id in explored_vertices:
+            if node_id in sparse:
+                sparse.nodes[node_id]['explored'] = True
+        assignments = assign_frontiers_to_sparse_vertices(sparse, frontiers)
+        start = (
+            nearest_graph_vertex(sparse, robot_xy)
+            if start_hint is None
+            else nearest_graph_vertex_by_path_estimate(
+                sparse,
+                start_hint,
+                topology.geometry,
+                topology.traversable,
+            )
+        )
+        if start is None:
+            return cls(
+                sparse,
+                rebuild_grid,
+                (),
+                (),
+                frontier_assignments=assignments,
+                explored_vertices=explored_vertices,
+                start_hint=start_hint,
+            )
+        targets = sorted(
+            (set(sparse_leaf_vertices(sparse)) - set(explored_vertices))
+            | {
+                node_id
+                for node_id, values in assignments.items()
+                if values and node_id not in explored_vertices
+            }
+        )
+        if not targets:
+            targets = [start]
+        route = sparse_open_tsp_route(sparse, start, targets)
+        route, route_shortcuts = shortcut_gvd_guide_route(
+            sparse,
+            route,
+            topology.geometry,
+            topology.traversable,
+        )
+        route_steps, loop_edges = insert_gvd_guide_loop_revisits(
+            sparse,
+            route,
+            loop_path_cost_weight,
+        )
+        queue = gvd_guide_plan_steps(
+            sparse,
+            route_steps,
+            assignments,
+            frontier_detour_weight=frontier_detour_weight,
+            frontier_detour_max_extra_distance=frontier_detour_max_extra_distance,
+            frontier_detour_min_gain=frontier_detour_min_gain,
+            max_waypoint_distance=max_waypoint_distance,
+        )
+        return cls(
+            sparse,
+            rebuild_grid,
+            route,
+            queue,
+            loop_edges=loop_edges,
+            frontier_assignments=assignments,
+            explored_vertices=explored_vertices,
+            route_shortcuts=route_shortcuts,
+            start_hint=start_hint,
+        )
+
+    @property
+    def active_step(self) -> Optional[GVDGuidePlanStep]:
+        if self.active_index >= len(self.plan_queue):
+            return None
+        return self.plan_queue[self.active_index]
+
+    @property
+    def remaining_steps(self) -> Tuple[GVDGuidePlanStep, ...]:
+        return self.plan_queue[self.active_index:]
+
+    @property
+    def is_complete(self) -> bool:
+        return self.active_step is None
+
+    def advance_active_step(self) -> Optional[GVDGuidePlanStep]:
+        step = self.active_step
+        if step is not None:
+            self.active_index += 1
+        return step
+
+    def skip_active_step(self) -> Optional[GVDGuidePlanStep]:
+        return self.advance_active_step()
+
+    def refresh_online_frontier_detour(
+        self,
+        current_vertex: Optional[int],
+        frontiers: Iterable[Any],
+        *,
+        frontier_detour_weight: float,
+        frontier_detour_max_extra_distance: float,
+        frontier_detour_min_gain: float,
+    ) -> GVDGuideOnlineDetourUpdate:
+        """Recompute the optional frontier detour for the next local guide segment."""
+        assignments = assign_frontiers_to_sparse_vertices(self.graph, frontiers)
+        self.frontier_assignments = assignments
+        assigned_count = sum(len(values) for values in assignments.values())
+        if current_vertex is None or current_vertex not in self.graph:
+            return self._record_online_detour_update(
+                GVDGuideOnlineDetourUpdate(
+                    current_vertex,
+                    None,
+                    assigned_frontiers=assigned_count,
+                )
+            )
+
+        prefix = list(self.plan_queue[: self.active_index])
+        remaining = list(self.plan_queue[self.active_index :])
+        removed = 0
+        while remaining and remaining[0].kind == 'frontier_detour':
+            remaining.pop(0)
+            removed += 1
+
+        next_step = next(
+            (
+                step
+                for step in remaining
+                if (
+                    step.source_vertex == current_vertex
+                    and step.target_vertex is not None
+                    and step.kind in ('gvd_vertex', 'loop_revisit')
+                )
+            ),
+            None,
+        )
+        if next_step is None:
+            self.plan_queue = tuple(prefix + remaining)
+            self.active_index = len(prefix)
+            return self._record_online_detour_update(
+                GVDGuideOnlineDetourUpdate(
+                    current_vertex,
+                    None,
+                    assigned_frontiers=assigned_count,
+                    removed_detours=removed,
+                )
+            )
+
+        target = next_step.target_vertex
+        target_frontiers = len(assignments.get(target, ()))
+        detour = None
+        if next_step.kind == 'gvd_vertex':
+            used_frontiers = {
+                id(step.frontier)
+                for step in remaining
+                if step.kind == 'frontier_detour' and step.frontier is not None
+            }
+            detour = _best_frontier_detour(
+                self.graph,
+                current_vertex,
+                target,
+                assignments.get(target, ()),
+                used_frontiers,
+                frontier_detour_weight=frontier_detour_weight,
+                frontier_detour_max_extra_distance=frontier_detour_max_extra_distance,
+                frontier_detour_min_gain=frontier_detour_min_gain,
+            )
+            if detour is not None:
+                remaining.insert(0, detour)
+
+        self.plan_queue = tuple(prefix + remaining)
+        self.active_index = len(prefix)
+        return self._record_online_detour_update(
+            GVDGuideOnlineDetourUpdate(
+                current_vertex,
+                target,
+                assigned_frontiers=assigned_count,
+                target_frontiers=target_frontiers,
+                removed_detours=removed,
+                inserted=detour is not None,
+                selected_goal=None if detour is None else detour.goal_xy,
+                expected_extra_cost=0.0 if detour is None else detour.expected_cost,
+            )
+        )
+
+    def _record_online_detour_update(
+        self,
+        update: GVDGuideOnlineDetourUpdate,
+    ) -> GVDGuideOnlineDetourUpdate:
+        self.online_detour_updates += 1
+        if update.inserted:
+            self.online_detour_insertions += 1
+        self.online_detour_last_update = update
+        return update
+
+    def active_sparse_edge_polyline(self) -> Tuple[Point, ...]:
+        step = self.active_step
+        if (
+            step is None
+            or step.edge is None
+            or not self.graph.has_edge(*step.edge)
+        ):
+            return ()
+        return tuple(self.graph.edges[step.edge].get('polyline', ()))
+
+
+def build_sparse_gvd_graph(skeleton: np.ndarray, geometry: GridGeometry) -> nx.Graph:
+    """Compress a skeleton to branch/leaf nodes with edge polylines."""
+    adjacency = skeleton_adjacency(skeleton)
+    graph = nx.Graph()
+    if not adjacency:
+        return graph
+    key_cells = set()
+    for component in _skeleton_components(adjacency):
+        structural = {cell for cell in component if len(adjacency[cell]) != 2}
+        if structural:
+            key_cells.update(structural)
+            continue
+        first = min(component)
+        second = max(
+            component,
+            key=lambda cell: (math.dist(first, cell), cell),
+        )
+        key_cells.update((first, second))
+    nodes: Dict[GridCell, int] = {}
+
+    def ensure_node(cell: GridCell) -> int:
+        if cell not in nodes:
+            node_id = len(nodes)
+            nodes[cell] = node_id
+            x, y = grid_to_world(cell, geometry)
+            graph.add_node(
+                node_id,
+                x=x,
+                y=y,
+                cell=cell,
+                kind=_sparse_vertex_kind(cell, adjacency, key_cells),
+            )
+        return nodes[cell]
+
+    for cell in sorted(key_cells):
+        ensure_node(cell)
+    visited_edges = set()
+    for start in sorted(key_cells):
+        for neighbor in adjacency[start]:
+            edge = cell_edge(start, neighbor)
+            if edge in visited_edges:
+                continue
+            chain = [start]
+            previous, current = start, neighbor
+            visited_edges.add(edge)
+            while current not in key_cells:
+                chain.append(current)
+                choices = [cell for cell in adjacency[current] if cell != previous]
+                if not choices:
+                    break
+                next_cell = choices[0]
+                visited_edges.add(cell_edge(current, next_cell))
+                previous, current = current, next_cell
+            chain.append(current)
+            source = ensure_node(chain[0])
+            target = ensure_node(chain[-1])
+            if source == target:
+                continue
+            length = _chain_length(chain, geometry.resolution)
+            polyline = tuple(grid_to_world(cell, geometry) for cell in chain)
+            existing = graph.get_edge_data(source, target)
+            if existing is not None and float(existing.get('weight', math.inf)) <= length:
+                continue
+            graph.add_edge(
+                source,
+                target,
+                weight=length,
+                information_weight=1.0 / max(length, 1e-6),
+                polyline=polyline,
+                cells=tuple(chain),
+                connection_mode='gvd_guide',
+                blocked_run=0.0,
+                stale=False,
+            )
+    return graph
+
+
+def build_sparse_gvd_graph_from_topology(
+    topology_graph: nx.Graph,
+    geometry: GridGeometry,
+) -> nx.Graph:
+    """Compress the repaired topology graph to branch/leaf guide vertices.
+
+    The input graph is the same repaired, clustered, and cycle-pruned graph used by
+    hierarchical GVD.  This final pass only removes degree-2 transit vertices while
+    preserving their edge polylines for blockage checks and RViz rendering.
+    """
+    sparse = nx.Graph()
+    if topology_graph.number_of_nodes() == 0:
+        return sparse
+    key_nodes = set()
+    for component in nx.connected_components(topology_graph):
+        component = set(component)
+        structural = {
+            node_id
+            for node_id in component
+            if topology_graph.degree(node_id) != 2
+        }
+        if structural:
+            key_nodes.update(structural)
+            continue
+        first = min(component)
+        second = max(
+            component,
+            key=lambda node_id: (
+                math.dist(
+                    _graph_node_point(topology_graph, first),
+                    _graph_node_point(topology_graph, node_id),
+                ),
+                node_id,
+            ),
+        )
+        key_nodes.update((first, second))
+
+    for node_id in sorted(key_nodes):
+        attributes = dict(topology_graph.nodes[node_id])
+        attributes['kind'] = _sparse_topology_vertex_kind(
+            topology_graph,
+            node_id,
+            key_nodes,
+        )
+        sparse.add_node(
+            node_id,
+            **attributes,
+        )
+
+    visited_edges = set()
+    for start in sorted(key_nodes):
+        for neighbor in sorted(topology_graph.neighbors(start)):
+            edge = _node_edge_key(start, neighbor)
+            if edge in visited_edges:
+                continue
+            chain = [start]
+            previous, current = start, neighbor
+            visited_edges.add(edge)
+            while current not in key_nodes:
+                chain.append(current)
+                choices = [
+                    node_id
+                    for node_id in sorted(topology_graph.neighbors(current))
+                    if node_id != previous
+                ]
+                if not choices:
+                    break
+                next_node = choices[0]
+                visited_edges.add(_node_edge_key(current, next_node))
+                previous, current = current, next_node
+            chain.append(current)
+            source, target = chain[0], chain[-1]
+            if source == target or source not in sparse or target not in sparse:
+                continue
+            length = _topology_chain_length(topology_graph, chain)
+            polyline = _topology_chain_polyline(topology_graph, chain, geometry)
+            connection_modes = tuple(
+                topology_graph.edges[u, v].get('connection_mode', 'gvd')
+                for u, v in zip(chain, chain[1:])
+            )
+            connection_mode = (
+                connection_modes[0]
+                if len(set(connection_modes)) == 1
+                else 'mixed'
+            )
+            candidate = {
+                'weight': length,
+                'information_weight': 1.0 / max(length, 1e-6),
+                'polyline': polyline,
+                'source_graph_nodes': tuple(chain),
+                'connection_mode': connection_mode,
+                'connection_modes': connection_modes,
+                'blocked_run': 0.0,
+                'stale': False,
+            }
+            existing = sparse.get_edge_data(source, target)
+            if existing is None or length < float(existing.get('weight', math.inf)):
+                sparse.add_edge(source, target, **candidate)
+    return sparse
+
+
+def sparse_leaf_vertices(graph: nx.Graph) -> Tuple[int, ...]:
+    """Return sparse route targets, with cycle anchors as fallback leaves."""
+    leaves = tuple(sorted(node_id for node_id in graph.nodes if graph.degree(node_id) <= 1))
+    if leaves:
+        return leaves
+    return tuple(
+        sorted(
+            node_id
+            for node_id, attributes in graph.nodes(data=True)
+            if attributes.get('kind') == 'cycle_anchor'
+        )
+    )
+
+
+def nearest_graph_vertex(graph: nx.Graph, point: Point) -> Optional[int]:
+    if graph.number_of_nodes() == 0:
+        return None
+    return min(
+        graph.nodes,
+        key=lambda node_id: (math.dist(_graph_node_point(graph, node_id), point), node_id),
+    )
+
+
+def nearest_graph_vertex_by_path_estimate(
+    graph: nx.Graph,
+    point: Point,
+    geometry: GridGeometry,
+    traversable: np.ndarray,
+    *,
+    candidate_limit: int = 3,
+) -> Optional[int]:
+    """Pick the nearest sparse vertex by a bounded obstacle-aware A* estimate."""
+    fallback = nearest_graph_vertex(graph, point)
+    if fallback is None:
+        return None
+    start = world_to_grid(point, geometry)
+    if (
+        start is None
+        or traversable.shape != (geometry.height, geometry.width)
+        or not traversable[start]
+    ):
+        return fallback
+    candidates = sorted(
+        graph.nodes,
+        key=lambda node_id: (math.dist(_graph_node_point(graph, node_id), point), node_id),
+    )
+    limit = max(1, int(candidate_limit))
+    candidates = candidates[:limit]
+    scored = []
+    for node_id in candidates:
+        node_point = _graph_node_point(graph, node_id)
+        goal = world_to_grid(node_point, geometry)
+        if goal is None or not traversable[goal]:
+            continue
+        path = bidirectional_astar_path(traversable, start, goal)
+        if not path:
+            continue
+        scored.append(
+            (
+                _grid_path_length(path, geometry.resolution),
+                math.dist(node_point, point),
+                node_id,
+            )
+        )
+    if not scored:
+        return fallback
+    return min(scored)[2]
+
+
+def _grid_path_length(path: Sequence[GridCell], resolution: float) -> float:
+    return sum(
+        math.dist(source, target) * resolution
+        for source, target in zip(path, path[1:])
+    )
+
+
+def assign_frontiers_to_sparse_vertices(
+    graph: nx.Graph,
+    frontiers: Iterable[Any],
+) -> Dict[int, List[Any]]:
+    """Assign each safe frontier candidate to its nearest sparse GVD vertex."""
+    assignments: Dict[int, List[Any]] = {node_id: [] for node_id in graph.nodes}
+    if graph.number_of_nodes() == 0:
+        return assignments
+    for frontier in frontiers:
+        point = getattr(getattr(frontier, 'safe_goal', None), 'point', None)
+        if point is None:
+            cluster = getattr(frontier, 'cluster', None)
+            if cluster is None:
+                continue
+            point = (
+                float(getattr(cluster, 'centroid_x')),
+                float(getattr(cluster, 'centroid_y')),
+            )
+        node_id = nearest_graph_vertex(graph, point)
+        if node_id is not None:
+            assignments[node_id].append(frontier)
+    return assignments
+
+
+def guide_matching_vertices(
+    graph: nx.Graph,
+    points: Sequence[Point],
+    migration_radius: float,
+) -> Tuple[int, ...]:
+    """Return sparse vertices matching previously reached world-space points."""
+    radius = max(0.0, float(migration_radius))
+    if graph.number_of_nodes() == 0 or not points:
+        return ()
+    return tuple(
+        sorted(
+            node_id
+            for node_id in graph.nodes
+            if any(
+                math.dist(_graph_node_point(graph, node_id), point) <= radius
+                for point in points
+            )
+        )
+    )
+
+
+def sparse_open_tsp_route(
+    graph: nx.Graph,
+    start: int,
+    targets: Sequence[int],
+) -> Tuple[int, ...]:
+    """Return a deterministic open-TSP walk expanded onto the sparse graph."""
+    if start not in graph:
+        return ()
+    targets = tuple(sorted({target for target in targets if target in graph}))
+    if not targets:
+        return (start,)
+    if len(targets) == 1:
+        return tuple(_shortest_graph_path(graph, start, targets[0]))
+
+    metric = nx.Graph()
+    metric.add_nodes_from(targets)
+    for index, source in enumerate(targets):
+        for target in targets[index + 1:]:
+            try:
+                distance = nx.shortest_path_length(graph, source, target, weight='weight')
+            except nx.NetworkXNoPath:
+                continue
+            metric.add_edge(source, target, weight=float(distance))
+    if not nx.is_connected(metric):
+        reachable = [
+            node_id
+            for node_id in targets
+            if nx.has_path(graph, start, node_id)
+        ]
+        if not reachable:
+            return (start,)
+        return tuple(_greedy_sparse_route(graph, start, reachable))
+    tsp_route = list(
+        nx.approximation.traveling_salesman_problem(
+            metric,
+            cycle=False,
+            weight='weight',
+        )
+    )
+    if _route_endpoint_cost(graph, start, tsp_route[-1]) < _route_endpoint_cost(
+        graph,
+        start,
+        tsp_route[0],
+    ):
+        tsp_route.reverse()
+    expanded = list(_shortest_graph_path(graph, start, tsp_route[0]))
+    for source, target in zip(tsp_route, tsp_route[1:]):
+        expanded.extend(_shortest_graph_path(graph, source, target)[1:])
+    return tuple(_deduplicate_adjacent(expanded))
+
+
+def shortcut_gvd_guide_route(
+    graph: nx.Graph,
+    route: Sequence[int],
+    geometry: GridGeometry,
+    traversable: np.ndarray,
+) -> Tuple[Tuple[int, ...], int]:
+    """Remove repeated interior transit vertices when a clear local shortcut exists."""
+    smoothed = list(_deduplicate_adjacent(route))
+    if len(smoothed) < 3:
+        return tuple(smoothed), 0
+    shortcuts = 0
+    changed = True
+    while changed:
+        changed = False
+        counts = {}
+        for vertex_id in smoothed:
+            counts[vertex_id] = counts.get(vertex_id, 0) + 1
+        for index in range(1, len(smoothed) - 1):
+            middle = smoothed[index]
+            if counts.get(middle, 0) <= 1:
+                continue
+            source = smoothed[index - 1]
+            target = smoothed[index + 1]
+            if source == target or source not in graph or target not in graph:
+                continue
+            if not _gvd_guide_shortcut_clear(graph, source, target, geometry, traversable):
+                continue
+            _ensure_gvd_guide_shortcut_edge(graph, source, target)
+            del smoothed[index]
+            smoothed = list(_deduplicate_adjacent(smoothed))
+            shortcuts += 1
+            changed = True
+            break
+    return tuple(smoothed), shortcuts
+
+
+def insert_gvd_guide_loop_revisits(
+    graph: nx.Graph,
+    route: Sequence[int],
+    path_cost_weight: float,
+) -> Tuple[Tuple[_GVDGuideRouteVertex, ...], Tuple[Tuple[int, int], ...]]:
+    """Insert optional direct-edge revisits using the GBSAE D-opt objective."""
+    if not route:
+        return (), ()
+    from .gbsae_exploration import weighted_spanning_tree_d_opt
+
+    steps = [_GVDGuideRouteVertex(route[0])]
+    observed = nx.Graph()
+    observed.add_node(route[0])
+    visited = {route[0]}
+    loop_edges = []
+    for source, target in zip(route, route[1:]):
+        _copy_weighted_edge(graph, observed, source, target)
+        observed.add_node(target)
+        visited.add(target)
+        steps.append(_GVDGuideRouteVertex(target))
+        baseline = weighted_spanning_tree_d_opt(observed)
+        candidates = []
+        for revisit in sorted(visited):
+            if revisit == target or not graph.has_edge(target, revisit):
+                continue
+            edge = _node_edge_key(target, revisit)
+            if observed.has_edge(*edge):
+                continue
+            expected = observed.copy()
+            _copy_weighted_edge(graph, expected, *edge)
+            gain = weighted_spanning_tree_d_opt(expected) - baseline
+            extra_distance = 2.0 * float(graph.edges[edge].get('weight', 0.0))
+            objective = gain - max(0.0, path_cost_weight) * extra_distance
+            if objective > 1e-9:
+                candidates.append((objective, -extra_distance, -revisit, revisit, edge))
+        if not candidates:
+            continue
+        _, _, _, revisit, edge = max(candidates)
+        _copy_weighted_edge(graph, observed, *edge)
+        loop_edges.append(edge)
+        steps.append(_GVDGuideRouteVertex(revisit, loop_revisit=True))
+        steps.append(_GVDGuideRouteVertex(target, loop_revisit=True))
+    return tuple(steps), tuple(loop_edges)
+
+
+def gvd_guide_plan_steps(
+    graph: nx.Graph,
+    route_steps: Sequence[_GVDGuideRouteVertex],
+    frontier_assignments: Dict[int, List[Any]],
+    *,
+    frontier_detour_weight: float,
+    frontier_detour_max_extra_distance: float,
+    frontier_detour_min_gain: float,
+    max_waypoint_distance: float = math.inf,
+) -> Tuple[GVDGuidePlanStep, ...]:
+    """Convert route vertices into executable steps with at most one detour per segment."""
+    if len(route_steps) < 2:
+        return ()
+    queue: List[GVDGuidePlanStep] = []
+    used_frontiers = set()
+    previous = route_steps[0].vertex_id
+    for route_step in route_steps[1:]:
+        target = route_step.vertex_id
+        if not route_step.loop_revisit:
+            detour = _best_frontier_detour(
+                graph,
+                previous,
+                target,
+                frontier_assignments.get(target, ()),
+                used_frontiers,
+                frontier_detour_weight=frontier_detour_weight,
+                frontier_detour_max_extra_distance=frontier_detour_max_extra_distance,
+                frontier_detour_min_gain=frontier_detour_min_gain,
+            )
+            if detour is not None:
+                queue.append(detour)
+                used_frontiers.add(id(detour.frontier))
+        edge = _node_edge_key(previous, target) if graph.has_edge(previous, target) else None
+        queue.extend(
+            _split_gvd_guide_waypoints(
+                graph,
+                previous,
+                target,
+                kind='loop_revisit' if route_step.loop_revisit else 'gvd_vertex',
+                edge=edge,
+                optional=route_step.loop_revisit,
+                max_waypoint_distance=max_waypoint_distance,
+            )
+        )
+        previous = target
+    return tuple(queue)
+
+
+def gvd_guide_edge_blocked_run(
+    polyline: Sequence[Point],
+    geometry: GridGeometry,
+    traversable: np.ndarray,
+) -> float:
+    """Return the longest continuous blocked run along a sparse edge polyline."""
+    if len(polyline) < 2 or traversable.shape != (geometry.height, geometry.width):
+        return 0.0
+    longest = 0.0
+    current = 0.0
+    previous_blocked = _point_blocked(polyline[0], geometry, traversable)
+    for source, target in zip(polyline, polyline[1:]):
+        target_blocked = _point_blocked(target, geometry, traversable)
+        length = math.dist(source, target)
+        if previous_blocked or target_blocked:
+            current += length
+            longest = max(longest, current)
+        else:
+            current = 0.0
+        previous_blocked = target_blocked
+    return longest
+
+
+def off_graph_new_free_area(
+    rebuild_grid: np.ndarray,
+    current_grid: np.ndarray,
+    geometry: GridGeometry,
+    graph: nx.Graph,
+    distance_threshold: float,
+) -> float:
+    """Measure newly free area that is not represented by the old sparse GVD."""
+    if (
+        rebuild_grid.shape != current_grid.shape
+        or current_grid.shape != (geometry.height, geometry.width)
+        or geometry.resolution <= 0.0
+    ):
+        return 0.0
+    new_free = np.logical_and(rebuild_grid == -1, current_grid == 0)
+    if not np.any(new_free):
+        return 0.0
+    graph_mask = sparse_graph_mask(graph, geometry)
+    if np.any(graph_mask):
+        distances = distance_to_mask(graph_mask, geometry.resolution)
+        off_graph = distances > max(0.0, distance_threshold)
+    else:
+        off_graph = np.ones_like(new_free, dtype=bool)
+    cells = int(np.count_nonzero(np.logical_and(new_free, off_graph)))
+    return cells * geometry.resolution * geometry.resolution
+
+
+def sparse_graph_mask(graph: nx.Graph, geometry: GridGeometry) -> np.ndarray:
+    """Rasterize sparse graph edges and nodes into a map-aligned mask."""
+    mask = np.zeros((geometry.height, geometry.width), dtype=bool)
+    for node_id in graph.nodes:
+        cell = world_to_grid(_graph_node_point(graph, node_id), geometry)
+        if cell is not None:
+            mask[cell] = True
+    for _, _, attributes in graph.edges(data=True):
+        polyline = tuple(attributes.get('polyline', ()))
+        for point in polyline:
+            cell = world_to_grid(point, geometry)
+            if cell is not None:
+                mask[cell] = True
+        for source, target in zip(polyline, polyline[1:]):
+            _rasterize_segment(mask, geometry, source, target)
+    return mask
+
+
+def _skeleton_components(adjacency: Dict[GridCell, List[GridCell]]):
+    remaining = set(adjacency)
+    while remaining:
+        start = min(remaining)
+        stack = [start]
+        component = set()
+        remaining.remove(start)
+        while stack:
+            cell = stack.pop()
+            component.add(cell)
+            for neighbor in adjacency[cell]:
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    stack.append(neighbor)
+        yield component
+
+
+def _sparse_vertex_kind(
+    cell: GridCell,
+    adjacency: Dict[GridCell, List[GridCell]],
+    key_cells: Set[GridCell],
+) -> str:
+    degree = len(adjacency[cell])
+    if degree <= 1:
+        return 'endpoint'
+    if degree >= 3:
+        return 'branch'
+    return 'cycle_anchor' if cell in key_cells else 'support'
+
+
+def _sparse_topology_vertex_kind(
+    graph: nx.Graph,
+    node_id: int,
+    key_nodes: Set[int],
+) -> str:
+    degree = graph.degree(node_id)
+    if degree <= 1:
+        return 'endpoint'
+    if degree >= 3:
+        return 'branch'
+    return 'cycle_anchor' if node_id in key_nodes else 'support'
+
+
+def _topology_chain_length(graph: nx.Graph, chain: Sequence[int]) -> float:
+    return sum(
+        float(
+            graph.edges[source, target].get(
+                'weight',
+                math.dist(
+                    _graph_node_point(graph, source),
+                    _graph_node_point(graph, target),
+                ),
+            )
+        )
+        for source, target in zip(chain, chain[1:])
+    )
+
+
+def _topology_chain_polyline(
+    graph: nx.Graph,
+    chain: Sequence[int],
+    geometry: GridGeometry,
+) -> Tuple[Point, ...]:
+    if not chain:
+        return ()
+    points: List[Point] = [_graph_node_point(graph, chain[0])]
+    for source, target in zip(chain, chain[1:]):
+        segment = _topology_edge_polyline(graph, source, target, geometry)
+        if points and segment and math.dist(points[-1], segment[0]) <= 1e-9:
+            points.extend(segment[1:])
+        else:
+            points.extend(segment)
+    return tuple(points)
+
+
+def _topology_edge_polyline(
+    graph: nx.Graph,
+    source: int,
+    target: int,
+    geometry: GridGeometry,
+) -> Tuple[Point, ...]:
+    attributes = graph.edges[source, target]
+    values = attributes.get('polyline') or attributes.get('path') or ()
+    if not values and attributes.get('cells'):
+        values = tuple(grid_to_world(cell, geometry) for cell in attributes['cells'])
+    points = tuple((float(point[0]), float(point[1])) for point in values)
+    source_point = _graph_node_point(graph, source)
+    target_point = _graph_node_point(graph, target)
+    if not points:
+        points = (source_point, target_point)
+    forward_error = math.dist(points[0], source_point) + math.dist(points[-1], target_point)
+    reverse_error = math.dist(points[-1], source_point) + math.dist(points[0], target_point)
+    if reverse_error < forward_error:
+        points = tuple(reversed(points))
+    if math.dist(points[0], source_point) > 1e-9:
+        points = (source_point,) + points
+    if math.dist(points[-1], target_point) > 1e-9:
+        points = points + (target_point,)
+    return points
+
+
+def _greedy_sparse_route(graph: nx.Graph, start: int, targets: Sequence[int]) -> List[int]:
+    route = [start]
+    remaining = set(targets)
+    while remaining:
+        current = route[-1]
+        target = min(
+            remaining,
+            key=lambda node_id: (
+                nx.shortest_path_length(graph, current, node_id, weight='weight'),
+                node_id,
+            ),
+        )
+        segment = _shortest_graph_path(graph, current, target)
+        route.extend(segment[1:])
+        remaining.discard(target)
+    return _deduplicate_adjacent(route)
+
+
+def _shortest_graph_path(graph: nx.Graph, source: int, target: int) -> List[int]:
+    paths = nx.all_shortest_paths(graph, source, target, weight='weight')
+    return list(min(tuple(path) for path in paths))
+
+
+def _route_endpoint_cost(graph: nx.Graph, start: int, endpoint: int) -> float:
+    return float(nx.shortest_path_length(graph, start, endpoint, weight='weight'))
+
+
+def _copy_weighted_edge(source_graph: nx.Graph, target_graph: nx.Graph, source: int, target: int):
+    target_graph.add_edge(source, target, **source_graph.edges[source, target])
+
+
+def _node_edge_key(source: int, target: int) -> Tuple[int, int]:
+    return (source, target) if source <= target else (target, source)
+
+
+def _gvd_guide_shortcut_clear(
+    graph: nx.Graph,
+    source: int,
+    target: int,
+    geometry: GridGeometry,
+    traversable: np.ndarray,
+) -> bool:
+    if traversable.shape != (geometry.height, geometry.width):
+        return False
+    source_point = _graph_node_point(graph, source)
+    target_point = _graph_node_point(graph, target)
+    distance = math.dist(source_point, target_point)
+    steps = max(1, int(math.ceil(distance / max(geometry.resolution * 0.5, 1e-9))))
+    for index in range(steps + 1):
+        ratio = index / steps
+        point = (
+            source_point[0] + (target_point[0] - source_point[0]) * ratio,
+            source_point[1] + (target_point[1] - source_point[1]) * ratio,
+        )
+        cell = world_to_grid(point, geometry)
+        if cell is None or not traversable[cell]:
+            return False
+    return True
+
+
+def _ensure_gvd_guide_shortcut_edge(graph: nx.Graph, source: int, target: int):
+    source_point = _graph_node_point(graph, source)
+    target_point = _graph_node_point(graph, target)
+    length = max(math.dist(source_point, target_point), 1e-6)
+    edge = _node_edge_key(source, target)
+    candidate = {
+        'weight': length,
+        'information_weight': 1.0 / length,
+        'polyline': (source_point, target_point),
+        'source_graph_nodes': edge,
+        'connection_mode': 'shortcut',
+        'connection_modes': ('shortcut',),
+        'blocked_run': 0.0,
+        'stale': False,
+    }
+    existing = graph.get_edge_data(*edge)
+    if existing is None or length < float(existing.get('weight', math.inf)):
+        graph.add_edge(*edge, **candidate)
+
+
+def _best_frontier_detour(
+    graph: nx.Graph,
+    source: int,
+    target: int,
+    candidates: Iterable[Any],
+    used_frontiers: Set[int],
+    *,
+    frontier_detour_weight: float,
+    frontier_detour_max_extra_distance: float,
+    frontier_detour_min_gain: float,
+) -> Optional[GVDGuidePlanStep]:
+    if source not in graph or target not in graph:
+        return None
+    try:
+        direct = float(nx.shortest_path_length(graph, source, target, weight='weight'))
+    except nx.NetworkXNoPath:
+        direct = math.dist(_graph_node_point(graph, source), _graph_node_point(graph, target))
+    source_point = _graph_node_point(graph, source)
+    target_point = _graph_node_point(graph, target)
+    scored = []
+    for frontier in candidates:
+        if id(frontier) in used_frontiers:
+            continue
+        goal = getattr(getattr(frontier, 'safe_goal', None), 'point', None)
+        if goal is None:
+            continue
+        gain = float(getattr(frontier, 'information_gain', 0.0))
+        if gain < max(0.0, frontier_detour_min_gain):
+            continue
+        detour_cost = math.dist(source_point, goal) + math.dist(goal, target_point)
+        extra = detour_cost - direct
+        if extra < 0.0:
+            extra = 0.0
+        if extra > max(0.0, frontier_detour_max_extra_distance):
+            continue
+        score = gain - max(0.0, frontier_detour_weight) * extra
+        if score <= 0.0:
+            continue
+        scored.append((score, gain, -extra, goal, frontier))
+    if not scored:
+        return None
+    score, gain, neg_extra, goal, frontier = max(scored)
+    return GVDGuidePlanStep(
+        'frontier_detour',
+        goal,
+        source_vertex=source,
+        target_vertex=target,
+        frontier=frontier,
+        expected_cost=-neg_extra,
+        optional=True,
+    )
+
+
+def _split_gvd_guide_waypoints(
+    graph: nx.Graph,
+    source: int,
+    target: int,
+    *,
+    kind: str,
+    edge: Optional[Tuple[int, int]],
+    optional: bool,
+    max_waypoint_distance: float,
+) -> Tuple[GVDGuidePlanStep, ...]:
+    source_point = _graph_node_point(graph, source)
+    target_point = _graph_node_point(graph, target)
+    expected_cost = (
+        float(graph.edges[edge].get('weight', 0.0))
+        if edge is not None
+        else math.dist(source_point, target_point)
+    )
+    polyline = (
+        tuple(graph.edges[edge].get('polyline', ()))
+        if edge is not None and graph.has_edge(*edge)
+        else ()
+    )
+    if len(polyline) < 2:
+        polyline = (source_point, target_point)
+    if math.dist(polyline[0], source_point) > math.dist(polyline[-1], source_point):
+        polyline = tuple(reversed(polyline))
+    path_length = _polyline_length(polyline)
+    if path_length <= 1e-9:
+        path_length = expected_cost
+    split_distance = max(0.0, float(max_waypoint_distance))
+    if not math.isfinite(split_distance) or split_distance <= 0.0:
+        split_distance = math.inf
+    distances = []
+    if math.isfinite(split_distance) and path_length > split_distance:
+        next_distance = split_distance
+        while next_distance < path_length - 1e-9:
+            distances.append(next_distance)
+            next_distance += split_distance
+    points = [
+        _point_along_polyline(polyline, distance)
+        for distance in distances
+    ]
+    points.append(target_point)
+    steps = []
+    previous_distance = 0.0
+    for index, point in enumerate(points):
+        is_final = index == len(points) - 1
+        distance = distances[index] if not is_final else path_length
+        steps.append(
+            GVDGuidePlanStep(
+                kind,
+                point,
+                vertex_id=target if is_final else None,
+                source_vertex=source,
+                target_vertex=target,
+                edge=edge,
+                expected_cost=max(0.0, distance - previous_distance),
+                optional=optional,
+            )
+        )
+        previous_distance = distance
+    return tuple(steps)
+
+
+def _point_along_polyline(polyline: Sequence[Point], distance: float) -> Point:
+    if not polyline:
+        return (0.0, 0.0)
+    remaining = max(0.0, float(distance))
+    for source, target in zip(polyline, polyline[1:]):
+        segment = math.dist(source, target)
+        if segment <= 1e-9:
+            continue
+        if remaining <= segment:
+            ratio = remaining / segment
+            return (
+                source[0] + (target[0] - source[0]) * ratio,
+                source[1] + (target[1] - source[1]) * ratio,
+            )
+        remaining -= segment
+    return polyline[-1]
+
+
+def _polyline_length(polyline: Sequence[Point]) -> float:
+    return sum(math.dist(source, target) for source, target in zip(polyline, polyline[1:]))
+
+
+def _point_blocked(point: Point, geometry: GridGeometry, traversable: np.ndarray) -> bool:
+    cell = world_to_grid(point, geometry)
+    return cell is None or not traversable[cell]
+
+
+def _rasterize_segment(
+    mask: np.ndarray,
+    geometry: GridGeometry,
+    source: Point,
+    target: Point,
+):
+    distance = math.dist(source, target)
+    steps = max(1, int(math.ceil(distance / max(geometry.resolution * 0.5, 1e-9))))
+    for index in range(steps + 1):
+        ratio = index / steps
+        point = (
+            source[0] + (target[0] - source[0]) * ratio,
+            source[1] + (target[1] - source[1]) * ratio,
+        )
+        cell = world_to_grid(point, geometry)
+        if cell is not None:
+            mask[cell] = True
 
 
 class TrajectorySweepTracker:
@@ -1680,7 +2881,9 @@ def skeleton_to_graph(
                 target = ensure_node(chain[target_index], target_kind)
                 if source == target:
                     continue
-                distance = _chain_length(chain[source_index:target_index + 1], geometry.resolution)
+                segment_cells = tuple(chain[source_index:target_index + 1])
+                distance = _chain_length(segment_cells, geometry.resolution)
+                polyline = tuple(grid_to_world(cell, geometry) for cell in segment_cells)
                 graph.add_edge(
                     source,
                     target,
@@ -1688,6 +2891,9 @@ def skeleton_to_graph(
                     information_weight=1.0 / max(distance, 1e-6),
                     virtual=False,
                     connection_mode='gvd',
+                    cells=segment_cells,
+                    polyline=polyline,
+                    path=polyline,
                 )
     return graph
 
@@ -2085,6 +3291,7 @@ def gvd_to_marker_array(
     local_cleanup_mask: Optional[np.ndarray] = None,
     local_cleanup_geometry: Optional[GridGeometry] = None,
     cleared_region_outlines: Sequence[Sequence[Point]] = (),
+    guide_planner: Optional[GVDGuidePlanner] = None,
 ):
     """Build compact RViz markers for bootstrap bounds, skeleton, and active path."""
     from geometry_msgs.msg import Point as MarkerPoint
@@ -2329,7 +3536,135 @@ def gvd_to_marker_array(
                 _marker_point(MarkerPoint, _graph_node_point(topology.graph, node_id), 0.16)
             )
     markers.markers.append(unconfident)
+    if guide_planner is not None:
+        _append_gvd_guide_markers(markers, Marker, MarkerPoint, guide_planner, frame_id, stamp)
     return markers
+
+
+def _append_gvd_guide_markers(
+    markers,
+    marker_class,
+    point_class,
+    guide_planner: GVDGuidePlanner,
+    frame_id: str,
+    stamp,
+):
+    sparse_nodes = _marker(
+        marker_class,
+        frame_id,
+        stamp,
+        'gvd_guide_sparse_nodes',
+        30,
+        marker_class.SPHERE_LIST,
+    )
+    sparse_nodes.scale.x = sparse_nodes.scale.y = sparse_nodes.scale.z = 0.18
+    sparse_nodes.color.a = 0.95
+    sparse_nodes.color.r = 1.0
+    sparse_nodes.color.g = 0.95
+    for node_id in sorted(guide_planner.graph.nodes):
+        if guide_planner.graph.nodes[node_id].get('explored'):
+            continue
+        sparse_nodes.points.append(
+            _marker_point(point_class, _graph_node_point(guide_planner.graph, node_id), 0.18)
+        )
+    markers.markers.append(sparse_nodes)
+
+    explored_nodes = _marker(
+        marker_class,
+        frame_id,
+        stamp,
+        'gvd_guide_explored_sparse_nodes',
+        35,
+        marker_class.SPHERE_LIST,
+    )
+    explored_nodes.scale.x = explored_nodes.scale.y = explored_nodes.scale.z = 0.20
+    explored_nodes.color.a = 0.95
+    explored_nodes.color.r = 0.15
+    explored_nodes.color.g = 0.45
+    explored_nodes.color.b = 1.0
+    for node_id in sorted(guide_planner.graph.nodes):
+        if not guide_planner.graph.nodes[node_id].get('explored'):
+            continue
+        explored_nodes.points.append(
+            _marker_point(point_class, _graph_node_point(guide_planner.graph, node_id), 0.20)
+        )
+    markers.markers.append(explored_nodes)
+
+    sparse_edges = _marker(
+        marker_class,
+        frame_id,
+        stamp,
+        'gvd_guide_sparse_edges',
+        31,
+        marker_class.LINE_LIST,
+    )
+    sparse_edges.scale.x = 0.06
+    sparse_edges.color.a = 0.9
+    sparse_edges.color.r = 0.1
+    sparse_edges.color.g = 1.0
+    sparse_edges.color.b = 0.7
+    for _, _, attributes in guide_planner.graph.edges(data=True):
+        polyline = tuple(attributes.get('polyline', ()))
+        for source, target in zip(polyline, polyline[1:]):
+            sparse_edges.points.append(_marker_point(point_class, source, 0.13))
+            sparse_edges.points.append(_marker_point(point_class, target, 0.13))
+    markers.markers.append(sparse_edges)
+
+    route = _marker(
+        marker_class,
+        frame_id,
+        stamp,
+        'gvd_guide_planned_route',
+        32,
+        marker_class.LINE_LIST,
+    )
+    route.scale.x = 0.075
+    route.color.a = 0.9
+    route.color.r = 1.0
+    route.color.g = 0.75
+    points = [step.goal_xy for step in guide_planner.remaining_steps]
+    for source, target in zip(points, points[1:]):
+        route.points.append(_marker_point(point_class, source, 0.22))
+        route.points.append(_marker_point(point_class, target, 0.22))
+    markers.markers.append(route)
+
+    loops = _marker(
+        marker_class,
+        frame_id,
+        stamp,
+        'gvd_guide_loop_revisits',
+        33,
+        marker_class.LINE_LIST,
+    )
+    loops.scale.x = 0.11
+    loops.color.a = 0.95
+    loops.color.r = 1.0
+    for source, target in guide_planner.loop_edges:
+        if source in guide_planner.graph and target in guide_planner.graph:
+            loops.points.append(
+                _marker_point(point_class, _graph_node_point(guide_planner.graph, source), 0.24)
+            )
+            loops.points.append(
+                _marker_point(point_class, _graph_node_point(guide_planner.graph, target), 0.24)
+            )
+    markers.markers.append(loops)
+
+    detours = _marker(
+        marker_class,
+        frame_id,
+        stamp,
+        'gvd_guide_frontier_detours',
+        34,
+        marker_class.SPHERE_LIST,
+    )
+    detours.scale.x = detours.scale.y = detours.scale.z = 0.20
+    detours.color.a = 0.95
+    detours.color.g = 1.0
+    detours.color.b = 0.2
+    for step in guide_planner.remaining_steps:
+        if step.kind == 'frontier_detour':
+            detours.points.append(_marker_point(point_class, step.goal_xy, 0.24))
+    markers.markers.append(detours)
 
 
 def disk_mask(geometry: GridGeometry, point: Point, radius: float) -> np.ndarray:
