@@ -3,7 +3,9 @@
 
 The script scans a result root containing directories named like
 ``run_<world>_<method>_<timestamp>`` and writes one coverage comparison and one
-multi-method trajectory comparison for every detected world.
+multi-method trajectory comparison for every detected world. It also recomputes
+ATE RMSE from estimated and ground-truth trajectories and writes one ATE
+comparison per world.
 """
 
 from __future__ import annotations
@@ -17,6 +19,7 @@ import re
 import struct
 import sys
 import tempfile
+from bisect import bisect_left
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -121,6 +124,50 @@ def finite_xy(
     return xs, ys
 
 
+def compute_ate_rmse(run: RunData, max_dt: float) -> tuple[float | None, int]:
+    """Match estimated poses to nearest ground-truth poses and compute ATE RMSE."""
+    estimated = [
+        row
+        for row in read_csv_rows(run.run_dir / "trajectory_est.csv")
+        if all(math.isfinite(row.get(key, math.nan)) for key in ("time_sec", "x", "y"))
+    ]
+    ground_truth = [
+        row
+        for row in read_csv_rows(run.run_dir / "trajectory_gt.csv")
+        if all(math.isfinite(row.get(key, math.nan)) for key in ("time_sec", "x", "y"))
+    ]
+    if not estimated or not ground_truth:
+        return None, 0
+
+    estimated.sort(key=lambda row: row["time_sec"])
+    ground_truth.sort(key=lambda row: row["time_sec"])
+    gt_times = [row["time_sec"] for row in ground_truth]
+    squared_errors: list[float] = []
+
+    for row in estimated:
+        index = bisect_left(gt_times, row["time_sec"])
+        best = None
+        best_dt = None
+        for candidate_index in (index - 1, index):
+            if candidate_index < 0 or candidate_index >= len(ground_truth):
+                continue
+            candidate = ground_truth[candidate_index]
+            dt = abs(candidate["time_sec"] - row["time_sec"])
+            if best_dt is None or dt < best_dt:
+                best = candidate
+                best_dt = dt
+
+        if best is None or best_dt is None or best_dt > max_dt:
+            continue
+
+        error = math.hypot(row["x"] - best["x"], row["y"] - best["y"])
+        squared_errors.append(error * error)
+
+    if not squared_errors:
+        return None, 0
+    return math.sqrt(sum(squared_errors) / len(squared_errors)), len(squared_errors)
+
+
 def resolve_latest_run_dir(root_dir: Path) -> Path | None:
     if (root_dir / "coverage_time.csv").exists():
         return root_dir
@@ -183,6 +230,17 @@ def world_title(world: str) -> str:
 
 def method_label(method: str) -> str:
     return METHOD_LABELS.get(method, method.replace("_", " ").title())
+
+
+def method_axis_label(method: str) -> str:
+    labels = {
+        "frontier": "Frontier",
+        "approx_graph": "Approx.\nGraph",
+        "gbsae": "GBSAE",
+        "gvd_gbsae": "GVD-\nGBSAE",
+        "gvd_hierarchical": "GVD-Hier.\n(Ours)",
+    }
+    return labels.get(method, method_label(method).replace(" ", "\n"))
 
 
 def configure_axis(axis, title: str, xlabel: str, ylabel: str) -> None:
@@ -428,8 +486,66 @@ def plot_trajectory_comparison(
     return written if plotted else []
 
 
+def plot_ate_comparison(
+    plt,
+    world: str,
+    runs_by_method: dict[str, RunData],
+    output_dir: Path,
+    dpi: int,
+    ate_max_dt: float,
+) -> list[Path]:
+    methods: list[str] = []
+    values: list[float] = []
+    labels: list[str] = []
+
+    for method in sorted(runs_by_method, key=method_sort_key):
+        run = runs_by_method[method]
+        ate_rmse, _ = compute_ate_rmse(run, ate_max_dt)
+        if ate_rmse is None:
+            metric_ate = run.metrics.get("ate_rmse")
+            if not isinstance(metric_ate, (float, int)) or not math.isfinite(metric_ate):
+                continue
+            ate_rmse = float(metric_ate)
+        methods.append(method)
+        values.append(ate_rmse)
+        labels.append(method_axis_label(method))
+
+    if not values:
+        return []
+
+    fig, axis = plt.subplots(figsize=(10.0, 6.2))
+    colors = [METHOD_COLORS.get(method, "#555555") for method in methods]
+    bars = axis.bar(labels, values, color=colors, width=0.68, edgecolor="black", linewidth=0.7)
+    for bar, method, value in zip(bars, methods, values):
+        if method == "gvd_hierarchical":
+            bar.set_linewidth(2.0)
+        axis.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            bar.get_height(),
+            f"{value:.3f}",
+            ha="center",
+            va="bottom",
+            fontsize=12.5,
+            rotation=0,
+        )
+
+    configure_axis(
+        axis,
+        f"{world_title(world)}: ATE RMSE",
+        "Method",
+        "ATE RMSE [m]",
+    )
+    axis.set_ylim(bottom=0, top=max(values) * 1.18 if max(values) > 0 else 1.0)
+    axis.tick_params(axis="x", labelrotation=0)
+    fig.tight_layout()
+
+    written = save_figure(fig, output_dir / f"{world}_ate_comparison", dpi)
+    plt.close(fig)
+    return written
+
+
 def write_summary_csv(
-    worlds: dict[str, dict[str, RunData]], output_dir: Path
+    worlds: dict[str, dict[str, RunData]], output_dir: Path, ate_max_dt: float
 ) -> Path:
     path = output_dir / "paper_figure_runs.csv"
     with path.open("w", newline="") as handle:
@@ -444,7 +560,10 @@ def write_summary_csv(
                 "final_coverage",
                 "total_path_length",
                 "total_time",
-                "ate_rmse",
+                "ate_rmse_recomputed",
+                "ate_samples_recomputed",
+                "ate_max_dt",
+                "ate_rmse_metric",
                 "occupied_iou",
                 "free_iou",
             ],
@@ -453,6 +572,7 @@ def write_summary_csv(
         for world in sorted(worlds):
             for method in sorted(worlds[world], key=method_sort_key):
                 run = worlds[world][method]
+                ate_rmse, ate_samples = compute_ate_rmse(run, ate_max_dt)
                 writer.writerow(
                     {
                         "world": world,
@@ -463,7 +583,10 @@ def write_summary_csv(
                         "final_coverage": run.metrics.get("final_coverage", ""),
                         "total_path_length": run.metrics.get("total_path_length", ""),
                         "total_time": run.metrics.get("total_time", ""),
-                        "ate_rmse": run.metrics.get("ate_rmse", ""),
+                        "ate_rmse_recomputed": ate_rmse if ate_rmse is not None else "",
+                        "ate_samples_recomputed": ate_samples,
+                        "ate_max_dt": ate_max_dt,
+                        "ate_rmse_metric": run.metrics.get("ate_rmse", ""),
                         "occupied_iou": run.metrics.get("occupied_iou", ""),
                         "free_iou": run.metrics.get("free_iou", ""),
                     }
@@ -495,6 +618,12 @@ def parse_args() -> argparse.Namespace:
         default=300,
         help="Raster output DPI for PNG figures.",
     )
+    parser.add_argument(
+        "--ate-max-dt",
+        type=float,
+        default=0.5,
+        help="Maximum timestamp difference for nearest-neighbor ATE matching [s].",
+    )
     return parser.parse_args()
 
 
@@ -520,7 +649,17 @@ def main() -> int:
     for world in sorted(worlds):
         written.extend(plot_coverage_comparison(plt, world, worlds[world], output_dir, args.dpi))
         written.extend(plot_trajectory_comparison(plt, world, worlds[world], output_dir, args.dpi))
-    written.append(write_summary_csv(worlds, output_dir))
+        written.extend(
+            plot_ate_comparison(
+                plt,
+                world,
+                worlds[world],
+                output_dir,
+                args.dpi,
+                args.ate_max_dt,
+            )
+        )
+    written.append(write_summary_csv(worlds, output_dir, args.ate_max_dt))
 
     print(f"Found {sum(len(methods) for methods in worlds.values())} runs in {len(worlds)} worlds.")
     print(f"Output directory: {output_dir}")
