@@ -1,0 +1,250 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage[capitalize]{cleveref}
+
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Technical Report}
+
+\author{\IEEEauthorblockN{Author Name}
+\IEEEauthorblockA{\textit{Department Name} \\
+\textit{Organization Name}\\
+City, Country \\
+email address or ORCID}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+}
+
+\maketitle
+
+\maketitle
+
+\begin{abstract}
+Abstracted abstract abstracts the article.
+\end{abstract}
+
+\begin{IEEEkeywords}
+SLAM
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+Simultaneous Localization and Mapping (SLAM) enables a robot to estimate its trajectory while building a map of an unknown environment from noisy sensor observations. In conventional, or passive, SLAM, the robot trajectory is determined by an external controller, operator, or task-level planner, while the SLAM system estimates the resulting robot poses and map. In contrast, active SLAM couples perception with decision making: the robot explicitly selects future viewpoints or actions in order to improve localization and mapping.
+
+Most active SLAM methods can be viewed as a three-stage pipeline. First, the robot generates candidate targets for exploration, often represented by frontiers between known and unknown space. Second, these candidates are evaluated using a utility function. Finally, the selected target is converted into an executable motion by a planner. The resulting observations are incorporated into the SLAM back-end, where the map and trajectory are updated. Representative classical approaches formulate this utility through expected information gain or entropy reduction \cite{bourgault2002information,stachniss2005rbgain}, feature-driven exploration \cite{newman2003feature}, or optimal experimental-design criteria such as A-optimality \cite{sim2005aoptimal}. Subsequent work has extended this formulation toward non-myopic planning, belief-space planning, and topology-aware objectives \cite{leung2006mpc,valencia2012activepose,indelman2015bsp,mu2016topological}. More recently, learning-based methods have combined learned policies or graph representations with explicit mapping and planning modules to improve adaptation and scalability in complex environments \cite{chaplot2020neural,placed2020drl,chen2020graphs}.
+
+However, maximizing local exploration utility does not necessarily maximize long-horizon SLAM performance. A target that exposes many unknown cells may still lead to a trajectory with poor global structure, while a target with modest immediate information gain may be useful if it improves revisitation, connectivity, or future access to unexplored regions. Loop closure is a central example: revisiting a previously observed region can introduce long-range constraints into the pose graph, reducing accumulated drift and improving the consistency of the global trajectory and map. Active loop-closing and active pose-SLAM methods therefore incorporate revisiting behavior into exploration decisions \cite{stachniss2004loopclosing,valencia2012activepose,kim2015areacoverage}. This perspective is further supported by information-based pose-graph methods and topology-aware visual SLAM systems, which show that the structure of the pose graph itself can inform action selection \cite{ila2010compact,placed2023explorb}.
+
+This paper studies active SLAM as a choice among goal-selection policies that approximate the same underlying objective: reduce unknown space, preserve useful localization constraints, and limit motion cost. We compare three representative baselines against a proposed hierarchical GVD exploration strategy. The baselines instantiate increasingly structured approximations: greedy frontier exploration optimizes local unknown-area gain, graph-guided frontier exploration scores candidate paths by their predicted effect on an approximate pose graph, and prior-topology greedy exploration follows a fixed topo-metric route with loop-oriented revisits. Our method instead builds an online topological skeleton from the current map belief and separates the decision process into global skeleton traversal and local frontier cleanup. This hierarchy is intended to preserve the simplicity of frontier-based exploration while adding a long-horizon topological structure that is updated as the map evolves.
+
+The main contributions of this report are:
+\begin{itemize}
+    \item a unified formulation of frontier, graph-guided, prior-topology, and hierarchical GVD exploration as different approximations to the same active SLAM decision problem;
+    \item a hierarchical GVD exploration policy that uses an online skeleton for macro-scale routing and local frontier cleanup for coverage completion;
+    \item an evaluation framework, described in the experimental section, for comparing exploration efficiency, trajectory accuracy, and final map consistency across these policies.
+\end{itemize}
+
+
+
+\section{Problem Formulation}
+
+We consider active SLAM in an initially unknown two-dimensional environment. At each decision epoch $t$, the robot maintains a belief over the map and its own pose,
+\begin{equation}
+\mathcal{S}_t = \left(\mathcal{M}_t,\mathbf{x}_t,\mathcal{H}_t\right),
+\end{equation}
+where $\mathcal{M}_t$ denotes the current map belief, $\mathbf{x}_t\in SE(2)$ is the estimated robot pose, and $\mathcal{H}_t$ contains the accumulated actions and observations. The objective of active SLAM is to choose sensing actions that reduce map uncertainty while preserving reliable localization and limiting motion cost.
+
+At each epoch, the robot selects an action $a_t$ from a set of feasible candidate actions $\mathcal{A}_t$. Each action induces a planned trajectory or navigation path $P_t(a_t)$ and leads to a new observation, after which the SLAM belief is updated. The next action is selected according to
+\begin{equation}
+a_t^\star =
+\arg\max_{a\in\mathcal{A}_t^{\mathrm{feas}}}
+J(a\mid\mathcal{S}_t),
+\end{equation}
+where $\mathcal{A}_t^{\mathrm{feas}}\subseteq\mathcal{A}_t$ contains actions that are safe and executable under the current belief, and $J(\cdot)$ is a utility function measuring the expected benefit of the action.
+
+Conceptually, the long-horizon active SLAM problem can be written as
+\begin{equation}
+\pi^\star =
+\arg\max_{\pi}
+\mathbb{E}
+\left[
+\sum_{t=0}^{T}
+\left(
+\Delta\mathcal{I}_t
+-
+\lambda c(a_t)
+\right)
+\right],
+\end{equation}
+where $a_t=\pi(\mathcal{S}_t)$, $\Delta\mathcal{I}_t$ denotes the expected information gain from executing $a_t$, and $c(a_t)$ denotes its motion or execution cost. The information term may capture reduction in map uncertainty, improvement in coverage, or increased localization constraints such as loop-closure opportunities. In practice, different active SLAM strategies instantiate $J$ using different approximations of this objective, such as frontier information gain, graph-based information value, topological coverage, or hierarchical exploration progress.
+
+\section{Method}
+
+\subsection{Overview}
+
+We describe the exploration problem at the level of the decision policy. At each decision epoch, the robot observes the current map belief and pose estimate, extracts candidate unexplored regions, filters candidates that are unsafe or unreachable, selects one target, executes the corresponding motion, and then replans after the belief changes. All methods considered in this paper share this closed-loop structure. They differ only in how candidate targets are organized and how target utility is computed.
+
+The shared abstraction separates feasibility from utility. A candidate may be informative according to the exploration objective, but it is considered executable only if a collision-free path can be found under the current map belief. This produces a feasible candidate set $\mathcal{A}^{\mathrm{feas}}_t$. Each method then instantiates a policy
+\begin{equation}
+a_t^\star =
+\arg\max_{a\in\mathcal{A}^{\mathrm{feas}}_t}
+J_m(a\mid\mathcal{S}_t),
+\end{equation}
+where $J_m$ is the method-specific utility. This convention keeps the comparison focused on exploration decisions rather than differences in low-level execution.
+
+The basic unexplored-region primitive is a frontier cluster, namely a connected boundary between observed free space and unobserved space. Since a frontier itself may lie at the edge of unknown cells, the navigated target is a nearby free-space standoff point rather than the frontier centroid. For a frontier candidate $C$, we estimate a local information value $I(C)$ from the amount of unknown area around the cluster and combine it with the travel distance $d(C)$ from the current pose. We refer to the resulting ratio as the base frontier utility:
+\begin{equation}
+J_{\mathrm{base}}(C)=\frac{I(C)}{d(C)+\epsilon},
+\end{equation}
+where $\epsilon$ prevents division by zero. The following methods either use this base frontier utility directly or replace it with graph- and topology-aware alternatives.
+
+\subsection{Baselines}
+
+\subsubsection{Greedy Frontier Exploration}
+
+The greedy frontier baseline uses the base frontier utility $J_{\mathrm{base}}$ as its complete decision rule. At each epoch, it ranks all feasible frontier targets by expected local unknown-area gain per travel distance and selects the highest-ranked reachable target. This policy is reactive and myopic: it has no persistent representation of global topology, no explicit memory of which corridors or rooms should be visited next, and no graph-level objective beyond the current frontier list. Its strength is that it is simple, robust, and directly tied to visible unexplored space.
+
+In the unified notation, the candidate set is the feasible frontier set $\mathcal{A}^{F,\mathrm{feas}}_t$, and the selected action is
+\begin{equation}
+a_t^\star =
+\arg\max_{a_C\in\mathcal{A}^{F,\mathrm{feas}}_t}
+J_{\mathrm{base}}(C).
+\end{equation}
+This baseline therefore represents the local exploration objective most directly.
+
+\subsubsection{Graph-Guided Frontier Exploration}
+
+The graph-guided frontier baseline uses the same frontier targets, but evaluates them through the paths required to reach them. For each feasible frontier target, the method predicts the effect of executing the candidate path by adding hypothetical pose samples and constraints to an approximate pose graph. Sequential samples contribute odometry-like constraints, while geometric revisitation opportunities contribute loop-like constraints. The resulting graph is scored by a D-optimality-inspired connectivity measure, and the travel distance is subtracted as a motion cost.
+
+Let $\widehat{\mathcal{G}}^P_t(a)$ denote the approximate pose graph obtained by hallucinating the path associated with action $a$. The graph-guided utility is
+\begin{equation}
+J_{\mathrm{graph}}(a)
+=
+D\left(\widehat{\mathcal{G}}^P_t(a)\right)
+-
+\lambda_P L(a),
+\end{equation}
+where $D(\cdot)$ is the approximate graph score, $L(a)$ is path length, and $\lambda_P$ controls the path-cost penalty. This policy remains frontier-driven, but it prefers frontier paths that are expected to improve graph connectivity rather than paths that only maximize immediate unknown-area gain.
+
+\subsubsection{Prior-Topology Greedy Exploration}
+
+The prior-topology baseline assumes that a coarse topo-metric graph of the environment is available before exploration. Vertices represent important places or passages, and edges represent traversable adjacency with associated distances. The robot first chooses the prior vertex closest to its initial pose, then constructs a deterministic nearest-unvisited route over the graph. Sparse visits are expanded through graph shortest paths, producing a concrete sequence of prior vertices.
+
+This route may include loop-oriented revisits when the expected spectral benefit of adding a revisit edge outweighs its additional travel cost. During execution, the active prior vertex is used as the next target when it is reachable. If it is not directly reachable under the current belief, feasible frontier targets are assigned to nearby unfinished prior vertices, and the method selects frontiers associated with the active vertex. After the prior route is completed, the policy returns to ordinary frontier cleanup to cover remaining unknown space. This baseline therefore tests the value of a fixed topological plan: it offers a long-horizon route, but the route is not inferred online from the evolving map.
+
+\subsection{Ours: Hierarchical GVD Exploration}
+
+The proposed hierarchical GVD exploration policy replaces the fixed prior graph with an online topological skeleton. From the current map belief, the method constructs a generalized Voronoi diagram (GVD) over traversable space after accounting for obstacle clearance. The skeleton is compressed into a macro graph whose vertices correspond to endpoints, junctions, and other topologically meaningful locations. This graph provides a long-horizon structure for exploration while remaining tied to the map currently observed by the robot.
+
+The macro planner maintains two forms of state on this live graph. Explored vertices record skeleton locations that have already been reached, while cleared vertices record locations whose associated local regions have already been sufficiently observed. Both explored and cleared vertices remain available as transit, so the robot can use known skeleton structure for shortest-path travel without treating every previously reached vertex as a future goal. Required macro targets are instead drawn from unexplored expansion vertices and from uncleared cleanup vertices.
+
+Given the current macro graph, the method computes an open route over the required targets. Conceptually, this is an open traveling-salesman-style walk: it seeks an efficient ordered traversal of the remaining topological targets without forcing a return to the start. The next macro action is the first unreached vertex along this route. As the map belief changes, the skeleton and route are refreshed, but an already executing macro action is not preempted solely because a newly rebuilt route changes its first step. This avoids excessive switching while still allowing the global plan to adapt over time.
+
+Macro traversal alone is not sufficient for dense coverage, because a skeleton can pass through the center of a room while leaving nearby frontiers unresolved. Therefore, when the robot reaches a cleanup-eligible macro leaf or endpoint, the method opens a local Region around that vertex. The Region is a bounded local area grown from the macro vertex through free or unknown cells while respecting obstacles and nearby macro structure. Frontier clusters touching this Region become local cleanup candidates.
+
+Local cleanup is itself an active SLAM subproblem. The method ranks reachable Region-local frontiers by a simple size-distance rule or, when graph-aware local scoring is enabled, by the same approximate graph utility used in the graph-guided frontier baseline. This makes the local behavior sensitive both to coverage progress and to path-level graph structure. A Region is marked cleared once a sufficient fraction of its cells has been observed or once no reachable local frontier remains. If a live skeleton rebuild changes the active macro vertex so that it is no longer a cleanup-eligible leaf, local cleanup is canceled and the method returns to macro traversal.
+
+After no required macro expansion or local cleanup targets remain, hierarchical GVD exploration performs a final frontier cleanup phase. This last phase handles residual frontiers that are not naturally captured by the macro skeleton. The full policy therefore decomposes active exploration into three layers: online topological traversal for long-horizon structure, local Region cleanup for dense coverage near topological leaves, and final frontier cleanup for residual unknown space.
+
+\subsection{Method Comparison}
+
+\Cref{tab:method_comparison} summarizes the target sources and decision rules of the compared methods. The first three methods are baselines, while hierarchical GVD exploration is the proposed policy.
+
+\begin{table*}[t]
+\caption{Comparison of evaluated active exploration policies.}
+\label{tab:method_comparison}
+\centering
+\small
+\begin{tabular}{p{0.16\textwidth}p{0.18\textwidth}p{0.115\textwidth}p{0.18\textwidth}p{0.225\textwidth}}
+\hline
+Method & Candidate source & Decision horizon & Graph or topology & Cleanup behavior \\
+\hline
+Greedy frontier exploration & Feasible frontier targets & Local & Current frontier set & Frontier exhaustion \\
+Graph-guided frontier exploration & Feasible frontier paths & Path-level & Approximate pose graph & Graph-aware frontier exhaustion \\
+Prior-topology greedy exploration & Prior vertices with frontier fallback & Route-level & Fixed topo-metric graph & Post-route frontier cleanup \\
+\textbf{Hierarchical GVD exploration (Ours)} & Online skeleton vertices and Region frontiers & Macro route + local cleanup & Live GVD macro graph & Local Region cleanup + final frontier cleanup \\
+\hline
+\end{tabular}
+\end{table*}
+
+
+\section{Results}
+
+\subsection{Simulation Setup}
+
+All experiments are conducted in a simulated indoor mobile-robot setting. The robot is a TurtleBot3 model running in Gazebo, with planar laser observations used for online mapping. The SLAM back-end is provided by \texttt{slam\_toolbox}, which estimates the robot trajectory and occupancy grid from the executed motion and sensor stream. Path planning, motion execution, and recovery behaviors are handled by the same navigation stack for all methods, so the comparison isolates the exploration policy rather than low-level control differences.
+
+We simulate the evaluated policies on the \texttt{slam\_rooms} and \texttt{slam\_office} maps shown in \Cref{fig:test_maps}. These maps provide structured indoor layouts with rooms, corridors, and loop opportunities. Each run starts from the same initial condition for a given map, and each method receives the same map belief, pose estimate, and feasibility checks at decision time. The frontier, graph-guided frontier, prior-topology, and hierarchical GVD policies therefore differ only in target selection and route organization.
+
+\begin{figure*}[t]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[height=0.15\textheight]{imgs/slam_rooms.jpg}\\
+    \textbf{(a)} \texttt{slam\_rooms}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[height=0.15\textheight]{imgs/slam_office.jpg}\\
+    \textbf{(b)} \texttt{slam\_office}
+\end{minipage}
+\caption{Simulation maps used for evaluating active exploration policies.}
+\label{fig:test_maps}
+\end{figure*}
+
+\subsection{Evaluation Metrics}
+
+We evaluate each run using trajectory accuracy, exploration efficiency, and final map quality.  Let $G_{ij}$ denote the occupancy value of grid cell $(i,j)$, where $G_{ij}=-1$ is unknown, and let $M_{ij}\in\{0,1\}$ be the evaluation-region mask.  Map coverage is the fraction of cells in this region that have been observed:
+\begin{equation}
+C=\frac{\sum_{i,j}\mathbf{1}[G_{ij}\neq -1]M_{ij}}
+        {\sum_{i,j}M_{ij}} .
+\end{equation}
+Exploration efficiency is assessed by comparing the growth of coverage with respect to both elapsed time and accumulated path length; a faster increase under the same budget indicates more efficient exploration.
+
+Localization accuracy is reported by the absolute trajectory error (ATE) RMSE. Each estimated pose $e_k$ is first matched to the nearest ground-truth pose $g_m$ in time, using a maximum time difference of $0.2$ s:
+\begin{equation}
+\begin{aligned}
+m(k)&=\arg\min_m |t(e_k)-t(g_m)|,\\
+\mathcal{P}&=\{(e_k,g_{m(k)})\mid |t(e_k)-t(g_{m(k)})|\leq0.2\,\mathrm{s}\}.
+\end{aligned}
+\end{equation}
+Only an initial translational alignment is applied.  If $\mathbf{q}(\cdot)$ extracts the planar position and $\boldsymbol{\delta}=\mathbf{q}(g_{m(1)})-\mathbf{q}(e_1)$, then
+\begin{equation}
+\mathrm{ATE}_{\mathrm{RMSE}}=
+\sqrt{\frac{1}{|\mathcal{P}|}\sum_{(e_k,g_m)\in\mathcal{P}}
+\left\|\mathbf{q}(e_k)+\boldsymbol{\delta}-\mathbf{q}(g_m)\right\|_2^2} .
+\end{equation}
+
+Final map consistency is quantified by occupied and free-space IoU.  Let $W_{ij}$ be the ground-truth obstacle map, and let $\mathcal{K}=\{(i,j)\mid G_{ij}\neq -1,M_{ij}=1\}$.  Predicted occupied and free cells are defined by $G_{ij}\geq50$ and $0\leq G_{ij}<50$, respectively; ground-truth occupied and free cells are defined by $W_{ij}=1$ and $W_{ij}=0$.  For class $c\in\{\mathrm{occ},\mathrm{free}\}$, IoU is computed only over known cells:
+\begin{equation}
+\mathrm{IoU}_{c}=\frac{|(\mathcal{P}_{c}\cap\mathcal{T}_{c})\cap\mathcal{K}|}
+{|(\mathcal{P}_{c}\cup\mathcal{T}_{c})\cap\mathcal{K}|} .
+\end{equation}
+
+\subsection{Simulation Results}
+
+\section{Conclusion}
+
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+\end{document}
