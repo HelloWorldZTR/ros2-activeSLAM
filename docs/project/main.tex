@@ -256,6 +256,15 @@ Final map consistency is quantified by occupied and free-space IoU.  Let $W_{ij}
 
 The coverage curves in \Cref{fig:coverage_comparison} show that the proposed hierarchical GVD model increases map coverage faster than the baselines on all three maps. It also reaches a higher final overall coverage than the frontier, graph-guided frontier, and GBSAE baselines. Notably, this advantage remains even against GBSAE, which is given the green prior graph shown in \Cref{fig:test_maps}.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{imgs/slam_rooms_trajectory_comparison.pdf}
+\caption{Trajectory comparison on the complex \texttt{slam\_rooms} map.}
+\label{fig:trajectory_comparison}
+\end{figure*}
+
+The trajectory comparison in \Cref{fig:trajectory_comparison} further illustrates the behavior behind the coverage gain. Compared with the baselines, the proposed method produces a more concise exploration path, reduces unnecessary loop-like motion, and explores the complex map more efficiently.
+
 \section{Conclusion}
 
 
