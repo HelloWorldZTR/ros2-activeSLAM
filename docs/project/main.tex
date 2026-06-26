@@ -238,6 +238,8 @@ Final map consistency is quantified by occupied and free-space IoU.  Let $W_{ij}
 
 \subsection{Simulation Results}
 
+Each run is evaluated under a fixed 1500\,s time budget. A run may terminate before the budget if the exploration coordinator finds no remaining frontier clusters and the map-stability criterion is satisfied. In the implementation, stability is tested over a 10\,s history window: once the window spans at least 8\,s and the relative change in known map cells is below 0.02, the map is treated as no longer growing meaningfully and exploration is marked complete.
+
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.6\linewidth]{imgs/slam_landmarks_coverage_comparison.pdf}\\
@@ -250,18 +252,29 @@ Final map consistency is quantified by occupied and free-space IoU.  Let $W_{ij}
 \label{fig:coverage_comparison}
 \end{figure*}
 
-The coverage curves in \Cref{fig:coverage_comparison} show that the proposed hierarchical GVD model increases map coverage faster than the baselines on all three maps. It also reaches a higher final overall coverage than the frontier, graph-guided frontier, and prior-topology greedy exploration baselines. Notably, this advantage remains even against prior-topology greedy exploration, which is given the green prior graph shown in \Cref{fig:test_maps}.
+The coverage curves in \Cref{fig:coverage_comparison} show that the proposed hierarchical GVD model increases map coverage faster than the baselines on all three maps. Its final coverage reaches 67.5\%, 70.6\%, and 80.4\% on \texttt{slam\_landmarks}, \texttt{slam\_loop}, and \texttt{slam\_rooms}, respectively. These final values are higher than those of the frontier, graph-guided frontier, and prior-topology greedy exploration baselines, indicating that the proposed exploration is more complete. Notably, this advantage remains even against prior-topology greedy exploration, which is given the green prior graph shown in \Cref{fig:test_maps}.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.85\linewidth]{imgs/slam_rooms_trajectory_comparison.pdf}
+\includegraphics[width=0.6\linewidth]{imgs/slam_rooms_trajectory_comparison.pdf}
 \caption{Trajectory comparison on the complex \texttt{slam\_rooms} map.}
 \label{fig:trajectory_comparison}
 \end{figure*}
 
 The trajectory comparison in \Cref{fig:trajectory_comparison} further illustrates the behavior behind the coverage gain. Compared with the baselines, the proposed method produces a more concise exploration path, reduces unnecessary loop-like motion, and explores the complex map more efficiently.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.6\linewidth]{imgs/slam_landmarks_ate_time_comparison.pdf}
+\caption{ATE over time on the \texttt{slam\_landmarks} map.}
+\label{fig:ate_time_comparison}
+\end{figure*}
+
+\Cref{fig:ate_time_comparison} shows that the proposed method keeps trajectory error within a controlled range during exploration. This behavior is especially important in \texttt{slam\_landmarks}, where the central area is relatively open and provides fewer nearby geometric constraints for scan matching. In such environments, long one-way excursions can accumulate pose drift before enough distinctive structure is observed again. The hierarchical GVD policy mitigates this effect by organizing exploration around an online topological skeleton and by naturally producing useful revisits when moving between skeleton branches and local cleanup regions. These revisits create opportunities for loop constraints while avoiding excessive redundant traversal, which helps maintain bounded ATE while still covering more of the map.
+
 \section{Conclusion}
+
+This report presented a hierarchical GVD exploration policy for active SLAM. The method combines online topological skeleton traversal with local frontier cleanup, allowing the robot to preserve long-horizon structure while still completing local coverage. Experiments on three simulated indoor maps show that the proposed policy improves coverage growth and achieves higher final coverage than the evaluated baselines, including the prior-topology greedy exploration baseline. The trajectory and ATE results further suggest that the method explores complex environments with more concise motion while keeping localization error within a controlled range. These results indicate that online topological organization is an effective mechanism for balancing exploration completeness, motion efficiency, and SLAM consistency.
 
 
 
