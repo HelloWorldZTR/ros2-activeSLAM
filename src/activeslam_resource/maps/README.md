@@ -50,7 +50,18 @@ ros2 launch activeslam slam.launch.py map:=slam_office slam_mode:=gbsae
 ```
 
 GBSAE prior graphs use the same world basename with a `.gbsae.json` suffix.
-`slam_rooms.gbsae.json` is the initial hand-authored topo-metric prior:
+The small inline-box benchmark priors are generated directly from their SDF
+box collisions, with conservative per-world free-space envelopes:
+
+```bash
+python3 tools/generate_inline_world_gbsae_priors.py \
+  --world slam_landmarks \
+  --world slam_loop \
+  --world slam_rooms \
+  --world slam_rooms_corridor
+```
+
+Run any generated prior with:
 
 ```bash
 ros2 launch activeslam slam.launch.py map:=slam_rooms slam_mode:=gbsae
