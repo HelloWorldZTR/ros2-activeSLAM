@@ -189,20 +189,26 @@ Prior-topology greedy exploration & Prior vertices with frontier fallback & Rout
 
 All experiments are conducted in a simulated indoor mobile-robot setting. The robot is a TurtleBot3 model running in Gazebo, with planar laser observations used for online mapping. The SLAM back-end is provided by \texttt{slam\_toolbox}, which estimates the robot trajectory and occupancy grid from the executed motion and sensor stream. Path planning, motion execution, and recovery behaviors are handled by the same navigation stack for all methods, so the comparison isolates the exploration policy rather than low-level control differences.
 
-We simulate the evaluated policies on the \texttt{slam\_rooms} and \texttt{slam\_office} maps shown in \Cref{fig:test_maps}. These maps provide structured indoor layouts with rooms, corridors, and loop opportunities. Each run starts from the same initial condition for a given map, and each method receives the same map belief, pose estimate, and feasibility checks at decision time. The frontier, graph-guided frontier, prior-topology, and hierarchical GVD policies therefore differ only in target selection and route organization.
+We simulate the evaluated policies on the \texttt{slam\_landmarks}, \texttt{slam\_loop}, and \texttt{slam\_rooms} maps shown in \Cref{fig:test_maps}. These maps provide structured indoor layouts with rooms, corridors, and loop opportunities. Each run starts from the same initial condition for a given map, and each method receives the same map belief, pose estimate, and feasibility checks at decision time. The frontier, graph-guided frontier, prior-topology, and hierarchical GVD policies therefore differ only in target selection and route organization.
 
 \begin{figure*}[t]
 \centering
-\begin{minipage}[t]{0.48\textwidth}
+\begin{minipage}[t]{0.31\textwidth}
     \centering
-    \includegraphics[height=0.15\textheight]{imgs/slam_rooms_inferred.pdf}\\
-    \textbf{(a)} \texttt{slam\_rooms}
+    \includegraphics[height=0.13\textheight]{imgs/slam_landmarks_inferred.pdf}\\
+    \textbf{(a)} \texttt{slam\_landmarks}
 \end{minipage}
 \hfill
-\begin{minipage}[t]{0.48\textwidth}
+\begin{minipage}[t]{0.31\textwidth}
     \centering
-    \includegraphics[height=0.15\textheight]{imgs/slam_office_inferred.pdf}\\
-    \textbf{(b)} \texttt{slam\_office}
+    \includegraphics[height=0.13\textheight]{imgs/slam_loop_inferred.pdf}\\
+    \textbf{(b)} \texttt{slam\_loop}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.31\textwidth}
+    \centering
+    \includegraphics[height=0.13\textheight]{imgs/slam_rooms_inferred.pdf}\\
+    \textbf{(c)} \texttt{slam\_rooms}
 \end{minipage}
 \caption{Simulation maps used for evaluating active exploration policies. The green overlay denotes the prior graph used by GBSAE.}
 \label{fig:test_maps}
