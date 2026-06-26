@@ -1,0 +1,1408 @@
+[INFO] [launch]: All log files can be found below /home/psirobot/.ros/log/2026-06-26-17-03-15-045764-bj01-dc21-2264833
+[INFO] [launch]: Default logging verbosity is set to INFO
+urdf_file_name : turtlebot3_burger.urdf
+urdf_file_name : turtlebot3_burger.urdf
+[INFO] [gzserver-1]: process started with pid [2264857]
+[INFO] [robot_state_publisher-2]: process started with pid [2264859]
+[INFO] [spawn_entity.py-3]: process started with pid [2264861]
+[INFO] [sync_slam_toolbox_node-4]: process started with pid [2264863]
+[INFO] [controller_server-5]: process started with pid [2264865]
+[INFO] [smoother_server-6]: process started with pid [2264867]
+[INFO] [planner_server-7]: process started with pid [2264869]
+[INFO] [behavior_server-8]: process started with pid [2264871]
+[INFO] [bt_navigator-9]: process started with pid [2264873]
+[INFO] [waypoint_follower-10]: process started with pid [2264875]
+[INFO] [velocity_smoother-11]: process started with pid [2264877]
+[INFO] [lifecycle_manager-12]: process started with pid [2264879]
+[INFO] [exploration_coordinator-13]: process started with pid [2264881]
+[INFO] [slam_evaluator-14]: process started with pid [2264883]
+[lifecycle_manager-12] [INFO] [1782464595.444509245] [lifecycle_manager_navigation]: Creating
+[velocity_smoother-11] [INFO] [1782464595.445136025] [velocity_smoother]: 
+[velocity_smoother-11] 	velocity_smoother lifecycle node launched. 
+[velocity_smoother-11] 	Waiting on external lifecycle transitions to activate
+[velocity_smoother-11] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[lifecycle_manager-12] [INFO] [1782464595.447047776] [lifecycle_manager_navigation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[robot_state_publisher-2] [INFO] [1782464595.447239918] [robot_state_publisher]: got segment base_footprint
+[robot_state_publisher-2] [INFO] [1782464595.447295080] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-2] [INFO] [1782464595.447299746] [robot_state_publisher]: got segment base_scan
+[robot_state_publisher-2] [INFO] [1782464595.447303031] [robot_state_publisher]: got segment caster_back_link
+[robot_state_publisher-2] [INFO] [1782464595.447306259] [robot_state_publisher]: got segment imu_link
+[robot_state_publisher-2] [INFO] [1782464595.447309245] [robot_state_publisher]: got segment wheel_left_link
+[robot_state_publisher-2] [INFO] [1782464595.447312170] [robot_state_publisher]: got segment wheel_right_link
+[waypoint_follower-10] [INFO] [1782464595.448473946] [waypoint_follower]: 
+[waypoint_follower-10] 	waypoint_follower lifecycle node launched. 
+[waypoint_follower-10] 	Waiting on external lifecycle transitions to activate
+[waypoint_follower-10] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[waypoint_follower-10] [INFO] [1782464595.448863427] [waypoint_follower]: Creating
+[controller_server-5] [INFO] [1782464595.448860413] [controller_server]: 
+[controller_server-5] 	controller_server lifecycle node launched. 
+[controller_server-5] 	Waiting on external lifecycle transitions to activate
+[controller_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[smoother_server-6] [INFO] [1782464595.449225417] [smoother_server]: 
+[smoother_server-6] 	smoother_server lifecycle node launched. 
+[smoother_server-6] 	Waiting on external lifecycle transitions to activate
+[smoother_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[smoother_server-6] [INFO] [1782464595.449873712] [smoother_server]: Creating smoother server
+[controller_server-5] [INFO] [1782464595.451371728] [controller_server]: Creating controller server
+[behavior_server-8] [INFO] [1782464595.454090479] [behavior_server]: 
+[behavior_server-8] 	behavior_server lifecycle node launched. 
+[behavior_server-8] 	Waiting on external lifecycle transitions to activate
+[behavior_server-8] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782464595.454301754] [planner_server]: 
+[planner_server-7] 	planner_server lifecycle node launched. 
+[planner_server-7] 	Waiting on external lifecycle transitions to activate
+[planner_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782464595.455014794] [planner_server]: Creating
+[bt_navigator-9] [INFO] [1782464595.459071010] [bt_navigator]: 
+[bt_navigator-9] 	bt_navigator lifecycle node launched. 
+[bt_navigator-9] 	Waiting on external lifecycle transitions to activate
+[bt_navigator-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-9] [INFO] [1782464595.459188454] [bt_navigator]: Creating
+[controller_server-5] [INFO] [1782464595.460189592] [local_costmap.local_costmap]: 
+[controller_server-5] 	local_costmap lifecycle node launched. 
+[controller_server-5] 	Waiting on external lifecycle transitions to activate
+[controller_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782464595.460510641] [local_costmap.local_costmap]: Creating Costmap
+[planner_server-7] [INFO] [1782464595.465613004] [global_costmap.global_costmap]: 
+[planner_server-7] 	global_costmap lifecycle node launched. 
+[planner_server-7] 	Waiting on external lifecycle transitions to activate
+[planner_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782464595.469907327] [global_costmap.global_costmap]: Creating Costmap
+[lifecycle_manager-12] [INFO] [1782464595.493910851] [lifecycle_manager_navigation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-12] [INFO] [1782464595.494330053] [lifecycle_manager_navigation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-5] [INFO] [1782464595.494552242] [controller_server]: Configuring controller interface
+[controller_server-5] [INFO] [1782464595.494873767] [controller_server]: getting goal checker plugins..
+[controller_server-5] [INFO] [1782464595.494996826] [controller_server]: Controller frequency set to 20.0000Hz
+[controller_server-5] [INFO] [1782464595.495028002] [local_costmap.local_costmap]: Configuring
+[controller_server-5] [INFO] [1782464595.500722562] [local_costmap.local_costmap]: Using plugin "voxel_layer"
+[controller_server-5] [INFO] [1782464595.502279613] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-5] [INFO] [1782464595.508828810] [local_costmap.local_costmap]: Initialized plugin "voxel_layer"
+[controller_server-5] [INFO] [1782464595.508857888] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-5] [INFO] [1782464595.510407474] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-5] [INFO] [1782464595.525556920] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-5] [INFO] [1782464595.526478374] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-5] [INFO] [1782464595.526644884] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[controller_server-5] [INFO] [1782464595.527619342] [controller_server]: Created controller : FollowPath of type dwb_core::DWBLocalPlanner
+[controller_server-5] [INFO] [1782464595.528008012] [controller_server]: Setting transform_tolerance to 0.200000
+[sync_slam_toolbox_node-4] [INFO] [1782464595.532422490] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[controller_server-5] [INFO] [1782464595.537081536] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[controller_server-5] [INFO] [1782464595.537286436] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782464595.537340445] [controller_server]: Using critic "Oscillation" (dwb_critics::OscillationCritic)
+[controller_server-5] [INFO] [1782464595.537495833] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782464595.537542196] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[controller_server-5] [INFO] [1782464595.537607808] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782464595.537650956] [controller_server]: Using critic "GoalAlign" (dwb_critics::GoalAlignCritic)
+[controller_server-5] [INFO] [1782464595.537769915] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782464595.537815101] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[controller_server-5] [INFO] [1782464595.537925765] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782464595.537968207] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[controller_server-5] [INFO] [1782464595.538056031] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782464595.538098013] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[controller_server-5] [INFO] [1782464595.538185380] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782464595.538197370] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-12] [INFO] [1782464595.556688321] [lifecycle_manager_navigation]: [34m[1mConfiguring smoother_server[0m[0m
+[smoother_server-6] [INFO] [1782464595.556865640] [smoother_server]: Configuring smoother server
+[smoother_server-6] [INFO] [1782464595.563153378] [smoother_server]: Created smoother : simple_smoother of type nav2_smoother::SimpleSmoother
+[smoother_server-6] [INFO] [1782464595.564345550] [smoother_server]: Smoother Server has simple_smoother  smoothers available.
+[lifecycle_manager-12] [INFO] [1782464595.574641222] [lifecycle_manager_navigation]: [34m[1mConfiguring planner_server[0m[0m
+[planner_server-7] [INFO] [1782464595.574841220] [planner_server]: Configuring
+[planner_server-7] [INFO] [1782464595.574873527] [global_costmap.global_costmap]: Configuring
+[planner_server-7] [INFO] [1782464595.579187108] [global_costmap.global_costmap]: Using plugin "static_layer"
+[planner_server-7] [INFO] [1782464595.581882293] [global_costmap.global_costmap]: Subscribing to the map topic (/map) with transient local durability
+[planner_server-7] [INFO] [1782464595.583266661] [global_costmap.global_costmap]: Initialized plugin "static_layer"
+[planner_server-7] [INFO] [1782464595.583282935] [global_costmap.global_costmap]: Using plugin "obstacle_layer"
+[planner_server-7] [INFO] [1782464595.584237419] [global_costmap.global_costmap]: Subscribed to Topics: scan
+[planner_server-7] [INFO] [1782464595.587950245] [global_costmap.global_costmap]: Initialized plugin "obstacle_layer"
+[planner_server-7] [INFO] [1782464595.587969871] [global_costmap.global_costmap]: Using plugin "inflation_layer"
+[planner_server-7] [INFO] [1782464595.588798234] [global_costmap.global_costmap]: Initialized plugin "inflation_layer"
+[planner_server-7] [INFO] [1782464595.601978218] [planner_server]: Created global planner plugin GridBased of type nav2_navfn_planner/NavfnPlanner
+[planner_server-7] [INFO] [1782464595.602011334] [planner_server]: Configuring plugin GridBased of type NavfnPlanner
+[planner_server-7] [INFO] [1782464595.602390279] [planner_server]: Planner Server has GridBased  planners available.
+[lifecycle_manager-12] [INFO] [1782464595.617353047] [lifecycle_manager_navigation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-8] [INFO] [1782464595.617544235] [behavior_server]: Configuring
+[behavior_server-8] [INFO] [1782464595.623784102] [behavior_server]: Creating behavior plugin spin of type nav2_behaviors/Spin
+[behavior_server-8] [INFO] [1782464595.624280086] [behavior_server]: Configuring spin
+[behavior_server-8] [INFO] [1782464595.627678211] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-8] [INFO] [1782464595.628141006] [behavior_server]: Configuring backup
+[behavior_server-8] [INFO] [1782464595.631816563] [behavior_server]: Creating behavior plugin drive_on_heading of type nav2_behaviors/DriveOnHeading
+[behavior_server-8] [INFO] [1782464595.632243300] [behavior_server]: Configuring drive_on_heading
+[behavior_server-8] [INFO] [1782464595.635036390] [behavior_server]: Creating behavior plugin assisted_teleop of type nav2_behaviors/AssistedTeleop
+[behavior_server-8] [INFO] [1782464595.635709090] [behavior_server]: Configuring assisted_teleop
+[behavior_server-8] [INFO] [1782464595.638662419] [behavior_server]: Creating behavior plugin wait of type nav2_behaviors/Wait
+[behavior_server-8] [INFO] [1782464595.639010139] [behavior_server]: Configuring wait
+[lifecycle_manager-12] [INFO] [1782464595.641721016] [lifecycle_manager_navigation]: [34m[1mConfiguring bt_navigator[0m[0m
+[bt_navigator-9] [INFO] [1782464595.641921300] [bt_navigator]: Configuring
+[lifecycle_manager-12] [INFO] [1782464595.687908035] [lifecycle_manager_navigation]: [34m[1mConfiguring waypoint_follower[0m[0m
+[waypoint_follower-10] [INFO] [1782464595.688061058] [waypoint_follower]: Configuring
+[waypoint_follower-10] [INFO] [1782464595.695852584] [waypoint_follower]: Created waypoint_task_executor : wait_at_waypoint of type nav2_waypoint_follower::WaitAtWaypoint
+[lifecycle_manager-12] [INFO] [1782464595.696445698] [lifecycle_manager_navigation]: [34m[1mConfiguring velocity_smoother[0m[0m
+[velocity_smoother-11] [INFO] [1782464595.696640339] [velocity_smoother]: Configuring velocity smoother
+[lifecycle_manager-12] [INFO] [1782464595.698999423] [lifecycle_manager_navigation]: [34m[1mActivating controller_server[0m[0m
+[controller_server-5] [INFO] [1782464595.699128104] [controller_server]: Activating
+[controller_server-5] [INFO] [1782464595.699150225] [local_costmap.local_costmap]: Activating
+[controller_server-5] [INFO] [1782464595.699162900] [local_costmap.local_costmap]: Checking transform
+[controller_server-5] [INFO] [1782464595.699176294] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[spawn_entity.py-3] [INFO] [1782464595.714277396] [spawn_entity]: Spawn Entity started
+[spawn_entity.py-3] [INFO] [1782464595.714431644] [spawn_entity]: Loading entity XML from file /opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf
+[spawn_entity.py-3] [INFO] [1782464595.714781764] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[spawn_entity.py-3] [INFO] [1782464595.714882201] [spawn_entity]: Waiting for service /spawn_entity
+[exploration_coordinator-13] [INFO] [1782464595.843110540] [exploration_coordinator]: Loaded GBSAE prior graph for world=slam_rooms: 32 nodes, 85 edges from /home/psirobot/projects/ros2_ws/src/install/activeslam_resource/share/activeslam_resource/maps/slam_rooms.gbsae.json.
+[exploration_coordinator-13] [INFO] [1782464595.843374064] [exploration_coordinator]: Exploration coordinator started with Nav2 backend. SLAM mode: gbsae
+[slam_evaluator-14] [INFO] [1782464596.050088913] [slam_evaluator]: Evaluator logging to logs/run_slam_rooms_gbsae_20260626_170314/run_20260626_170316 for world slam_rooms
+[slam_evaluator-14] [INFO] [1782464596.050268522] [slam_evaluator]: Sampling every 1.00s; waiting for map/TF data.
+[controller_server-5] [INFO] [1782464596.199233261] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[spawn_entity.py-3] [INFO] [1782464596.469506039] [spawn_entity]: Calling service /spawn_entity
+[gzserver-1] [INFO] [1782464596.643256171] [turtlebot3_imu]: <initial_orientation_as_reference> is unset, using default value of false to comply with REP 145 (world as orientation reference)
+[spawn_entity.py-3] [INFO] [1782464596.674209787] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [burger]
+[controller_server-5] [INFO] [1782464596.699228106] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[gzserver-1] [INFO] [1782464596.783930073] [turtlebot3_diff_drive]: Wheel pair 1 separation set to [0.160000m]
+[gzserver-1] [INFO] [1782464596.783961964] [turtlebot3_diff_drive]: Wheel pair 1 diameter set to [0.066000m]
+[gzserver-1] [INFO] [1782464596.784771944] [turtlebot3_diff_drive]: Subscribed to [/cmd_vel]
+[gzserver-1] [INFO] [1782464596.786076939] [turtlebot3_diff_drive]: Advertise odometry on [/odom]
+[gzserver-1] [INFO] [1782464596.788320627] [turtlebot3_diff_drive]: Publishing odom transforms between [odom] and [base_footprint]
+[INFO] [spawn_entity.py-3]: process has finished cleanly [pid 2264861]
+[gzserver-1] [INFO] [1782464596.795904185] [turtlebot3_joint_state]: Going to publish joint [wheel_left_joint]
+[gzserver-1] [INFO] [1782464596.795932736] [turtlebot3_joint_state]: Going to publish joint [wheel_right_joint]
+[sync_slam_toolbox_node-4] [WARN] [1782464597.000488343] [slam_toolbox]: minimum laser range setting (0.0 m) exceeds the capabilities of the used Lidar (0.1 m)
+[sync_slam_toolbox_node-4] Info: clipped range threshold to be within minimum and maximum range!
+[sync_slam_toolbox_node-4] Registering sensor: [Custom Described Lidar]
+[sync_slam_toolbox_node-4] [WARN] [1782464597.000606403] [slam_toolbox]: maximum laser range setting (25.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[controller_server-5] [INFO] [1782464597.199289853] [local_costmap.local_costmap]: start
+[controller_server-5] [INFO] [1782464597.399858466] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[slam_evaluator-14] [INFO] [1782464597.437261894] [slam_evaluator]: Waiting for data: /map, TF map->base_footprint, ground truth model burger on /model_states, /gazebo/model_states, /get_entity_state, or /odom
+[lifecycle_manager-12] [INFO] [1782464597.503220620] [lifecycle_manager_navigation]: Server controller_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782464597.503247656] [lifecycle_manager_navigation]: [34m[1mActivating smoother_server[0m[0m
+[smoother_server-6] [INFO] [1782464597.503707223] [smoother_server]: Activating
+[smoother_server-6] [INFO] [1782464597.503740022] [smoother_server]: Creating bond (smoother_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782464597.607719754] [lifecycle_manager_navigation]: Server smoother_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782464597.607747779] [lifecycle_manager_navigation]: [34m[1mActivating planner_server[0m[0m
+[planner_server-7] [INFO] [1782464597.608378226] [planner_server]: Activating
+[planner_server-7] [INFO] [1782464597.608418217] [global_costmap.global_costmap]: Activating
+[planner_server-7] [INFO] [1782464597.608430823] [global_costmap.global_costmap]: Checking transform
+[planner_server-7] [INFO] [1782464597.608501165] [global_costmap.global_costmap]: start
+[planner_server-7] [INFO] [1782464598.109823496] [planner_server]: Activating plugin GridBased of type NavfnPlanner
+[planner_server-7] [INFO] [1782464598.111103453] [planner_server]: Creating bond (planner_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782464598.214440610] [lifecycle_manager_navigation]: Server planner_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782464598.214467205] [lifecycle_manager_navigation]: [34m[1mActivating behavior_server[0m[0m
+[behavior_server-8] [INFO] [1782464598.214802180] [behavior_server]: Activating
+[behavior_server-8] [INFO] [1782464598.214828274] [behavior_server]: Activating spin
+[behavior_server-8] [INFO] [1782464598.214840169] [behavior_server]: Activating backup
+[behavior_server-8] [INFO] [1782464598.214849668] [behavior_server]: Activating drive_on_heading
+[behavior_server-8] [INFO] [1782464598.214858432] [behavior_server]: Activating assisted_teleop
+[behavior_server-8] [INFO] [1782464598.214867109] [behavior_server]: Activating wait
+[behavior_server-8] [INFO] [1782464598.214877447] [behavior_server]: Creating bond (behavior_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782464598.319338834] [lifecycle_manager_navigation]: Server behavior_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782464598.319365569] [lifecycle_manager_navigation]: [34m[1mActivating bt_navigator[0m[0m
+[bt_navigator-9] [INFO] [1782464598.319633820] [bt_navigator]: Activating
+[bt_navigator-9] [INFO] [1782464598.374289580] [bt_navigator]: Creating bond (bt_navigator) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782464598.478096431] [lifecycle_manager_navigation]: Server bt_navigator connected with bond.
+[lifecycle_manager-12] [INFO] [1782464598.478128745] [lifecycle_manager_navigation]: [34m[1mActivating waypoint_follower[0m[0m
+[waypoint_follower-10] [INFO] [1782464598.478547515] [waypoint_follower]: Activating
+[waypoint_follower-10] [INFO] [1782464598.478583060] [waypoint_follower]: Creating bond (waypoint_follower) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782464598.586082740] [lifecycle_manager_navigation]: Server waypoint_follower connected with bond.
+[lifecycle_manager-12] [INFO] [1782464598.586111642] [lifecycle_manager_navigation]: [34m[1mActivating velocity_smoother[0m[0m
+[velocity_smoother-11] [INFO] [1782464598.586492307] [velocity_smoother]: Activating
+[velocity_smoother-11] [INFO] [1782464598.586546992] [velocity_smoother]: Creating bond (velocity_smoother) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782464598.694296463] [lifecycle_manager_navigation]: Server velocity_smoother connected with bond.
+[lifecycle_manager-12] [INFO] [1782464598.694321561] [lifecycle_manager_navigation]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-12] [INFO] [1782464598.694326107] [lifecycle_manager_navigation]: [34m[1mCreating bond timer...[0m[0m
+[exploration_coordinator-13] [INFO] [1782464602.586126041] [exploration_coordinator]: Created GBSAE route from prior vertex 0: [0, 21, 4, 0, 4, 22, 21, 22, 23, 4, 23, 24, 7, 23, 7, 27, 24, 27, 24, 18, 7, 18, 8, 24, 8, 13, 18, 13, 18, 24, 23, 17, 22, 17, 6, 21, 6, 12, 17, 12, 11, 6, 11, 16, 21, 16, 21, 20, 0, 20, 1, 0, 1, 19, 20, 19, 1, 25, 21, 25, 26, 4, 26, 5, 25, 5, 31, 26, 31, 30, 5, 30, 25, 1, 2, 29, 28, 2, 28, 2, 1, 3, 15, 10, 3, 10, 9, 3, 9, 14, 3, 14]; loop_edges=[(0, 4), (21, 22), (4, 23), (7, 23), (24, 27), (7, 18), (8, 24), (13, 18), (17, 22), (6, 21), (12, 17), (6, 11), (16, 21), (0, 20), (0, 1), (19, 20), (21, 25), (4, 26), (5, 25), (26, 31), (5, 30), (2, 28), (3, 10), (3, 9), (3, 14)].
+[planner_server-7] [WARN] [1782464602.608636662] [global_costmap.global_costmap]: Can't update static costmap layer, no map received
+[slam_evaluator-14] [INFO] [1782464603.044122715] [slam_evaluator]: Waiting for data: /map
+[planner_server-7] [INFO] [1782464605.560137873] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 67 X 68 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782464605.578152959] [exploration_coordinator]: Nav2 and the first map are ready; starting exploration.
+[exploration_coordinator-13] [INFO] [1782464605.606099752] [exploration_coordinator]: GBSAE prior vertex 0 already reached.
+[exploration_coordinator-13] [INFO] [1782464605.610444566] [exploration_coordinator]: GBSAE prior vertex 21 has 1 allocated safe frontier candidates, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782464605.610582417] [exploration_coordinator]: Checking GBSAE allocated frontier source=open_edge, information_gain=2.42m^2.
+[exploration_coordinator-13] [INFO] [1782464605.613555783] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.54), size=36, cost=1.11, source=open_edge, information_gain=2.42m^2
+[bt_navigator-9] [INFO] [1782464605.614290839] [bt_navigator]: Begin navigating from current location (-2.00, -0.50) to (-2.00, 0.54)
+[controller_server-5] [INFO] [1782464605.634771530] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [WARN] [1782464605.634813685] [controller_server]: No goal checker was specified in parameter 'current_goal_checker'. Server will use only plugin loaded general_goal_checker . This warning will appear once.
+[controller_server-5] [INFO] [1782464606.684971451] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464607.734973008] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464607.736535924] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464607.784558721] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464607.784986613] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464607.785415496] [exploration_coordinator]: Aligning with open_edge frontier normal using Nav2 Spin: delta=1.75 rad.
+[behavior_server-8] [INFO] [1782464607.785957720] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464607.786071616] [behavior_server]: Turning 1.75 for spin behavior.
+[slam_evaluator-14] [INFO] [1782464608.052810704] [slam_evaluator]: Evaluator is recording samples.
+[behavior_server-8] [INFO] [1782464608.386314358] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464608.386857672] [exploration_coordinator]: Probing beyond open_edge frontier with Nav2 DriveOnHeading: distance=2.00m, speed=0.30m/s.
+[behavior_server-8] [INFO] [1782464608.387181167] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464608.387279907] [behavior_server]: DriveOnHeading: no acceleration or deceleration limits set
+[behavior_server-8] [INFO] [1782464609.787370567] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464609.787882369] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464609.822454431] [exploration_coordinator]: GBSAE prior vertex 21 has 0 allocated safe frontier candidates, local_filter_ms=3.8.
+[exploration_coordinator-13] [WARN] [1782464609.822817454] [exploration_coordinator]: GBSAE prior vertex 21 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1782464612.849206435] [exploration_coordinator]: GBSAE prior vertex 4 has 0 allocated safe frontier candidates, local_filter_ms=1.9.
+[exploration_coordinator-13] [WARN] [1782464612.849381007] [exploration_coordinator]: GBSAE prior vertex 4 has no reachable allocated frontier; advancing the route.
+[planner_server-7] [INFO] [1782464615.608666290] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 150 X 140 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782464615.878076143] [exploration_coordinator]: Checking GBSAE prior vertex 0 loop revisit at (-2.00, -0.50).
+[exploration_coordinator-13] [INFO] [1782464615.881273782] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 0 loop revisit: goal=(-2.00, -0.50), cost=2.55.
+[bt_navigator-9] [INFO] [1782464615.881790475] [bt_navigator]: Begin navigating from current location (-0.18, 1.31) to (-2.00, -0.50)
+[controller_server-5] [INFO] [1782464615.902133375] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464616.952306976] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464618.002306933] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464619.002306221] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464619.153793404] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464619.192018263] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464619.192226901] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 0 during loop revisit.
+[exploration_coordinator-13] [WARN] [1782464619.206625226] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 4: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464619.258805603] [exploration_coordinator]: GBSAE prior vertex 22 has 0 allocated safe frontier candidates, local_filter_ms=11.4.
+[exploration_coordinator-13] [WARN] [1782464619.258973962] [exploration_coordinator]: GBSAE prior vertex 22 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464622.291090889] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 21: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464622.332428197] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 22: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464622.383188155] [exploration_coordinator]: GBSAE prior vertex 23 has 0 allocated safe frontier candidates, local_filter_ms=11.7.
+[exploration_coordinator-13] [WARN] [1782464622.383358874] [exploration_coordinator]: GBSAE prior vertex 23 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464625.415307021] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 4: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464625.454601331] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 23: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464625.510567566] [exploration_coordinator]: GBSAE prior vertex 24 has 0 allocated safe frontier candidates, local_filter_ms=15.0.
+[exploration_coordinator-13] [WARN] [1782464625.510736782] [exploration_coordinator]: GBSAE prior vertex 24 has no reachable allocated frontier; advancing the route.
+[planner_server-7] [INFO] [1782464625.608610599] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 158 X 144 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782464628.548599804] [exploration_coordinator]: GBSAE prior vertex 7 has 0 allocated safe frontier candidates, local_filter_ms=11.1.
+[exploration_coordinator-13] [WARN] [1782464628.548771727] [exploration_coordinator]: GBSAE prior vertex 7 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464631.581693464] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 23: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464631.621755771] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 7: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464631.672683272] [exploration_coordinator]: GBSAE prior vertex 27 has 0 allocated safe frontier candidates, local_filter_ms=11.0.
+[exploration_coordinator-13] [WARN] [1782464631.672848152] [exploration_coordinator]: GBSAE prior vertex 27 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464634.705999169] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 24: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464634.746491725] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 27: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464634.796715643] [exploration_coordinator]: GBSAE prior vertex 24 has 0 allocated safe frontier candidates, local_filter_ms=11.2.
+[exploration_coordinator-13] [WARN] [1782464634.796887820] [exploration_coordinator]: GBSAE prior vertex 24 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1782464637.856252298] [exploration_coordinator]: GBSAE prior vertex 18 has 0 allocated safe frontier candidates, local_filter_ms=23.5.
+[exploration_coordinator-13] [WARN] [1782464637.856621986] [exploration_coordinator]: GBSAE prior vertex 18 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464640.874876623] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 7: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464640.914850797] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 18: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464640.969111029] [exploration_coordinator]: GBSAE prior vertex 8 has 0 allocated safe frontier candidates, local_filter_ms=13.5.
+[exploration_coordinator-13] [WARN] [1782464640.969283463] [exploration_coordinator]: GBSAE prior vertex 8 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464644.003689709] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 24: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464644.043791664] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 8: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464644.099463381] [exploration_coordinator]: GBSAE prior vertex 13 has 0 allocated safe frontier candidates, local_filter_ms=15.8.
+[exploration_coordinator-13] [WARN] [1782464644.099633660] [exploration_coordinator]: GBSAE prior vertex 13 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464647.129084746] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 18: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464647.169146525] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 13: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464647.221239135] [exploration_coordinator]: GBSAE prior vertex 18 has 0 allocated safe frontier candidates, local_filter_ms=11.9.
+[exploration_coordinator-13] [WARN] [1782464647.221407097] [exploration_coordinator]: GBSAE prior vertex 18 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1782464650.272930606] [exploration_coordinator]: GBSAE prior vertex 24 has 0 allocated safe frontier candidates, local_filter_ms=16.2.
+[exploration_coordinator-13] [WARN] [1782464650.273117023] [exploration_coordinator]: GBSAE prior vertex 24 has no reachable allocated frontier; advancing the route.
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[exploration_coordinator-13] [INFO] [1782464653.312211062] [exploration_coordinator]: GBSAE prior vertex 23 has 0 allocated safe frontier candidates, local_filter_ms=12.4.
+[exploration_coordinator-13] [WARN] [1782464653.312393005] [exploration_coordinator]: GBSAE prior vertex 23 has no reachable allocated frontier; advancing the route.
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[gzserver-1] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[controller_server-5] sequence size exceeds remaining buffer
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[behavior_server-8] sequence size exceeds remaining buffer
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[behavior_server-8] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[controller_server-5] sequence size exceeds remaining buffer
+[behavior_server-8] sequence size exceeds remaining buffer
+[gzserver-1] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[controller_server-5] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[gzserver-1] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[behavior_server-8] sequence size exceeds remaining buffer
+[exploration_coordinator-13] [INFO] [1782464656.326670388] [exploration_coordinator]: GBSAE prior vertex 17 has 0 allocated safe frontier candidates, local_filter_ms=11.1.
+[exploration_coordinator-13] [WARN] [1782464656.326846332] [exploration_coordinator]: GBSAE prior vertex 17 has no reachable allocated frontier; advancing the route.
+[gzserver-1] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[controller_server-5] sequence size exceeds remaining buffer
+[gzserver-1] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[controller_server-5] sequence size exceeds remaining buffer
+[controller_server-5] sequence size exceeds remaining buffer
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[behavior_server-8] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[behavior_server-8] sequence size exceeds remaining buffer
+[behavior_server-8] sequence size exceeds remaining buffer
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[controller_server-5] sequence size exceeds remaining buffer
+[behavior_server-8] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[controller_server-5] sequence size exceeds remaining buffer
+[gzserver-1] sequence size exceeds remaining buffer
+[gzserver-1] sequence size exceeds remaining buffer
+[exploration_coordinator-13] [WARN] [1782464659.343426472] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 22: prior vertex is not currently known-free.
+[gzserver-1] sequence size exceeds remaining buffer
+[exploration_coordinator-13] [WARN] [1782464659.383560289] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 17: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464659.433368873] [exploration_coordinator]: GBSAE prior vertex 6 has 0 allocated safe frontier candidates, local_filter_ms=11.0.
+[exploration_coordinator-13] [WARN] [1782464659.433540227] [exploration_coordinator]: GBSAE prior vertex 6 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1782464662.468449617] [exploration_coordinator]: Checking GBSAE prior vertex 21 loop revisit at (-1.45, -0.45).
+[exploration_coordinator-13] [INFO] [1782464662.470921246] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 21 loop revisit: goal=(-1.45, -0.45), cost=0.43.
+[bt_navigator-9] [INFO] [1782464662.471310265] [bt_navigator]: Begin navigating from current location (-1.86, -0.37) to (-1.45, -0.45)
+[controller_server-5] [INFO] [1782464662.491571850] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464662.742888911] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464662.781532843] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464662.781755280] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 21 during loop revisit.
+[exploration_coordinator-13] [WARN] [1782464662.787707134] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 6: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464662.837908965] [exploration_coordinator]: GBSAE prior vertex 12 has 0 allocated safe frontier candidates, local_filter_ms=9.9.
+[exploration_coordinator-13] [WARN] [1782464662.838077076] [exploration_coordinator]: GBSAE prior vertex 12 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464665.874877501] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 17: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464665.914954526] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 12: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464665.964818958] [exploration_coordinator]: GBSAE prior vertex 11 has 0 allocated safe frontier candidates, local_filter_ms=9.8.
+[exploration_coordinator-13] [WARN] [1782464665.964989557] [exploration_coordinator]: GBSAE prior vertex 11 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464669.000247066] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 6: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464669.040954455] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 11: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464669.091037076] [exploration_coordinator]: GBSAE prior vertex 16 has 1 allocated safe frontier candidates, local_filter_ms=10.0.
+[exploration_coordinator-13] [INFO] [1782464669.091195919] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.41m^2.
+[exploration_coordinator-13] [INFO] [1782464669.093334710] [exploration_coordinator]: Navigating to frontier goal=(-1.65, -1.34), size=25, cost=1.01, source=unknown, information_gain=1.41m^2
+[bt_navigator-9] [INFO] [1782464669.093921226] [bt_navigator]: Begin navigating from current location (-1.63, -0.42) to (-1.65, -1.34)
+[controller_server-5] [INFO] [1782464669.114190908] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464670.164403844] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464670.865902232] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464670.904154788] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464670.904592659] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464670.905018207] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=2.12 rad.
+[behavior_server-8] [INFO] [1782464670.905458358] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464670.905506229] [behavior_server]: Turning 2.12 for spin behavior.
+[behavior_server-8] [INFO] [1782464671.505674107] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464671.506220419] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464671.506580915] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464672.006823703] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464672.007722830] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464672.021049543] [exploration_coordinator]: GBSAE prior vertex 16 has 1 allocated safe frontier candidates, local_filter_ms=10.4.
+[exploration_coordinator-13] [INFO] [1782464672.021202619] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.18m^2.
+[exploration_coordinator-13] [INFO] [1782464672.023580314] [exploration_coordinator]: Navigating to frontier goal=(-1.70, -0.24), size=25, cost=1.46, source=unknown, information_gain=1.18m^2
+[bt_navigator-9] [INFO] [1782464672.024069612] [bt_navigator]: Begin navigating from current location (-1.69, -1.61) to (-1.70, -0.24)
+[controller_server-5] [INFO] [1782464672.044360615] [controller_server]: Received a goal, begin computing control effort.
+[gzserver-1] sequence size exceeds remaining buffer
+[planner_server-7] [WARN] [1782464673.055272743] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782464673.094525864] [controller_server]: Passing new path to controller.
+[behavior_server-8] sequence size exceeds remaining buffer
+[planner_server-7] sequence size exceeds remaining buffer
+[controller_server-5] [INFO] [1782464674.144521732] [controller_server]: Passing new path to controller.
+[controller_server-5] sequence size exceeds remaining buffer
+[lifecycle_manager-12] sequence size exceeds remaining buffer
+[bt_navigator-9] sequence size exceeds remaining buffer
+[robot_state_publisher-2] sequence size exceeds remaining buffer
+[velocity_smoother-11] sequence size exceeds remaining buffer
+[controller_server-5] [INFO] [1782464674.596057972] [controller_server]: Reached the goal!
+[waypoint_follower-10] sequence size exceeds remaining buffer
+[exploration_coordinator-13] sequence size exceeds remaining buffer
+[bt_navigator-9] [INFO] [1782464674.634430489] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464674.634515818] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464674.634748131] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.27 rad.
+[behavior_server-8] [INFO] [1782464674.635144670] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464674.635197940] [behavior_server]: Turning 0.27 for spin behavior.
+[sync_slam_toolbox_node-4] sequence size exceeds remaining buffer
+[slam_evaluator-14] sequence size exceeds remaining buffer
+[smoother_server-6] sequence size exceeds remaining buffer
+[behavior_server-8] [INFO] [1782464674.935439407] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464674.936436377] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464674.936856757] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464675.437091731] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464675.437972610] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464675.477218867] [exploration_coordinator]: GBSAE prior vertex 16 has 1 allocated safe frontier candidates, local_filter_ms=9.7.
+[exploration_coordinator-13] [INFO] [1782464675.477371596] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.26m^2.
+[exploration_coordinator-13] [INFO] [1782464675.479396057] [exploration_coordinator]: Navigating to frontier goal=(-2.20, -0.84), size=25, cost=0.79, source=unknown, information_gain=1.26m^2
+[bt_navigator-9] [INFO] [1782464675.479770354] [bt_navigator]: Begin navigating from current location (-1.44, -0.84) to (-2.20, -0.84)
+[controller_server-5] [INFO] [1782464675.500046087] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782464675.608612741] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 158 X 173 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464676.550220796] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464677.401697529] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464677.440152752] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464677.440231419] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464677.440478569] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.07 rad.
+[behavior_server-8] [INFO] [1782464677.440899419] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464677.440952051] [behavior_server]: Turning -1.07 for spin behavior.
+[behavior_server-8] [INFO] [1782464677.841166587] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464677.841890556] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464677.842262139] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782464677.842474818] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782464677.842486873] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782464677.842495420] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782464677.842855463] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782464677.878460913] [exploration_coordinator]: GBSAE prior vertex 16 has 0 allocated safe frontier candidates, local_filter_ms=8.8.
+[exploration_coordinator-13] [WARN] [1782464677.878624699] [exploration_coordinator]: GBSAE prior vertex 16 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1782464680.917884687] [exploration_coordinator]: Checking GBSAE prior vertex 21 loop revisit at (-1.45, -0.45).
+[exploration_coordinator-13] [INFO] [1782464680.921130556] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 21 loop revisit: goal=(-1.45, -0.45), cost=0.73.
+[bt_navigator-9] [INFO] [1782464680.921671586] [bt_navigator]: Begin navigating from current location (-2.06, -0.84) to (-1.45, -0.45)
+[controller_server-5] [INFO] [1782464680.941933363] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464681.992117907] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464682.393607715] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464682.431877001] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464682.432410266] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 21 during loop revisit.
+[exploration_coordinator-13] [WARN] [1782464682.441359690] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 16: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464682.481186212] [exploration_coordinator]: GBSAE prior vertex 21 already reached.
+[exploration_coordinator-13] [INFO] [1782464682.490404924] [exploration_coordinator]: GBSAE prior vertex 20 has 1 allocated safe frontier candidates, local_filter_ms=9.0.
+[exploration_coordinator-13] [INFO] [1782464682.490548517] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=2.52m^2.
+[exploration_coordinator-13] [INFO] [1782464682.493777236] [exploration_coordinator]: Navigating to frontier goal=(-4.20, -1.02), size=86, cost=2.75, source=unknown, information_gain=2.52m^2
+[bt_navigator-9] [INFO] [1782464682.494239676] [bt_navigator]: Begin navigating from current location (-1.53, -0.59) to (-4.20, -1.02)
+[controller_server-5] [INFO] [1782464682.514552300] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464683.564714622] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464684.614715357] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782464685.608606202] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 171 X 173 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464685.614715772] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464686.116215613] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464686.154594739] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464686.154664231] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464686.154879234] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.89 rad.
+[behavior_server-8] [INFO] [1782464686.155262614] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464686.155310842] [behavior_server]: Turning 0.89 for spin behavior.
+[behavior_server-8] [INFO] [1782464686.555552836] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464686.556618858] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464686.556942951] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464687.057179697] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464687.057629664] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464687.122817019] [exploration_coordinator]: GBSAE prior vertex 20 has 1 allocated safe frontier candidates, local_filter_ms=27.0.
+[exploration_coordinator-13] [INFO] [1782464687.123126714] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.35m^2.
+[exploration_coordinator-13] [INFO] [1782464687.128433476] [exploration_coordinator]: Navigating to frontier goal=(-2.37, 0.63), size=12, cost=1.82, source=unknown, information_gain=0.35m^2
+[bt_navigator-9] [INFO] [1782464687.129002012] [bt_navigator]: Begin navigating from current location (-3.73, -0.55) to (-2.37, 0.63)
+[controller_server-5] [INFO] [1782464687.149295556] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464688.199514885] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464689.249514601] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464689.501042429] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464689.539234617] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464689.539439000] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782464689.539686479] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782464689.560118118] [exploration_coordinator]: GBSAE prior vertex 20 has 1 allocated safe frontier candidates, local_filter_ms=18.4.
+[exploration_coordinator-13] [INFO] [1782464689.560269304] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.48m^2.
+[exploration_coordinator-13] [INFO] [1782464689.562852236] [exploration_coordinator]: Navigating to frontier goal=(-3.27, 0.13), size=12, cost=0.86, source=unknown, information_gain=0.48m^2
+[bt_navigator-9] [INFO] [1782464689.563406672] [bt_navigator]: Begin navigating from current location (-2.49, 0.52) to (-3.27, 0.13)
+[controller_server-5] [INFO] [1782464689.583701310] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464690.633870034] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464691.185660958] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464691.223837964] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464691.223861536] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782464691.224106559] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782464691.245693844] [exploration_coordinator]: GBSAE prior vertex 20 has 0 allocated safe frontier candidates, local_filter_ms=18.4.
+[exploration_coordinator-13] [WARN] [1782464691.246056346] [exploration_coordinator]: GBSAE prior vertex 20 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464694.273565595] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 0: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464694.313850268] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 20: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464694.353853954] [exploration_coordinator]: Checking GBSAE prior vertex 1 at (-4.00, 0.00).
+[exploration_coordinator-13] [INFO] [1782464694.358081294] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 1: goal=(-4.00, 0.00), cost=0.95.
+[bt_navigator-9] [INFO] [1782464694.358713467] [bt_navigator]: Begin navigating from current location (-3.08, 0.24) to (-4.00, 0.00)
+[controller_server-5] [INFO] [1782464694.378990011] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464695.429166872] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782464695.608608826] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 171 X 173 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464696.479164247] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464696.580661538] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464696.619176054] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464696.619353027] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 1.
+[exploration_coordinator-13] [WARN] [1782464696.637454559] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 0: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464696.677094858] [exploration_coordinator]: GBSAE prior vertex 1 already reached during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464696.677280378] [exploration_coordinator]: Checking GBSAE prior vertex 19 at (-5.05, -0.45).
+[exploration_coordinator-13] [INFO] [1782464696.679604107] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 19: goal=(-5.05, -0.45), cost=1.33.
+[bt_navigator-9] [INFO] [1782464696.679958397] [bt_navigator]: Begin navigating from current location (-3.79, -0.03) to (-5.05, -0.45)
+[controller_server-5] [INFO] [1782464696.700240802] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464697.750448966] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464698.800447523] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464699.151947229] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464699.190221577] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464699.190652489] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 19.
+[exploration_coordinator-13] [WARN] [1782464699.203719007] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 20: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464699.243881343] [exploration_coordinator]: GBSAE prior vertex 19 already reached during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464699.244256396] [exploration_coordinator]: Checking GBSAE prior vertex 1 at (-4.00, 0.00).
+[exploration_coordinator-13] [INFO] [1782464699.248784203] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 1: goal=(-4.00, 0.00), cost=0.94.
+[bt_navigator-9] [INFO] [1782464699.249470357] [bt_navigator]: Begin navigating from current location (-4.87, -0.35) to (-4.00, 0.00)
+[controller_server-5] [INFO] [1782464699.269707214] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464700.271451334] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464700.309915854] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464700.309931499] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 1.
+[exploration_coordinator-13] [INFO] [1782464700.325654941] [exploration_coordinator]: Checking GBSAE prior vertex 25 at (-1.45, 1.35).
+[exploration_coordinator-13] [INFO] [1782464700.332246389] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 25: goal=(-1.45, 1.35), cost=3.09.
+[bt_navigator-9] [INFO] [1782464700.332856178] [bt_navigator]: Begin navigating from current location (-4.10, -0.10) to (-1.45, 1.35)
+[controller_server-5] [INFO] [1782464700.353221799] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464700.353386680] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464701.403442869] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464702.453444117] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464703.154946375] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464703.193096002] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464703.193297946] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 25.
+[exploration_coordinator-13] [INFO] [1782464703.212781138] [exploration_coordinator]: Checking GBSAE prior vertex 21 loop revisit at (-1.45, -0.45).
+[exploration_coordinator-13] [INFO] [1782464703.215894743] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 21 loop revisit: goal=(-1.45, -0.45), cost=1.72.
+[bt_navigator-9] [INFO] [1782464703.216479111] [bt_navigator]: Begin navigating from current location (-1.56, 1.24) to (-1.45, -0.45)
+[controller_server-5] [INFO] [1782464703.236752843] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464704.286929569] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464705.336932949] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464705.388428510] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464705.426710704] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464705.426919641] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 21 during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464705.456270420] [exploration_coordinator]: Checking GBSAE prior vertex 25 loop revisit at (-1.45, 1.35).
+[exploration_coordinator-13] [INFO] [1782464705.459344333] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 25 loop revisit: goal=(-1.45, 1.35), cost=1.62.
+[bt_navigator-9] [INFO] [1782464705.459931258] [bt_navigator]: Begin navigating from current location (-1.50, -0.24) to (-1.45, 1.35)
+[controller_server-5] [INFO] [1782464705.480309658] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782464705.608611164] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 171 X 175 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464706.530479209] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464707.580478762] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464707.582012640] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464707.630194939] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464707.630366089] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 25 during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464707.660546236] [exploration_coordinator]: Checking GBSAE prior vertex 26 at (0.35, 1.35).
+[exploration_coordinator-13] [INFO] [1782464707.666529676] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 26: goal=(0.35, 1.35), cost=1.84.
+[bt_navigator-9] [INFO] [1782464707.666950802] [bt_navigator]: Begin navigating from current location (-1.45, 1.13) to (0.35, 1.35)
+[controller_server-5] [INFO] [1782464707.687247761] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464708.737415414] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464709.388938954] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464709.427193745] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464709.427417848] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 26.
+[exploration_coordinator-13] [WARN] [1782464709.461236703] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 4: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464709.501964369] [exploration_coordinator]: GBSAE prior vertex 26 already reached during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464709.511419526] [exploration_coordinator]: GBSAE prior vertex 5 has 1 allocated safe frontier candidates, local_filter_ms=9.2.
+[exploration_coordinator-13] [INFO] [1782464709.511562705] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=2.65m^2.
+[exploration_coordinator-13] [INFO] [1782464709.515930164] [exploration_coordinator]: Navigating to frontier goal=(-1.67, -2.17), size=479, cost=4.13, source=unknown, information_gain=2.65m^2
+[bt_navigator-9] [INFO] [1782464709.516513264] [bt_navigator]: Begin navigating from current location (0.21, 1.27) to (-1.67, -2.17)
+[controller_server-5] [INFO] [1782464709.536836549] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464710.587005860] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464711.636998396] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464712.637003323] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464713.687005257] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464714.238507251] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464714.276926834] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464714.276955297] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464714.277184482] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.14 rad.
+[behavior_server-8] [INFO] [1782464714.277551059] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464714.277602494] [behavior_server]: Turning -1.14 for spin behavior.
+[behavior_server-8] [INFO] [1782464714.777774645] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464714.778392491] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464714.778780202] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464715.279037180] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464715.280050737] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464715.323372789] [exploration_coordinator]: GBSAE prior vertex 5 has 1 allocated safe frontier candidates, local_filter_ms=8.7.
+[exploration_coordinator-13] [INFO] [1782464715.323521793] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=2.40m^2.
+[exploration_coordinator-13] [INFO] [1782464715.328908909] [exploration_coordinator]: Navigating to frontier goal=(-1.67, 2.53), size=479, cost=5.30, source=unknown, information_gain=2.40m^2
+[bt_navigator-9] [INFO] [1782464715.329503676] [bt_navigator]: Begin navigating from current location (-1.26, -2.30) to (-1.67, 2.53)
+[controller_server-5] [INFO] [1782464715.349889948] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782464715.608658583] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 179 X 187 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464716.400074678] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464717.450072481] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464718.450072041] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464719.500074132] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782464720.480263861] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782464720.500073444] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464720.951565865] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464720.989807431] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464720.990237248] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464720.990681124] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.05 rad.
+[behavior_server-8] [INFO] [1782464720.991111557] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464720.991172665] [behavior_server]: Turning 1.05 for spin behavior.
+[behavior_server-8] [INFO] [1782464721.391408605] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464721.391928452] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464721.392299442] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464721.892514336] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464721.893038108] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464721.938519030] [exploration_coordinator]: GBSAE prior vertex 5 has 1 allocated safe frontier candidates, local_filter_ms=13.5.
+[exploration_coordinator-13] [INFO] [1782464721.938695989] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.54m^2.
+[exploration_coordinator-13] [INFO] [1782464721.943666805] [exploration_coordinator]: Navigating to frontier goal=(1.68, 2.31), size=214, cost=3.10, source=unknown, information_gain=1.54m^2
+[bt_navigator-9] [INFO] [1782464721.944103103] [bt_navigator]: Begin navigating from current location (-1.23, 2.82) to (1.68, 2.31)
+[controller_server-5] [INFO] [1782464721.964380675] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464723.014550128] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464724.064550467] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464725.064550353] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464725.366066164] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464725.404336843] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464725.404759444] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464725.405193198] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.20 rad.
+[behavior_server-8] [INFO] [1782464725.405591232] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464725.405642899] [behavior_server]: Turning -1.20 for spin behavior.
+[planner_server-7] [INFO] [1782464725.608611215] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 179 X 198 at 0.050000 m/pix
+[behavior_server-8] [INFO] [1782464725.805861617] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464725.806363139] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464725.806725407] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464726.307011277] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464726.307469515] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464726.330325364] [exploration_coordinator]: Checking GBSAE prior vertex 5 at (0.00, 3.00).
+[exploration_coordinator-13] [INFO] [1782464726.333834061] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 5: goal=(0.00, 3.00), cost=1.39.
+[bt_navigator-9] [INFO] [1782464726.334219226] [bt_navigator]: Begin navigating from current location (1.33, 2.82) to (0.00, 3.00)
+[controller_server-5] [INFO] [1782464726.354526530] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464727.404703787] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464728.356203933] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464728.394471199] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464728.395500209] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 5.
+[exploration_coordinator-13] [INFO] [1782464728.414998066] [exploration_coordinator]: Checking GBSAE prior vertex 25 loop revisit at (-1.45, 1.35).
+[exploration_coordinator-13] [INFO] [1782464728.420150004] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 25 loop revisit: goal=(-1.45, 1.35), cost=2.26.
+[bt_navigator-9] [INFO] [1782464728.420723880] [bt_navigator]: Begin navigating from current location (0.19, 2.91) to (-1.45, 1.35)
+[controller_server-5] [INFO] [1782464728.441030493] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464729.491167875] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464730.541165328] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464731.442680037] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464731.481189459] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464731.481513592] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 25 during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464731.500188364] [exploration_coordinator]: Checking GBSAE prior vertex 5 loop revisit at (0.00, 3.00).
+[exploration_coordinator-13] [INFO] [1782464731.505047295] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 5 loop revisit: goal=(0.00, 3.00), cost=1.99.
+[bt_navigator-9] [INFO] [1782464731.505628842] [bt_navigator]: Begin navigating from current location (-1.32, 1.48) to (0.00, 3.00)
+[controller_server-5] [INFO] [1782464731.525918668] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464732.576088904] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464733.577627581] [controller_server]: Reached the goal!
+[controller_server-5] [INFO] [1782464733.585910181] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464733.588335618] [controller_server]: Reached the goal!
+[exploration_coordinator-13] [INFO] [1782464733.626104110] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 5 during loop revisit.
+[bt_navigator-9] [INFO] [1782464733.626102574] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464733.663550069] [exploration_coordinator]: Checking GBSAE prior vertex 31 at (0.35, 3.15).
+[exploration_coordinator-13] [INFO] [1782464733.666787858] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 31: goal=(0.35, 3.15), cost=0.59.
+[bt_navigator-9] [INFO] [1782464733.667367774] [bt_navigator]: Begin navigating from current location (-0.14, 2.85) to (0.35, 3.15)
+[controller_server-5] [INFO] [1782464733.687636626] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464734.489293776] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464734.527637859] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464734.527803650] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 31.
+[exploration_coordinator-13] [INFO] [1782464734.547562840] [exploration_coordinator]: Checking GBSAE prior vertex 26 loop revisit at (0.35, 1.35).
+[exploration_coordinator-13] [INFO] [1782464734.551457600] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 26 loop revisit: goal=(0.35, 1.35), cost=1.67.
+[bt_navigator-9] [INFO] [1782464734.551813841] [bt_navigator]: Begin navigating from current location (0.24, 3.02) to (0.35, 1.35)
+[controller_server-5] [INFO] [1782464734.572112557] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464735.622288304] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464736.672287886] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464736.773770707] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464736.812085798] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464736.812254314] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 26 during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464736.833851687] [exploration_coordinator]: Checking GBSAE prior vertex 31 loop revisit at (0.35, 3.15).
+[exploration_coordinator-13] [INFO] [1782464736.837801803] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 31 loop revisit: goal=(0.35, 3.15), cost=1.62.
+[bt_navigator-9] [INFO] [1782464736.838377408] [bt_navigator]: Begin navigating from current location (0.31, 1.54) to (0.35, 3.15)
+[controller_server-5] [INFO] [1782464736.858673890] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464737.908837942] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464738.958837966] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464739.010327604] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464739.048734437] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464739.048824445] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 31 during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464739.077858141] [exploration_coordinator]: Checking GBSAE prior vertex 30 at (-1.45, 3.15).
+[exploration_coordinator-13] [INFO] [1782464739.081955142] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 30: goal=(-1.45, 3.15), cost=1.84.
+[bt_navigator-9] [INFO] [1782464739.082378664] [bt_navigator]: Begin navigating from current location (0.33, 2.97) to (-1.45, 3.15)
+[controller_server-5] [INFO] [1782464739.102666094] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464740.152843662] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464741.202842355] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464741.954550883] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464741.992636646] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464741.992818603] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 30.
+[exploration_coordinator-13] [INFO] [1782464742.005633589] [exploration_coordinator]: Checking GBSAE prior vertex 5 loop revisit at (0.00, 3.00).
+[exploration_coordinator-13] [INFO] [1782464742.009512859] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 5 loop revisit: goal=(0.00, 3.00), cost=1.27.
+[bt_navigator-9] [INFO] [1782464742.010071792] [bt_navigator]: Begin navigating from current location (-1.27, 3.11) to (0.00, 3.00)
+[controller_server-5] [INFO] [1782464742.030361745] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464742.931731362] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464742.970327194] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464742.970542616] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 5 during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464743.009637111] [exploration_coordinator]: Checking GBSAE prior vertex 30 loop revisit at (-1.45, 3.15).
+[exploration_coordinator-13] [INFO] [1782464743.014366498] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 30 loop revisit: goal=(-1.45, 3.15), cost=1.29.
+[bt_navigator-9] [INFO] [1782464743.014964077] [bt_navigator]: Begin navigating from current location (-0.21, 3.06) to (-1.45, 3.15)
+[controller_server-5] [INFO] [1782464743.035253868] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464744.085443757] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464745.135444016] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464745.836930245] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464745.875231271] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464745.875441334] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 30 during loop revisit.
+[exploration_coordinator-13] [INFO] [1782464745.894477894] [exploration_coordinator]: Checking GBSAE prior vertex 25 at (-1.45, 1.35).
+[exploration_coordinator-13] [INFO] [1782464745.900115143] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 25: goal=(-1.45, 1.35), cost=1.83.
+[bt_navigator-9] [INFO] [1782464745.900482099] [bt_navigator]: Begin navigating from current location (-1.23, 3.17) to (-1.45, 1.35)
+[controller_server-5] [INFO] [1782464745.920764237] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464746.970949753] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464748.020948146] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464748.322439067] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464748.360894846] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464748.361183151] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 25.
+[exploration_coordinator-13] [INFO] [1782464748.380491373] [exploration_coordinator]: Checking GBSAE prior vertex 1 at (-4.00, 0.00).
+[exploration_coordinator-13] [INFO] [1782464748.387967903] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 1: goal=(-4.00, 0.00), cost=3.12.
+[bt_navigator-9] [INFO] [1782464748.388615505] [bt_navigator]: Begin navigating from current location (-1.41, 1.53) to (-4.00, 0.00)
+[controller_server-5] [INFO] [1782464748.408910576] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464749.459102298] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] WARNING: Logging before InitGoogleLogging() is written to STDERR
+[sync_slam_toolbox_node-4] W0626 17:05:50.037334 2265068 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782464750.509100972] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464751.509101840] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464752.060595681] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464752.099028061] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464752.099066321] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 1.
+[exploration_coordinator-13] [INFO] [1782464752.133248983] [exploration_coordinator]: GBSAE prior vertex 2 has 1 allocated safe frontier candidates, local_filter_ms=26.8.
+[exploration_coordinator-13] [INFO] [1782464752.133404939] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.43m^2.
+[exploration_coordinator-13] [INFO] [1782464752.137783805] [exploration_coordinator]: Navigating to frontier goal=(-3.82, 1.11), size=15, cost=1.02, source=unknown, information_gain=1.43m^2
+[bt_navigator-9] [INFO] [1782464752.138184949] [bt_navigator]: Begin navigating from current location (-3.83, 0.10) to (-3.82, 1.11)
+[controller_server-5] [INFO] [1782464752.158462221] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464753.208647149] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464753.210685585] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464753.258615310] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464753.258872259] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464753.259301653] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.33 rad.
+[behavior_server-8] [INFO] [1782464753.259760707] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464753.259814229] [behavior_server]: Turning -0.33 for spin behavior.
+[behavior_server-8] [INFO] [1782464753.560046622] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464753.560584342] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464753.560948725] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782464753.661226269] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782464753.661254098] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782464753.661263042] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782464753.662033697] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782464753.701928510] [exploration_coordinator]: GBSAE prior vertex 2 has 0 allocated safe frontier candidates, local_filter_ms=31.9.
+[exploration_coordinator-13] [WARN] [1782464753.702096307] [exploration_coordinator]: GBSAE prior vertex 2 has no reachable allocated frontier; advancing the route.
+[planner_server-7] [INFO] [1782464755.608608719] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 179 X 198 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782464756.729806096] [exploration_coordinator]: GBSAE prior vertex 29 has 0 allocated safe frontier candidates, local_filter_ms=17.2.
+[exploration_coordinator-13] [WARN] [1782464756.729984590] [exploration_coordinator]: GBSAE prior vertex 29 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1782464759.773129292] [exploration_coordinator]: GBSAE prior vertex 28 has 0 allocated safe frontier candidates, local_filter_ms=16.9.
+[exploration_coordinator-13] [WARN] [1782464759.773301912] [exploration_coordinator]: GBSAE prior vertex 28 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [WARN] [1782464762.800043088] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 2: prior vertex is not currently known-free.
+[exploration_coordinator-13] [WARN] [1782464762.840478976] [exploration_coordinator]: Skipping optional GBSAE loop revisit to prior vertex 28: prior vertex is not currently known-free.
+[exploration_coordinator-13] [INFO] [1782464762.897427081] [exploration_coordinator]: GBSAE prior vertex 2 has 0 allocated safe frontier candidates, local_filter_ms=17.1.
+[exploration_coordinator-13] [WARN] [1782464762.897597369] [exploration_coordinator]: GBSAE prior vertex 2 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1782464765.927028904] [exploration_coordinator]: Checking GBSAE prior vertex 1 at (-4.00, 0.00).
+[exploration_coordinator-13] [INFO] [1782464765.931275585] [exploration_coordinator]: Navigating directly to GBSAE prior vertex 1: goal=(-4.00, 0.00), cost=1.09.
+[bt_navigator-9] [INFO] [1782464765.931855368] [bt_navigator]: Begin navigating from current location (-3.78, 1.03) to (-4.00, 0.00)
+[controller_server-5] [INFO] [1782464765.952165025] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464767.002340724] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464768.052340901] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464768.103845798] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464768.142153491] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464768.142335685] [exploration_coordinator]: Nav2 reached GBSAE prior vertex 1.
+[exploration_coordinator-13] [INFO] [1782464768.189393580] [exploration_coordinator]: GBSAE prior vertex 3 has 0 allocated safe frontier candidates, local_filter_ms=16.7.
+[exploration_coordinator-13] [WARN] [1782464768.189561572] [exploration_coordinator]: GBSAE prior vertex 3 has no reachable allocated frontier; advancing the route.
+[exploration_coordinator-13] [INFO] [1782464771.231100046] [exploration_coordinator]: GBSAE prior vertex 15 has 2 allocated safe frontier candidates, local_filter_ms=16.5.
+[exploration_coordinator-13] [INFO] [1782464771.231256194] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.29m^2.
+[exploration_coordinator-13] [INFO] [1782464771.237264406] [exploration_coordinator]: Navigating to frontier goal=(-1.67, -1.74), size=14, cost=3.59, source=unknown, information_gain=1.29m^2
+[bt_navigator-9] [INFO] [1782464771.237882223] [bt_navigator]: Begin navigating from current location (-3.97, 0.17) to (-1.67, -1.74)
+[controller_server-5] [INFO] [1782464771.258187260] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464772.308363575] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464773.358363449] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464774.358363364] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464774.560108084] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464774.598141452] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464774.598323335] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464774.598551246] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.08 rad.
+[behavior_server-8] [INFO] [1782464774.598912216] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464774.598968196] [behavior_server]: Turning 1.08 for spin behavior.
+[behavior_server-8] [INFO] [1782464774.999208820] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464774.999874713] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464775.000241387] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782464775.000447224] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782464775.000459545] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782464775.000467856] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782464775.000860587] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782464775.050768673] [exploration_coordinator]: GBSAE prior vertex 15 has 2 allocated safe frontier candidates, local_filter_ms=26.5.
+[exploration_coordinator-13] [INFO] [1782464775.050918850] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.65m^2.
+[exploration_coordinator-13] [INFO] [1782464775.058082276] [exploration_coordinator]: Navigating to frontier goal=(1.68, 1.36), size=815, cost=5.12, source=unknown, information_gain=1.65m^2
+[bt_navigator-9] [INFO] [1782464775.058670282] [bt_navigator]: Begin navigating from current location (-1.58, -1.59) to (1.68, 1.36)
+[controller_server-5] [INFO] [1782464775.079048669] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464776.129234914] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464777.179234601] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464778.179233920] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464779.229232865] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464780.180733610] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464780.219156522] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464780.219181791] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464780.219431546] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.55 rad.
+[behavior_server-8] [INFO] [1782464780.219817103] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464780.219873334] [behavior_server]: Turning 0.55 for spin behavior.
+[behavior_server-8] [INFO] [1782464780.520107342] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464780.520594132] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464780.521037227] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464781.021284733] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464781.021759420] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464781.066321980] [exploration_coordinator]: GBSAE prior vertex 15 has 2 allocated safe frontier candidates, local_filter_ms=30.3.
+[exploration_coordinator-13] [INFO] [1782464781.066472272] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.41m^2.
+[exploration_coordinator-13] [INFO] [1782464781.074345764] [exploration_coordinator]: Navigating to frontier goal=(-0.92, -4.29), size=730, cost=6.43, source=unknown, information_gain=1.41m^2
+[bt_navigator-9] [INFO] [1782464781.074914707] [bt_navigator]: Begin navigating from current location (1.74, 0.83) to (-0.92, -4.29)
+[controller_server-5] [INFO] [1782464781.095279308] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464782.145457003] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464783.195456077] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464784.195456080] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464785.245456473] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782464785.608606743] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 222 X 198 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464786.245458979] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464786.746971443] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464786.785134516] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464786.785852597] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464786.786085355] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.50 rad.
+[behavior_server-8] [INFO] [1782464786.786336415] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464786.786379631] [behavior_server]: Turning -1.50 for spin behavior.
+[behavior_server-8] [INFO] [1782464787.386539462] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464787.387170814] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464787.387461483] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464787.887743243] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464787.888202090] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464787.939905201] [exploration_coordinator]: GBSAE prior vertex 15 has 7 allocated safe frontier candidates, local_filter_ms=47.5.
+[exploration_coordinator-13] [INFO] [1782464787.940060021] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.33m^2.
+[exploration_coordinator-13] [INFO] [1782464787.948399582] [exploration_coordinator]: Navigating to frontier goal=(-0.42, -0.69), size=19, cost=3.78, source=unknown, information_gain=1.33m^2
+[bt_navigator-9] [INFO] [1782464787.948992508] [bt_navigator]: Begin navigating from current location (-0.39, -4.29) to (-0.42, -0.69)
+[planner_server-7] [WARN] [1782464787.949668531] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782464787.969282890] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464789.019472418] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464790.069472939] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464791.069472516] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464792.020986923] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464792.059282475] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464792.060432809] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464792.060649433] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=2.13 rad.
+[behavior_server-8] [INFO] [1782464792.060875821] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464792.060925159] [behavior_server]: Turning 2.13 for spin behavior.
+[behavior_server-8] [INFO] [1782464792.661098666] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464792.661730490] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464792.662116933] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464793.162370249] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464793.162833316] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464793.225620002] [exploration_coordinator]: GBSAE prior vertex 15 has 7 allocated safe frontier candidates, local_filter_ms=44.0.
+[exploration_coordinator-13] [INFO] [1782464793.225775587] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.99m^2.
+[exploration_coordinator-13] [INFO] [1782464793.232461671] [exploration_coordinator]: Navigating to frontier goal=(-1.17, -1.34), size=19, cost=1.44, source=unknown, information_gain=0.99m^2
+[bt_navigator-9] [INFO] [1782464793.233021308] [bt_navigator]: Begin navigating from current location (0.09, -0.72) to (-1.17, -1.34)
+[controller_server-5] [INFO] [1782464793.253316011] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464794.303506893] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464795.353506592] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464795.855036225] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464795.893295920] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464795.893457392] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464795.893689909] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=3.03 rad.
+[behavior_server-8] [INFO] [1782464795.894063218] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464795.894115510] [behavior_server]: Turning 3.03 for spin behavior.
+[behavior_server-8] [INFO] [1782464796.694267422] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464796.694908807] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464796.695258487] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464797.195483868] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464797.196058756] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464797.276509899] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=49.3.
+[exploration_coordinator-13] [INFO] [1782464797.276667337] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.97m^2.
+[exploration_coordinator-13] [INFO] [1782464797.282784329] [exploration_coordinator]: Navigating to frontier goal=(-1.67, -1.49), size=19, cost=0.29, source=unknown, information_gain=0.97m^2
+[bt_navigator-9] [INFO] [1782464797.283381943] [bt_navigator]: Begin navigating from current location (-1.40, -1.53) to (-1.67, -1.49)
+[controller_server-5] [INFO] [1782464797.303623628] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464797.555311288] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464797.593799653] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464797.593834471] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464797.594059236] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.82 rad.
+[behavior_server-8] [INFO] [1782464797.594430110] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464797.594477760] [behavior_server]: Turning 0.82 for spin behavior.
+[behavior_server-8] [INFO] [1782464797.894704607] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464797.895235440] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464797.895637851] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464798.395897606] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464798.396978254] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464798.481828375] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=51.5.
+[exploration_coordinator-13] [INFO] [1782464798.481981032] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.97m^2.
+[exploration_coordinator-13] [INFO] [1782464798.488265709] [exploration_coordinator]: Navigating to frontier goal=(-1.67, -1.49), size=19, cost=0.85, source=unknown, information_gain=0.97m^2
+[bt_navigator-9] [INFO] [1782464798.488818225] [bt_navigator]: Begin navigating from current location (-1.61, -2.02) to (-1.67, -1.49)
+[controller_server-5] [INFO] [1782464798.509059506] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464799.559248761] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464799.961048419] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464799.999108613] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464799.999338775] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464799.999582150] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.24 rad.
+[behavior_server-8] [INFO] [1782464799.999909445] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464799.999960810] [behavior_server]: Turning 1.24 for spin behavior.
+[behavior_server-8] [INFO] [1782464800.400190789] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464800.400697893] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464800.401120642] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464800.901373368] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464800.901772641] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464800.970455028] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=57.2.
+[exploration_coordinator-13] [INFO] [1782464800.970614545] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.97m^2.
+[exploration_coordinator-13] [INFO] [1782464800.976972170] [exploration_coordinator]: Navigating to frontier goal=(-1.67, -1.49), size=19, cost=0.60, source=unknown, information_gain=0.97m^2
+[bt_navigator-9] [INFO] [1782464800.977542473] [bt_navigator]: Begin navigating from current location (-1.63, -2.02) to (-1.67, -1.49)
+[controller_server-5] [INFO] [1782464800.997794609] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464802.047974527] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464802.849471023] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464802.887977785] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464802.887998641] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464802.888232003] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.23 rad.
+[behavior_server-8] [INFO] [1782464802.888496629] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464802.888547707] [behavior_server]: Turning 1.23 for spin behavior.
+[behavior_server-8] [INFO] [1782464803.388776100] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464803.390009697] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464803.390346782] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464803.890585725] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464803.891000781] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464803.969686204] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=51.9.
+[exploration_coordinator-13] [INFO] [1782464803.969839164] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.97m^2.
+[exploration_coordinator-13] [INFO] [1782464803.976519872] [exploration_coordinator]: Navigating to frontier goal=(-1.67, -1.49), size=19, cost=0.93, source=unknown, information_gain=0.97m^2
+[bt_navigator-9] [INFO] [1782464803.977105079] [bt_navigator]: Begin navigating from current location (-1.57, -2.07) to (-1.67, -1.49)
+[controller_server-5] [INFO] [1782464803.997362026] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464805.047542144] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464805.649052149] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464805.687326250] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464805.687798598] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464805.688223995] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.22 rad.
+[behavior_server-8] [INFO] [1782464805.688651923] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464805.688704053] [behavior_server]: Turning 1.22 for spin behavior.
+[behavior_server-8] [INFO] [1782464806.188939514] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464806.189488805] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464806.189898106] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782464806.190122032] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782464806.190134382] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782464806.190142847] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782464806.191035836] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782464806.301520372] [exploration_coordinator]: GBSAE prior vertex 15 has 10 allocated safe frontier candidates, local_filter_ms=100.6.
+[exploration_coordinator-13] [INFO] [1782464806.301679228] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.55m^2.
+[exploration_coordinator-13] [INFO] [1782464806.310333803] [exploration_coordinator]: Navigating to frontier goal=(-3.77, -1.44), size=28, cost=3.90, source=unknown, information_gain=1.55m^2
+[bt_navigator-9] [INFO] [1782464806.310913308] [bt_navigator]: Begin navigating from current location (-1.58, -1.50) to (-3.77, -1.44)
+[controller_server-5] [INFO] [1782464806.331170734] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782464807.342143221] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782464807.381361503] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464808.431361019] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] W0626 17:06:48.614372 2265068 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782464809.431361606] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464809.932846907] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464809.971186070] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464809.971778239] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464809.972186151] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.47 rad.
+[behavior_server-8] [INFO] [1782464809.972614959] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464809.972666148] [behavior_server]: Turning -1.47 for spin behavior.
+[behavior_server-8] [INFO] [1782464810.472875461] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464810.474111667] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464810.474538365] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464810.974784334] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464810.975203154] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464811.096152002] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=86.3.
+[exploration_coordinator-13] [INFO] [1782464811.096317821] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.51m^2.
+[exploration_coordinator-13] [INFO] [1782464811.104713459] [exploration_coordinator]: Navigating to frontier goal=(-4.12, -0.99), size=39, cost=0.82, source=unknown, information_gain=1.51m^2
+[bt_navigator-9] [INFO] [1782464811.105312861] [bt_navigator]: Begin navigating from current location (-4.10, -1.66) to (-4.12, -0.99)
+[controller_server-5] [INFO] [1782464811.125547785] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464812.175728893] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464812.977243516] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464813.015563245] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464813.015983400] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464813.016399199] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.16 rad.
+[behavior_server-8] [INFO] [1782464813.016695399] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464813.016745541] [behavior_server]: Turning 0.16 for spin behavior.
+[behavior_server-8] [INFO] [1782464813.216966676] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464813.218278599] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464813.218703176] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464813.718941410] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464813.719373720] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464813.831385963] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=95.9.
+[exploration_coordinator-13] [INFO] [1782464813.831540169] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.39m^2.
+[planner_server-7] [WARN] [1782464813.832628430] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[exploration_coordinator-13] [INFO] [1782464813.839940182] [exploration_coordinator]: Navigating to frontier goal=(-3.67, -0.99), size=39, cost=1.09, source=unknown, information_gain=1.39m^2
+[bt_navigator-9] [INFO] [1782464813.840553573] [bt_navigator]: Begin navigating from current location (-3.99, -1.63) to (-3.67, -0.99)
+[controller_server-5] [INFO] [1782464813.860802070] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464814.910982026] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782464815.608609035] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 221 X 198 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464815.662481047] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464815.700974492] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464815.701013725] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464815.701236268] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.96 rad.
+[behavior_server-8] [INFO] [1782464815.701639584] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464815.701688429] [behavior_server]: Turning 0.96 for spin behavior.
+[behavior_server-8] [INFO] [1782464816.101915807] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464816.102441935] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464816.102815245] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782464816.103034272] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782464816.103046316] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782464816.103054503] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782464816.103871813] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782464816.210112458] [exploration_coordinator]: GBSAE prior vertex 15 has 6 allocated safe frontier candidates, local_filter_ms=72.5.
+[exploration_coordinator-13] [INFO] [1782464816.210267919] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.04m^2.
+[exploration_coordinator-13] [INFO] [1782464816.219232183] [exploration_coordinator]: Navigating to frontier goal=(0.28, -1.89), size=10, cost=4.53, source=unknown, information_gain=0.04m^2
+[bt_navigator-9] [INFO] [1782464816.219830016] [bt_navigator]: Begin navigating from current location (-3.71, -1.10) to (0.28, -1.89)
+[controller_server-5] [INFO] [1782464816.240150566] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464817.290344016] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464818.340344665] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464819.340341246] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464820.390341857] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464820.892787721] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464820.930154076] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464820.930571017] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782464820.931034959] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782464821.021752747] [exploration_coordinator]: GBSAE prior vertex 15 has 6 allocated safe frontier candidates, local_filter_ms=74.9.
+[exploration_coordinator-13] [INFO] [1782464821.021911307] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.05m^2.
+[exploration_coordinator-13] [INFO] [1782464821.028659110] [exploration_coordinator]: Navigating to frontier goal=(-0.67, -1.79), size=10, cost=0.83, source=unknown, information_gain=0.05m^2
+[bt_navigator-9] [INFO] [1782464821.029043743] [bt_navigator]: Begin navigating from current location (0.15, -1.79) to (-0.67, -1.79)
+[controller_server-5] [INFO] [1782464821.049353354] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464822.099530805] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464822.551050513] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464822.589327254] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464822.589493156] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782464822.589722540] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782464822.696676807] [exploration_coordinator]: GBSAE prior vertex 15 has 5 allocated safe frontier candidates, local_filter_ms=68.2.
+[exploration_coordinator-13] [INFO] [1782464822.696830635] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.62m^2.
+[exploration_coordinator-13] [INFO] [1782464822.705960741] [exploration_coordinator]: Navigating to frontier goal=(-3.92, 1.36), size=14, cost=4.76, source=unknown, information_gain=1.62m^2
+[bt_navigator-9] [INFO] [1782464822.706599750] [bt_navigator]: Begin navigating from current location (-0.50, -1.79) to (-3.92, 1.36)
+[controller_server-5] [INFO] [1782464822.726926739] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464823.777119247] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464824.827120666] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464825.827118509] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464826.877143471] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464826.978531905] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464827.016837199] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464827.017014947] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464827.017232883] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.60 rad.
+[behavior_server-8] [INFO] [1782464827.017615325] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464827.017668561] [behavior_server]: Turning -0.60 for spin behavior.
+[behavior_server-8] [INFO] [1782464827.317883208] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464827.320711562] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464827.321030731] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782464827.321241782] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782464827.321253453] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782464827.321261915] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782464827.322606982] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782464827.437265069] [exploration_coordinator]: GBSAE prior vertex 15 has 5 allocated safe frontier candidates, local_filter_ms=77.8.
+[exploration_coordinator-13] [INFO] [1782464827.437422702] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.96m^2.
+[exploration_coordinator-13] [INFO] [1782464827.449316862] [exploration_coordinator]: Navigating to frontier goal=(-1.67, -1.74), size=28, cost=6.56, source=unknown, information_gain=0.96m^2
+[bt_navigator-9] [INFO] [1782464827.449909943] [bt_navigator]: Begin navigating from current location (-3.87, 1.17) to (-1.67, -1.74)
+[controller_server-5] [INFO] [1782464827.470224562] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464828.520406886] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464829.570414221] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464830.570406900] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464831.421962963] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464831.460174899] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464831.460586240] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464831.460998223] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.16 rad.
+[behavior_server-8] [INFO] [1782464831.461431015] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464831.461483142] [behavior_server]: Turning 1.16 for spin behavior.
+[behavior_server-8] [INFO] [1782464831.861735330] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464831.862230290] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464831.862612522] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782464831.862831607] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782464831.862843195] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782464831.862851281] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782464831.863769291] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782464831.981640330] [exploration_coordinator]: GBSAE prior vertex 15 has 4 allocated safe frontier candidates, local_filter_ms=95.5.
+[exploration_coordinator-13] [INFO] [1782464831.981797759] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.46m^2.
+[exploration_coordinator-13] [INFO] [1782464831.992365776] [exploration_coordinator]: Navigating to frontier goal=(1.43, 1.06), size=413, cost=4.10, source=unknown, information_gain=0.46m^2
+[bt_navigator-9] [INFO] [1782464831.992754585] [bt_navigator]: Begin navigating from current location (-1.60, -1.61) to (1.43, 1.06)
+[controller_server-5] [INFO] [1782464832.013045586] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464833.063241432] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464834.113240328] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464835.113242824] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464836.163241719] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464836.614734020] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464836.653201864] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464836.655301538] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464836.655518003] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.12 rad.
+[behavior_server-8] [INFO] [1782464836.655873646] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464836.655927484] [behavior_server]: Turning 0.12 for spin behavior.
+[behavior_server-8] [INFO] [1782464836.756164403] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464836.757373212] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464836.757666682] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464837.357905517] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464837.359226463] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464837.446970846] [exploration_coordinator]: GBSAE prior vertex 15 has 6 allocated safe frontier candidates, local_filter_ms=70.7.
+[exploration_coordinator-13] [INFO] [1782464837.447129806] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.50m^2.
+[exploration_coordinator-13] [INFO] [1782464837.460604409] [exploration_coordinator]: Navigating to frontier goal=(-3.82, -1.44), size=29, cost=5.85, source=unknown, information_gain=1.50m^2
+[bt_navigator-9] [INFO] [1782464837.461204514] [bt_navigator]: Begin navigating from current location (0.98, 0.51) to (-3.82, -1.44)
+[controller_server-5] [INFO] [1782464837.481560421] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464838.531747152] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464839.581747595] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464840.581744890] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464841.631748731] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464842.484150563] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464842.521627991] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464842.521651908] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464842.521872186] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.43 rad.
+[behavior_server-8] [INFO] [1782464842.522230583] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464842.522281879] [behavior_server]: Turning -1.43 for spin behavior.
+[behavior_server-8] [INFO] [1782464843.022497386] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464843.023024685] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464843.023442460] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464843.523670587] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464843.524975006] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464843.618058990] [exploration_coordinator]: GBSAE prior vertex 15 has 5 allocated safe frontier candidates, local_filter_ms=70.1.
+[exploration_coordinator-13] [INFO] [1782464843.628364880] [exploration_coordinator]: Splitting far frontier target: final=(1.28, 1.01), staging=(0.68, 0.81), straight_distance=6.04m, segment_limit=6.00m.
+[exploration_coordinator-13] [INFO] [1782464843.628510713] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.25m^2, staging first.
+[exploration_coordinator-13] [INFO] [1782464843.640298949] [exploration_coordinator]: Navigating to frontier staging goal=(0.68, 0.81) toward final=(1.28, 1.01), cost=6.03, source=unknown.
+[bt_navigator-9] [INFO] [1782464843.640901335] [bt_navigator]: Begin navigating from current location (-4.14, -1.69) to (0.68, 0.81)
+[controller_server-5] [INFO] [1782464843.661276976] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464844.711445477] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782464845.608657030] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 221 X 198 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464845.761445084] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464846.761445849] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464847.811444956] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464848.811444328] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464848.812735331] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464848.861155921] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464848.861325786] [exploration_coordinator]: Nav2 reached a frontier staging waypoint; continuing toward the final frontier on the next selection pass.
+[exploration_coordinator-13] [INFO] [1782464848.916096576] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=37.4.
+[exploration_coordinator-13] [INFO] [1782464848.916252257] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.12m^2.
+[exploration_coordinator-13] [INFO] [1782464848.924970232] [exploration_coordinator]: Navigating to frontier goal=(-0.98, -1.44), size=18, cost=2.61, source=unknown, information_gain=0.12m^2
+[bt_navigator-9] [INFO] [1782464848.925554406] [bt_navigator]: Begin navigating from current location (0.50, 0.72) to (-0.98, -1.44)
+[controller_server-5] [INFO] [1782464848.945886847] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464849.996048910] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464851.046051829] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464852.046049117] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464852.297558278] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464852.335984719] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464852.336247536] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464852.336721443] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464852.337030856] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464853.037248889] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464853.037975485] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464853.083774436] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=36.8.
+[exploration_coordinator-13] [INFO] [1782464853.083931772] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.17m^2.
+[exploration_coordinator-13] [INFO] [1782464853.091410507] [exploration_coordinator]: Navigating to frontier goal=(-0.88, -0.19), size=18, cost=0.66, source=unknown, information_gain=0.17m^2
+[bt_navigator-9] [INFO] [1782464853.092015922] [bt_navigator]: Begin navigating from current location (-0.87, -0.81) to (-0.88, -0.19)
+[controller_server-5] [INFO] [1782464853.112340248] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464854.162522583] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464854.564001255] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464854.602267731] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464854.602447170] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464854.602678302] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.24 rad.
+[behavior_server-8] [INFO] [1782464854.603032750] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464854.603086104] [behavior_server]: Turning -0.24 for spin behavior.
+[behavior_server-8] [INFO] [1782464854.803310584] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464854.803945654] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464854.804358674] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464855.304605985] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464855.305021782] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464855.375669355] [exploration_coordinator]: GBSAE prior vertex 15 has 9 allocated safe frontier candidates, local_filter_ms=44.2.
+[exploration_coordinator-13] [INFO] [1782464855.375825965] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.17m^2.
+[exploration_coordinator-13] [INFO] [1782464855.383368465] [exploration_coordinator]: Navigating to frontier goal=(-0.88, -0.19), size=18, cost=0.72, source=unknown, information_gain=0.17m^2
+[bt_navigator-9] [INFO] [1782464855.383734491] [bt_navigator]: Begin navigating from current location (-0.88, -0.89) to (-0.88, -0.19)
+[controller_server-5] [INFO] [1782464855.404040829] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464856.454164017] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464857.504207270] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464857.705718791] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464857.744164729] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464857.744235575] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464857.744462965] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.12 rad.
+[behavior_server-8] [INFO] [1782464857.744826415] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464857.744882927] [behavior_server]: Turning 0.12 for spin behavior.
+[behavior_server-8] [INFO] [1782464857.845106522] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464857.845580616] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464857.845937573] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464858.446204261] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464858.446668634] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464858.486482991] [exploration_coordinator]: GBSAE prior vertex 15 has 6 allocated safe frontier candidates, local_filter_ms=32.2.
+[exploration_coordinator-13] [INFO] [1782464858.486630202] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.10m^2.
+[exploration_coordinator-13] [INFO] [1782464858.493196855] [exploration_coordinator]: Navigating to frontier goal=(0.12, 0.81), size=43, cost=1.94, source=unknown, information_gain=0.10m^2
+[bt_navigator-9] [INFO] [1782464858.493811569] [bt_navigator]: Begin navigating from current location (-0.76, -0.91) to (0.12, 0.81)
+[controller_server-5] [INFO] [1782464858.514110629] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464859.564305340] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464860.614305545] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464861.465810736] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464861.504067341] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464861.504259151] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464861.504510731] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464861.504878641] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464862.205141525] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464862.205625705] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464862.250016030] [exploration_coordinator]: GBSAE prior vertex 15 has 6 allocated safe frontier candidates, local_filter_ms=28.8.
+[exploration_coordinator-13] [INFO] [1782464862.250176504] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.12m^2.
+[exploration_coordinator-13] [INFO] [1782464862.256010348] [exploration_coordinator]: Navigating to frontier goal=(0.52, 0.16), size=43, cost=0.72, source=unknown, information_gain=0.12m^2
+[bt_navigator-9] [INFO] [1782464862.256603017] [bt_navigator]: Begin navigating from current location (-0.22, 0.14) to (0.52, 0.16)
+[controller_server-5] [INFO] [1782464862.276923875] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464863.327104272] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464864.078614165] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464864.116847091] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464864.117051912] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464864.117323591] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464864.117687749] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464864.817957045] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464864.819349480] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464864.854872140] [exploration_coordinator]: GBSAE prior vertex 15 has 6 allocated safe frontier candidates, local_filter_ms=28.7.
+[exploration_coordinator-13] [INFO] [1782464864.855027483] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.11m^2.
+[exploration_coordinator-13] [INFO] [1782464864.861084269] [exploration_coordinator]: Navigating to frontier goal=(-0.93, -0.24), size=43, cost=0.84, source=unknown, information_gain=0.11m^2
+[bt_navigator-9] [INFO] [1782464864.861472152] [bt_navigator]: Begin navigating from current location (-0.20, 0.14) to (-0.93, -0.24)
+[controller_server-5] [INFO] [1782464864.881773671] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464865.931957045] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464866.483470053] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464866.521746809] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464866.522182716] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464866.522622754] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.15 rad.
+[behavior_server-8] [INFO] [1782464866.523041536] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464866.523094839] [behavior_server]: Turning 0.15 for spin behavior.
+[behavior_server-8] [INFO] [1782464866.823321674] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464866.823841921] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464866.824244881] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464867.324494036] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464867.324946933] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464867.370224646] [exploration_coordinator]: GBSAE prior vertex 15 has 3 allocated safe frontier candidates, local_filter_ms=20.1.
+[exploration_coordinator-13] [INFO] [1782464867.370377056] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.59m^2.
+[exploration_coordinator-13] [INFO] [1782464867.378400951] [exploration_coordinator]: Navigating to frontier goal=(-3.93, 1.36), size=12, cost=4.14, source=unknown, information_gain=1.59m^2
+[bt_navigator-9] [INFO] [1782464867.378949278] [bt_navigator]: Begin navigating from current location (-0.41, 0.22) to (-3.93, 1.36)
+[controller_server-5] [INFO] [1782464867.399234093] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464868.449424186] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464869.499424454] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] W0626 17:07:49.724985 2265068 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782464870.499425357] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464870.900536618] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464870.939182109] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464870.939668317] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464870.940093641] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.47 rad.
+[behavior_server-8] [INFO] [1782464870.940531823] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464870.940584481] [behavior_server]: Turning -0.47 for spin behavior.
+[behavior_server-8] [INFO] [1782464871.240822087] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464871.241299651] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464871.241693035] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782464871.341971020] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782464871.341997877] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782464871.342006436] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782464871.342444516] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782464871.384737417] [exploration_coordinator]: GBSAE prior vertex 15 has 3 allocated safe frontier candidates, local_filter_ms=25.4.
+[exploration_coordinator-13] [INFO] [1782464871.384891190] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=1.59m^2.
+[exploration_coordinator-13] [INFO] [1782464871.390772747] [exploration_coordinator]: Navigating to frontier goal=(-4.53, 1.96), size=12, cost=1.03, source=unknown, information_gain=1.59m^2
+[bt_navigator-9] [INFO] [1782464871.391360258] [bt_navigator]: Begin navigating from current location (-3.90, 1.29) to (-4.53, 1.96)
+[controller_server-5] [INFO] [1782464871.411625203] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464872.461785124] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464873.113277989] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464873.151775565] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464873.151815497] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464873.152047974] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=2.12 rad.
+[behavior_server-8] [INFO] [1782464873.152406789] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464873.152458305] [behavior_server]: Turning 2.12 for spin behavior.
+[behavior_server-8] [INFO] [1782464873.752679434] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464873.753177235] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464873.753585415] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464874.253858435] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464874.254349398] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464874.309304498] [exploration_coordinator]: GBSAE prior vertex 15 has 2 allocated safe frontier candidates, local_filter_ms=25.8.
+[exploration_coordinator-13] [INFO] [1782464874.310146366] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=2.56m^2.
+[exploration_coordinator-13] [INFO] [1782464874.321003173] [exploration_coordinator]: Navigating to frontier goal=(3.02, -1.09), size=135, cost=9.02, source=unknown, information_gain=2.56m^2
+[bt_navigator-9] [INFO] [1782464874.321390170] [bt_navigator]: Begin navigating from current location (-4.45, 2.41) to (3.02, -1.09)
+[controller_server-5] [INFO] [1782464874.341749600] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464875.391952192] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782464875.608611365] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 221 X 199 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464876.441954296] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464877.441951334] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464878.491951240] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464879.491954261] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464880.541952419] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464881.591950557] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464882.591952043] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464882.643514339] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464882.681671683] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464882.682110896] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464882.682422029] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.77 rad.
+[behavior_server-8] [INFO] [1782464882.682803190] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464882.682857533] [behavior_server]: Turning -0.77 for spin behavior.
+[behavior_server-8] [INFO] [1782464883.083062484] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464883.083602984] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464883.084012182] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464883.584215459] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464883.584967303] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464883.645582551] [exploration_coordinator]: GBSAE prior vertex 15 has 3 allocated safe frontier candidates, local_filter_ms=25.5.
+[exploration_coordinator-13] [INFO] [1782464883.669607129] [exploration_coordinator]: Splitting far frontier target: final=(-4.47, 2.00), staging=(-2.02, 0.90), straight_distance=8.27m, segment_limit=6.00m.
+[exploration_coordinator-13] [INFO] [1782464883.669771593] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.02m^2, staging first.
+[exploration_coordinator-13] [INFO] [1782464883.680236287] [exploration_coordinator]: Navigating to frontier staging goal=(-2.02, 0.90) toward final=(-4.47, 2.00), cost=5.72, source=unknown.
+[bt_navigator-9] [INFO] [1782464883.680841940] [bt_navigator]: Begin navigating from current location (3.33, -0.75) to (-2.02, 0.90)
+[controller_server-5] [INFO] [1782464883.701221907] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464884.751403899] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782464885.608610202] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 238 X 199 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464885.801405067] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464886.801409126] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464887.851404260] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464888.452556738] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464888.491176047] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464888.491353999] [exploration_coordinator]: Nav2 reached a frontier staging waypoint; continuing toward the final frontier on the next selection pass.
+[exploration_coordinator-13] [INFO] [1782464888.557288215] [exploration_coordinator]: GBSAE prior vertex 15 has 10 allocated safe frontier candidates, local_filter_ms=44.8.
+[exploration_coordinator-13] [INFO] [1782464888.557437876] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.02m^2.
+[exploration_coordinator-13] [INFO] [1782464888.566443727] [exploration_coordinator]: Navigating to frontier goal=(-4.42, 2.05), size=16, cost=3.70, source=unknown, information_gain=0.02m^2
+[bt_navigator-9] [INFO] [1782464888.567015895] [bt_navigator]: Begin navigating from current location (-1.83, 0.85) to (-4.42, 2.05)
+[controller_server-5] [INFO] [1782464888.587357064] [controller_server]: Received a goal, begin computing control effort.
+[sync_slam_toolbox_node-4] W0626 17:08:09.604135 2265068 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782464889.637532428] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464890.687531933] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464891.687531974] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464892.039215184] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464892.077244404] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464892.077451912] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464892.077716089] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464892.078080950] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464892.778267060] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464892.779007072] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464892.847667677] [exploration_coordinator]: GBSAE prior vertex 15 has 10 allocated safe frontier candidates, local_filter_ms=45.0.
+[exploration_coordinator-13] [INFO] [1782464892.847823536] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.02m^2.
+[exploration_coordinator-13] [INFO] [1782464892.855910049] [exploration_coordinator]: Navigating to frontier goal=(-3.87, 1.10), size=16, cost=0.60, source=unknown, information_gain=0.02m^2
+[bt_navigator-9] [INFO] [1782464892.856526407] [bt_navigator]: Begin navigating from current location (-3.86, 1.66) to (-3.87, 1.10)
+[controller_server-5] [INFO] [1782464892.876820633] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [ERROR] [1782464893.128667608] [DWBLocalPlanner]: No valid trajectories out of 419! 
+[controller_server-5] [ERROR] [1782464893.128701609] [DWBLocalPlanner]: 1.00: BaseObstacle/Trajectory Hits Obstacle.
+[controller_server-5] [WARN] [1782464893.128742226] [controller_server]: No valid trajectories out of 419! 
+[controller_server-5] [ERROR] [1782464893.178598248] [DWBLocalPlanner]: No valid trajectories out of 419! 
+[controller_server-5] [ERROR] [1782464893.178618897] [DWBLocalPlanner]: 1.00: BaseObstacle/Trajectory Hits Obstacle.
+[controller_server-5] [WARN] [1782464893.178646384] [controller_server]: No valid trajectories out of 419! 
+[controller_server-5] [ERROR] [1782464893.178665844] [controller_server]: Controller patience exceeded
+[controller_server-5] [WARN] [1782464893.178683174] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782464893.196737150] [local_costmap.local_costmap]: Received request to clear entirely the local_costmap
+[controller_server-5] [INFO] [1782464893.197047516] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464893.947168388] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464894.298707840] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464894.336797679] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464894.337004331] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782464894.337255973] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782464894.411875925] [exploration_coordinator]: GBSAE prior vertex 15 has 10 allocated safe frontier candidates, local_filter_ms=46.1.
+[exploration_coordinator-13] [INFO] [1782464894.412031966] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.02m^2.
+[exploration_coordinator-13] [INFO] [1782464894.419717139] [exploration_coordinator]: Navigating to frontier goal=(-3.82, 2.15), size=16, cost=1.01, source=unknown, information_gain=0.02m^2
+[bt_navigator-9] [INFO] [1782464894.420295238] [bt_navigator]: Begin navigating from current location (-3.82, 1.25) to (-3.82, 2.15)
+[controller_server-5] [INFO] [1782464894.440599994] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464895.490786453] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782464895.608609313] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 238 X 199 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782464896.092278718] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464896.130721384] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464896.130989731] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782464896.131449185] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782464896.211800217] [exploration_coordinator]: GBSAE prior vertex 15 has 8 allocated safe frontier candidates, local_filter_ms=42.8.
+[exploration_coordinator-13] [INFO] [1782464896.211953735] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.66m^2.
+[exploration_coordinator-13] [INFO] [1782464896.221267949] [exploration_coordinator]: Navigating to frontier goal=(-2.67, 4.65), size=143, cost=3.63, source=unknown, information_gain=0.66m^2
+[bt_navigator-9] [INFO] [1782464896.221674286] [bt_navigator]: Begin navigating from current location (-3.87, 2.01) to (-2.67, 4.65)
+[controller_server-5] [INFO] [1782464896.242007552] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464897.292166606] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464898.342164628] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464899.342167069] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464899.943651389] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782464899.981934548] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782464899.982361789] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782464899.982778011] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.86 rad.
+[behavior_server-8] [INFO] [1782464899.983219950] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782464899.983273962] [behavior_server]: Turning 0.86 for spin behavior.
+[behavior_server-8] [INFO] [1782464900.383508886] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782464900.384937337] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782464900.385366513] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782464900.885608809] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782464900.886051476] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782464900.939811187] [exploration_coordinator]: GBSAE prior vertex 15 has 8 allocated safe frontier candidates, local_filter_ms=43.1.
+[exploration_coordinator-13] [INFO] [1782464900.940125144] [exploration_coordinator]: Checking GBSAE allocated frontier source=unknown, information_gain=0.17m^2.
+[exploration_coordinator-13] [INFO] [1782464900.952548731] [exploration_coordinator]: Navigating to frontier goal=(-3.57, 2.85), size=143, cost=2.13, source=unknown, information_gain=0.17m^2
+[bt_navigator-9] [INFO] [1782464900.952942931] [bt_navigator]: Begin navigating from current location (-2.25, 4.41) to (-3.57, 2.85)
+[controller_server-5] [INFO] [1782464900.973266545] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782464902.023442494] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782464903.073441123] [controller_server]: Passing new path to controller.

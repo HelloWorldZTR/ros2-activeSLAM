@@ -1,0 +1,1148 @@
+[INFO] [launch]: All log files can be found below /home/psirobot/.ros/log/2026-06-26-19-22-16-479788-bj01-dc21-2564703
+[INFO] [launch]: Default logging verbosity is set to INFO
+urdf_file_name : turtlebot3_burger.urdf
+urdf_file_name : turtlebot3_burger.urdf
+[INFO] [gzserver-1]: process started with pid [2564720]
+[INFO] [robot_state_publisher-2]: process started with pid [2564722]
+[INFO] [spawn_entity.py-3]: process started with pid [2564724]
+[INFO] [sync_slam_toolbox_node-4]: process started with pid [2564726]
+[INFO] [controller_server-5]: process started with pid [2564728]
+[INFO] [smoother_server-6]: process started with pid [2564730]
+[INFO] [planner_server-7]: process started with pid [2564732]
+[INFO] [behavior_server-8]: process started with pid [2564734]
+[INFO] [bt_navigator-9]: process started with pid [2564736]
+[INFO] [waypoint_follower-10]: process started with pid [2564738]
+[INFO] [velocity_smoother-11]: process started with pid [2564740]
+[INFO] [lifecycle_manager-12]: process started with pid [2564742]
+[INFO] [exploration_coordinator-13]: process started with pid [2564744]
+[INFO] [slam_evaluator-14]: process started with pid [2564746]
+[waypoint_follower-10] [INFO] [1782472936.882663529] [waypoint_follower]: 
+[waypoint_follower-10] 	waypoint_follower lifecycle node launched. 
+[waypoint_follower-10] 	Waiting on external lifecycle transitions to activate
+[waypoint_follower-10] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782472936.882741206] [controller_server]: 
+[controller_server-5] 	controller_server lifecycle node launched. 
+[controller_server-5] 	Waiting on external lifecycle transitions to activate
+[controller_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[waypoint_follower-10] [INFO] [1782472936.883081581] [waypoint_follower]: Creating
+[controller_server-5] [INFO] [1782472936.884844101] [controller_server]: Creating controller server
+[robot_state_publisher-2] [INFO] [1782472936.884918496] [robot_state_publisher]: got segment base_footprint
+[robot_state_publisher-2] [INFO] [1782472936.884997700] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-2] [INFO] [1782472936.885006335] [robot_state_publisher]: got segment base_scan
+[robot_state_publisher-2] [INFO] [1782472936.885012688] [robot_state_publisher]: got segment caster_back_link
+[robot_state_publisher-2] [INFO] [1782472936.885018201] [robot_state_publisher]: got segment imu_link
+[robot_state_publisher-2] [INFO] [1782472936.885023706] [robot_state_publisher]: got segment wheel_left_link
+[robot_state_publisher-2] [INFO] [1782472936.885028974] [robot_state_publisher]: got segment wheel_right_link
+[planner_server-7] [INFO] [1782472936.885439637] [planner_server]: 
+[planner_server-7] 	planner_server lifecycle node launched. 
+[planner_server-7] 	Waiting on external lifecycle transitions to activate
+[planner_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782472936.886540138] [planner_server]: Creating
+[lifecycle_manager-12] [INFO] [1782472936.886734401] [lifecycle_manager_navigation]: Creating
+[lifecycle_manager-12] [INFO] [1782472936.889801338] [lifecycle_manager_navigation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[behavior_server-8] [INFO] [1782472936.890132702] [behavior_server]: 
+[behavior_server-8] 	behavior_server lifecycle node launched. 
+[behavior_server-8] 	Waiting on external lifecycle transitions to activate
+[behavior_server-8] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[velocity_smoother-11] [INFO] [1782472936.890148199] [velocity_smoother]: 
+[velocity_smoother-11] 	velocity_smoother lifecycle node launched. 
+[velocity_smoother-11] 	Waiting on external lifecycle transitions to activate
+[velocity_smoother-11] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[smoother_server-6] [INFO] [1782472936.890663353] [smoother_server]: 
+[smoother_server-6] 	smoother_server lifecycle node launched. 
+[smoother_server-6] 	Waiting on external lifecycle transitions to activate
+[smoother_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782472936.890927683] [local_costmap.local_costmap]: 
+[controller_server-5] 	local_costmap lifecycle node launched. 
+[controller_server-5] 	Waiting on external lifecycle transitions to activate
+[controller_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782472936.891156280] [local_costmap.local_costmap]: Creating Costmap
+[smoother_server-6] [INFO] [1782472936.891843255] [smoother_server]: Creating smoother server
+[bt_navigator-9] [INFO] [1782472936.892268781] [bt_navigator]: 
+[bt_navigator-9] 	bt_navigator lifecycle node launched. 
+[bt_navigator-9] 	Waiting on external lifecycle transitions to activate
+[bt_navigator-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-9] [INFO] [1782472936.892329980] [bt_navigator]: Creating
+[planner_server-7] [INFO] [1782472936.895243453] [global_costmap.global_costmap]: 
+[planner_server-7] 	global_costmap lifecycle node launched. 
+[planner_server-7] 	Waiting on external lifecycle transitions to activate
+[planner_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782472936.895545842] [global_costmap.global_costmap]: Creating Costmap
+[sync_slam_toolbox_node-4] [INFO] [1782472936.969059660] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[lifecycle_manager-12] [INFO] [1782472937.009781039] [lifecycle_manager_navigation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-12] [INFO] [1782472937.009813521] [lifecycle_manager_navigation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-5] [INFO] [1782472937.010163959] [controller_server]: Configuring controller interface
+[controller_server-5] [INFO] [1782472937.010517439] [controller_server]: getting goal checker plugins..
+[controller_server-5] [INFO] [1782472937.010765431] [controller_server]: Controller frequency set to 20.0000Hz
+[controller_server-5] [INFO] [1782472937.010791134] [local_costmap.local_costmap]: Configuring
+[controller_server-5] [INFO] [1782472937.018446675] [local_costmap.local_costmap]: Using plugin "voxel_layer"
+[controller_server-5] [INFO] [1782472937.034649436] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-5] [INFO] [1782472937.049953964] [local_costmap.local_costmap]: Initialized plugin "voxel_layer"
+[controller_server-5] [INFO] [1782472937.049978764] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-5] [INFO] [1782472937.053911805] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-5] [INFO] [1782472937.067599026] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-5] [INFO] [1782472937.068762595] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-5] [INFO] [1782472937.070278430] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[controller_server-5] [INFO] [1782472937.071648973] [controller_server]: Created controller : FollowPath of type dwb_core::DWBLocalPlanner
+[controller_server-5] [INFO] [1782472937.074116277] [controller_server]: Setting transform_tolerance to 0.200000
+[controller_server-5] [INFO] [1782472937.083972378] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[controller_server-5] [INFO] [1782472937.085129254] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782472937.085411571] [controller_server]: Using critic "Oscillation" (dwb_critics::OscillationCritic)
+[controller_server-5] [INFO] [1782472937.085962109] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782472937.086021522] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[controller_server-5] [INFO] [1782472937.086074895] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782472937.086114573] [controller_server]: Using critic "GoalAlign" (dwb_critics::GoalAlignCritic)
+[controller_server-5] [INFO] [1782472937.086817879] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782472937.086953411] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[controller_server-5] [INFO] [1782472937.087314938] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782472937.087618986] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[controller_server-5] [INFO] [1782472937.088290984] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782472937.088458518] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[controller_server-5] [INFO] [1782472937.088694623] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782472937.088726818] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-12] [INFO] [1782472937.095549951] [lifecycle_manager_navigation]: [34m[1mConfiguring smoother_server[0m[0m
+[smoother_server-6] [INFO] [1782472937.095669453] [smoother_server]: Configuring smoother server
+[smoother_server-6] [INFO] [1782472937.101255457] [smoother_server]: Created smoother : simple_smoother of type nav2_smoother::SimpleSmoother
+[smoother_server-6] [INFO] [1782472937.101492199] [smoother_server]: Smoother Server has simple_smoother  smoothers available.
+[lifecycle_manager-12] [INFO] [1782472937.106290864] [lifecycle_manager_navigation]: [34m[1mConfiguring planner_server[0m[0m
+[planner_server-7] [INFO] [1782472937.106451173] [planner_server]: Configuring
+[planner_server-7] [INFO] [1782472937.106487718] [global_costmap.global_costmap]: Configuring
+[planner_server-7] [INFO] [1782472937.109646564] [global_costmap.global_costmap]: Using plugin "static_layer"
+[planner_server-7] [INFO] [1782472937.111065404] [global_costmap.global_costmap]: Subscribing to the map topic (/map) with transient local durability
+[planner_server-7] [INFO] [1782472937.111947759] [global_costmap.global_costmap]: Initialized plugin "static_layer"
+[planner_server-7] [INFO] [1782472937.111965005] [global_costmap.global_costmap]: Using plugin "obstacle_layer"
+[planner_server-7] [INFO] [1782472937.112287989] [global_costmap.global_costmap]: Subscribed to Topics: scan
+[planner_server-7] [INFO] [1782472937.114482401] [global_costmap.global_costmap]: Initialized plugin "obstacle_layer"
+[planner_server-7] [INFO] [1782472937.114496139] [global_costmap.global_costmap]: Using plugin "inflation_layer"
+[planner_server-7] [INFO] [1782472937.114917117] [global_costmap.global_costmap]: Initialized plugin "inflation_layer"
+[planner_server-7] [INFO] [1782472937.119491916] [planner_server]: Created global planner plugin GridBased of type nav2_navfn_planner/NavfnPlanner
+[planner_server-7] [INFO] [1782472937.119510023] [planner_server]: Configuring plugin GridBased of type NavfnPlanner
+[planner_server-7] [INFO] [1782472937.119908363] [planner_server]: Planner Server has GridBased  planners available.
+[lifecycle_manager-12] [INFO] [1782472937.125501127] [lifecycle_manager_navigation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-8] [INFO] [1782472937.125723039] [behavior_server]: Configuring
+[behavior_server-8] [INFO] [1782472937.131040999] [behavior_server]: Creating behavior plugin spin of type nav2_behaviors/Spin
+[behavior_server-8] [INFO] [1782472937.131393099] [behavior_server]: Configuring spin
+[behavior_server-8] [INFO] [1782472937.135636764] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-8] [INFO] [1782472937.136054325] [behavior_server]: Configuring backup
+[behavior_server-8] [INFO] [1782472937.141815979] [behavior_server]: Creating behavior plugin drive_on_heading of type nav2_behaviors/DriveOnHeading
+[behavior_server-8] [INFO] [1782472937.142253994] [behavior_server]: Configuring drive_on_heading
+[behavior_server-8] [INFO] [1782472937.146814722] [behavior_server]: Creating behavior plugin assisted_teleop of type nav2_behaviors/AssistedTeleop
+[behavior_server-8] [INFO] [1782472937.148041357] [behavior_server]: Configuring assisted_teleop
+[behavior_server-8] [INFO] [1782472937.154223842] [behavior_server]: Creating behavior plugin wait of type nav2_behaviors/Wait
+[behavior_server-8] [INFO] [1782472937.154813443] [behavior_server]: Configuring wait
+[lifecycle_manager-12] [INFO] [1782472937.158949629] [lifecycle_manager_navigation]: [34m[1mConfiguring bt_navigator[0m[0m
+[bt_navigator-9] [INFO] [1782472937.159145267] [bt_navigator]: Configuring
+[spawn_entity.py-3] [INFO] [1782472937.167522934] [spawn_entity]: Spawn Entity started
+[spawn_entity.py-3] [INFO] [1782472937.167704932] [spawn_entity]: Loading entity XML from file /home/psirobot/projects/ros2_ws/src/install/turtlebot3_gazebo/share/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf
+[spawn_entity.py-3] [INFO] [1782472937.168122208] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[spawn_entity.py-3] [INFO] [1782472937.168261916] [spawn_entity]: Waiting for service /spawn_entity
+[lifecycle_manager-12] [INFO] [1782472937.199418116] [lifecycle_manager_navigation]: [34m[1mConfiguring waypoint_follower[0m[0m
+[waypoint_follower-10] [INFO] [1782472937.199613127] [waypoint_follower]: Configuring
+[waypoint_follower-10] [INFO] [1782472937.207333881] [waypoint_follower]: Created waypoint_task_executor : wait_at_waypoint of type nav2_waypoint_follower::WaitAtWaypoint
+[lifecycle_manager-12] [INFO] [1782472937.207952991] [lifecycle_manager_navigation]: [34m[1mConfiguring velocity_smoother[0m[0m
+[velocity_smoother-11] [INFO] [1782472937.208168905] [velocity_smoother]: Configuring velocity smoother
+[lifecycle_manager-12] [INFO] [1782472937.210854201] [lifecycle_manager_navigation]: [34m[1mActivating controller_server[0m[0m
+[controller_server-5] [INFO] [1782472937.210957154] [controller_server]: Activating
+[controller_server-5] [INFO] [1782472937.210974887] [local_costmap.local_costmap]: Activating
+[controller_server-5] [INFO] [1782472937.210980676] [local_costmap.local_costmap]: Checking transform
+[controller_server-5] [INFO] [1782472937.210992256] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[exploration_coordinator-13] [INFO] [1782472937.363467652] [exploration_coordinator]: Loaded coarse GVD bounds for world=slam_rooms: [-6.0, 6.0] x [-5.0, 5.0].
+[exploration_coordinator-13] [INFO] [1782472937.363742212] [exploration_coordinator]: Exploration coordinator started with Nav2 backend. SLAM mode: gvd_hierarchical
+[slam_evaluator-14] [INFO] [1782472937.581294328] [slam_evaluator]: Evaluator logging to logs/run_slam_rooms_gvd_hierarchical_20260626_192216/run_20260626_192217 for world slam_rooms
+[slam_evaluator-14] [INFO] [1782472937.581629171] [slam_evaluator]: Sampling every 1.00s; waiting for map/TF data.
+[controller_server-5] [INFO] [1782472937.711047370] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[spawn_entity.py-3] [INFO] [1782472937.923781369] [spawn_entity]: Calling service /spawn_entity
+[gzserver-1] [INFO] [1782472938.163783932] [turtlebot3_imu]: <initial_orientation_as_reference> is unset, using default value of false to comply with REP 145 (world as orientation reference)
+[spawn_entity.py-3] [INFO] [1782472938.196424746] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [burger]
+[controller_server-5] [INFO] [1782472938.211044711] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[gzserver-1] [INFO] [1782472938.308069765] [turtlebot3_diff_drive]: Wheel pair 1 separation set to [0.160000m]
+[gzserver-1] [INFO] [1782472938.308096746] [turtlebot3_diff_drive]: Wheel pair 1 diameter set to [0.066000m]
+[gzserver-1] [INFO] [1782472938.309043235] [turtlebot3_diff_drive]: Subscribed to [/cmd_vel]
+[gzserver-1] [INFO] [1782472938.310143848] [turtlebot3_diff_drive]: Advertise odometry on [/odom]
+[gzserver-1] [INFO] [1782472938.311595462] [turtlebot3_diff_drive]: Publishing odom transforms between [odom] and [base_footprint]
+[gzserver-1] [INFO] [1782472938.318498883] [turtlebot3_joint_state]: Going to publish joint [wheel_left_joint]
+[gzserver-1] [INFO] [1782472938.318517257] [turtlebot3_joint_state]: Going to publish joint [wheel_right_joint]
+[INFO] [spawn_entity.py-3]: process has finished cleanly [pid 2564724]
+[sync_slam_toolbox_node-4] [WARN] [1782472938.522390819] [slam_toolbox]: minimum laser range setting (0.0 m) exceeds the capabilities of the used Lidar (0.1 m)
+[sync_slam_toolbox_node-4] Info: clipped range threshold to be within minimum and maximum range!
+[sync_slam_toolbox_node-4] Registering sensor: [Custom Described Lidar]
+[sync_slam_toolbox_node-4] [WARN] [1782472938.522470912] [slam_toolbox]: maximum laser range setting (25.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[controller_server-5] [INFO] [1782472938.711111970] [local_costmap.local_costmap]: start
+[controller_server-5] [INFO] [1782472938.911707834] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[slam_evaluator-14] [INFO] [1782472938.966974341] [slam_evaluator]: Waiting for data: /map, TF map->base_footprint, ground truth model burger on /model_states, /gazebo/model_states, /get_entity_state, or /odom
+[lifecycle_manager-12] [INFO] [1782472939.017355790] [lifecycle_manager_navigation]: Server controller_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782472939.017396635] [lifecycle_manager_navigation]: [34m[1mActivating smoother_server[0m[0m
+[smoother_server-6] [INFO] [1782472939.018252327] [smoother_server]: Activating
+[smoother_server-6] [INFO] [1782472939.018275375] [smoother_server]: Creating bond (smoother_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782472939.126129224] [lifecycle_manager_navigation]: Server smoother_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782472939.126153346] [lifecycle_manager_navigation]: [34m[1mActivating planner_server[0m[0m
+[planner_server-7] [INFO] [1782472939.126892677] [planner_server]: Activating
+[planner_server-7] [INFO] [1782472939.126921259] [global_costmap.global_costmap]: Activating
+[planner_server-7] [INFO] [1782472939.126927605] [global_costmap.global_costmap]: Checking transform
+[planner_server-7] [INFO] [1782472939.126974071] [global_costmap.global_costmap]: start
+[planner_server-7] [INFO] [1782472939.628036693] [planner_server]: Activating plugin GridBased of type NavfnPlanner
+[planner_server-7] [INFO] [1782472939.629492232] [planner_server]: Creating bond (planner_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782472939.734292850] [lifecycle_manager_navigation]: Server planner_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782472939.734322938] [lifecycle_manager_navigation]: [34m[1mActivating behavior_server[0m[0m
+[behavior_server-8] [INFO] [1782472939.734669232] [behavior_server]: Activating
+[behavior_server-8] [INFO] [1782472939.734694905] [behavior_server]: Activating spin
+[behavior_server-8] [INFO] [1782472939.734706937] [behavior_server]: Activating backup
+[behavior_server-8] [INFO] [1782472939.734715803] [behavior_server]: Activating drive_on_heading
+[behavior_server-8] [INFO] [1782472939.734724230] [behavior_server]: Activating assisted_teleop
+[behavior_server-8] [INFO] [1782472939.734732932] [behavior_server]: Activating wait
+[behavior_server-8] [INFO] [1782472939.734743409] [behavior_server]: Creating bond (behavior_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782472939.841164987] [lifecycle_manager_navigation]: Server behavior_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782472939.841192502] [lifecycle_manager_navigation]: [34m[1mActivating bt_navigator[0m[0m
+[bt_navigator-9] [INFO] [1782472939.841538210] [bt_navigator]: Activating
+[bt_navigator-9] [INFO] [1782472939.916814394] [bt_navigator]: Creating bond (bt_navigator) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782472940.021851575] [lifecycle_manager_navigation]: Server bt_navigator connected with bond.
+[lifecycle_manager-12] [INFO] [1782472940.021880091] [lifecycle_manager_navigation]: [34m[1mActivating waypoint_follower[0m[0m
+[waypoint_follower-10] [INFO] [1782472940.022258574] [waypoint_follower]: Activating
+[waypoint_follower-10] [INFO] [1782472940.022291434] [waypoint_follower]: Creating bond (waypoint_follower) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782472940.129225378] [lifecycle_manager_navigation]: Server waypoint_follower connected with bond.
+[lifecycle_manager-12] [INFO] [1782472940.129251637] [lifecycle_manager_navigation]: [34m[1mActivating velocity_smoother[0m[0m
+[velocity_smoother-11] [INFO] [1782472940.129626322] [velocity_smoother]: Activating
+[velocity_smoother-11] [INFO] [1782472940.129678040] [velocity_smoother]: Creating bond (velocity_smoother) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782472940.236940539] [lifecycle_manager_navigation]: Server velocity_smoother connected with bond.
+[lifecycle_manager-12] [INFO] [1782472940.236967769] [lifecycle_manager_navigation]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-12] [INFO] [1782472940.236973684] [lifecycle_manager_navigation]: [34m[1mCreating bond timer...[0m[0m
+[planner_server-7] [WARN] [1782472944.127109174] [global_costmap.global_costmap]: Can't update static costmap layer, no map received
+[slam_evaluator-14] [INFO] [1782472944.572782227] [slam_evaluator]: Waiting for data: /map
+[planner_server-7] [INFO] [1782472946.985782123] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 67 X 68 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782472947.017027541] [exploration_coordinator]: Nav2 and the first map are ready; starting exploration.
+[exploration_coordinator-13] [INFO] [1782472947.084645214] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=1: 9 nodes/8 edges, route_phase=expansion, expansion_targets=[62, 64, 70, 72], cleanup_targets=[], targets=[62, 64, 70, 72], transit=[67, 37, 57, 72, 57, 37, 64, 37, 67, 19, 70, 19, 14, 62], continuation_successor=None, length=42.63m, replan_ms=26.0; vertex_clustering=73->9, unknown_cycle_suppression=vertices:8,removed_edges:2, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472947.084823923] [exploration_coordinator]: Checking hierarchical GVD macro vertex=67 goal=(-1.73, 0.02), travel=0.59m, utility=1.444; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472947.087895671] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=67: goal=(-1.73, 0.02), cost=0.86.
+[bt_navigator-9] [INFO] [1782472947.088663969] [bt_navigator]: Begin navigating from current location (-2.00, -0.50) to (-1.73, 0.02)
+[controller_server-5] [INFO] [1782472947.109335259] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [WARN] [1782472947.109373653] [controller_server]: No goal checker was specified in parameter 'current_goal_checker'. Server will use only plugin loaded general_goal_checker . This warning will appear once.
+[controller_server-5] [INFO] [1782472948.159530053] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472948.661108274] [controller_server]: Reached the goal!
+[exploration_coordinator-13] [INFO] [1782472948.699395171] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=67; degree=2, next_phase=macro.
+[bt_navigator-9] [INFO] [1782472948.699464155] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472948.721485523] [exploration_coordinator]: Checking hierarchical GVD macro vertex=37 goal=(1.27, 1.52), travel=5.45m, utility=0.180; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472948.725485804] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=37: goal=(1.27, 1.52), cost=3.35.
+[bt_navigator-9] [INFO] [1782472948.726352179] [bt_navigator]: Begin navigating from current location (-1.62, -0.14) to (1.27, 1.52)
+[controller_server-5] [INFO] [1782472948.746836373] [controller_server]: Received a goal, begin computing control effort.
+[slam_evaluator-14] [INFO] [1782472949.581774780] [slam_evaluator]: Evaluator is recording samples.
+[controller_server-5] [INFO] [1782472949.797011722] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472950.847010524] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472951.498616764] [controller_server]: Reached the goal!
+[exploration_coordinator-13] [INFO] [1782472951.537062316] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=37; degree=3, next_phase=macro.
+[bt_navigator-9] [INFO] [1782472951.537065259] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472951.556040313] [exploration_coordinator]: Checking hierarchical GVD macro vertex=57 goal=(-0.23, 3.03), travel=2.27m, utility=0.422; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472951.561249761] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=57: goal=(-0.23, 3.03), cost=2.76.
+[bt_navigator-9] [INFO] [1782472951.562376271] [bt_navigator]: Begin navigating from current location (1.14, 1.45) to (-0.23, 3.03)
+[controller_server-5] [INFO] [1782472951.582866972] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472952.633042176] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472953.683049133] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472954.683043297] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472954.735382136] [controller_server]: Reached the goal!
+[exploration_coordinator-13] [INFO] [1782472954.773004105] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=57; degree=2, next_phase=macro.
+[bt_navigator-9] [INFO] [1782472954.773061950] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472954.795473131] [exploration_coordinator]: Checking hierarchical GVD macro vertex=72 goal=(-2.33, 3.17), travel=2.31m, utility=0.414; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472954.802650384] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=72: goal=(-2.33, 3.17), cost=7.37.
+[bt_navigator-9] [INFO] [1782472954.803700561] [bt_navigator]: Begin navigating from current location (-0.27, 2.88) to (-2.33, 3.17)
+[controller_server-5] [INFO] [1782472954.824238835] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472955.874431234] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472956.924432749] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [INFO] [1782472957.074845496] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=2: 10 nodes/9 edges, route_phase=cleanup_ready, expansion_targets=[], cleanup_targets=[], targets=[], transit=[], continuation_successor=None, length=0.00m, replan_ms=23.9; vertex_clustering=97->10, unknown_cycle_suppression=vertices:8,removed_edges:2, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472957.075009826] [exploration_coordinator]: Hierarchical GVD map update exposed a reached leaf vertex; preempting macro navigation for local clearance.
+[exploration_coordinator-13] [INFO] [1782472957.081806488] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=66: Region known coverage 98.7% reached 90.0%; returning to macro traversal.
+[bt_navigator-9] [ERROR] [1782472957.104153115] [bt_navigator_navigate_to_pose_rclcpp_node]: Failed to get result for follow_path in node halt!
+[bt_navigator-9] [INFO] [1782472957.104200350] [bt_navigator]: [navigate_to_pose] [ActionServer] Client requested to cancel the goal. Cancelling.
+[bt_navigator-9] [INFO] [1782472957.104593745] [bt_navigator]: Goal canceled
+[controller_server-5] [INFO] [1782472957.124427338] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-5] [INFO] [1782472957.124451055] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[planner_server-7] [INFO] [1782472957.127087870] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 171 X 169 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782472958.100102565] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=3: 10 nodes/9 edges, route_phase=expansion, expansion_targets=[15, 33, 69, 70], cleanup_targets=[], targets=[15, 33, 69, 70], transit=[66, 42, 39, 69, 39, 42, 61, 70, 61, 42, 19, 15, 19, 4, 33], continuation_successor=None, length=53.67m, replan_ms=24.5; vertex_clustering=97->10, unknown_cycle_suppression=vertices:8,removed_edges:2, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472958.100285994] [exploration_coordinator]: Checking hierarchical GVD macro vertex=66 goal=(0.08, 2.72), travel=1.22m, utility=0.756; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472958.102850647] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=66: goal=(0.08, 2.72), cost=1.30.
+[bt_navigator-9] [INFO] [1782472958.103357873] [bt_navigator]: Begin navigating from current location (-1.03, 3.25) to (0.08, 2.72)
+[controller_server-5] [INFO] [1782472958.123661960] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472959.173838077] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472959.775325578] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472959.813688287] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472959.813814904] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=66; degree=1, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472959.839285531] [exploration_coordinator]: Checking hierarchical GVD macro vertex=42 goal=(-0.08, -0.12), travel=3.12m, utility=0.310; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472959.842848443] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=42: goal=(-0.08, -0.12), cost=3.22.
+[bt_navigator-9] [INFO] [1782472959.843308360] [bt_navigator]: Begin navigating from current location (-0.09, 2.86) to (-0.08, -0.12)
+[controller_server-5] [INFO] [1782472959.863596180] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472960.913815058] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472961.963814398] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472962.963814801] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472963.115348659] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472963.153515881] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472963.153816788] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=42; degree=4, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472963.167419748] [exploration_coordinator]: Checking hierarchical GVD macro vertex=39 goal=(4.12, -0.28), travel=4.45m, utility=0.220; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472963.172146769] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=39: goal=(4.12, -0.28), cost=4.41.
+[bt_navigator-9] [INFO] [1782472963.172629761] [bt_navigator]: Begin navigating from current location (-0.06, 0.06) to (4.12, -0.28)
+[controller_server-5] [INFO] [1782472963.192945145] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472964.243155018] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472965.293151344] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472966.293151953] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [INFO] [1782472967.104169881] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=4: 11 nodes/10 edges, route_phase=expansion, expansion_targets=[30, 43, 96, 104], cleanup_targets=[], targets=[30, 43, 96, 104], transit=[50, 87, 104, 87, 50, 30, 50, 55, 28, 9, 43, 9, 28, 55, 76, 96], continuation_successor=50, length=49.20m, replan_ms=25.6; vertex_clustering=127->11, unknown_cycle_suppression=vertices:7,removed_edges:2, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472967.104397421] [exploration_coordinator]: Hierarchical GVD TSP first step changed after map update; keeping the active Nav2 macro goal until it finishes.
+[planner_server-7] [INFO] [1782472967.127084346] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 224 X 173 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782472967.343149814] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472967.394651649] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472967.432868790] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472967.433445064] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=50; degree=3, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472967.452344721] [exploration_coordinator]: Checking hierarchical GVD macro vertex=87 goal=(3.22, 2.12), travel=3.24m, utility=0.300; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472967.455703924] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=87: goal=(3.22, 2.12), cost=2.78.
+[bt_navigator-9] [INFO] [1782472967.456035082] [bt_navigator]: Begin navigating from current location (4.01, -0.19) to (3.22, 2.12)
+[controller_server-5] [INFO] [1782472967.476318405] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472968.526544112] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472969.576544090] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472970.576541792] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472970.678046330] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472970.716278243] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472970.716491776] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=87; degree=2, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472970.740562507] [exploration_coordinator]: Checking hierarchical GVD macro vertex=104 goal=(4.72, 3.78), travel=3.47m, utility=0.280; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472970.743665169] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=104: goal=(4.72, 3.78), cost=2.48.
+[bt_navigator-9] [INFO] [1782472970.743994391] [bt_navigator]: Begin navigating from current location (3.38, 2.01) to (4.72, 3.78)
+[controller_server-5] [INFO] [1782472970.764282848] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472971.814499271] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472972.716774486] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472972.754238917] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472972.754454579] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=104; degree=1, next_phase=local_clear.
+[exploration_coordinator-13] [INFO] [1782472972.788455630] [exploration_coordinator]: Hierarchical GVD local cleanup around vertex=104: known_coverage=0.0%, 0 clusters, 0 safe candidates.
+[exploration_coordinator-13] [INFO] [1782472972.788718855] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=104: no Nav2-reachable Region-local frontier remains; returning to macro traversal.
+[exploration_coordinator-13] [INFO] [1782472972.859280789] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=5: 11 nodes/10 edges, route_phase=expansion, expansion_targets=[30, 43, 96], cleanup_targets=[], targets=[30, 43, 96], transit=[87, 50, 55, 76, 96, 76, 55, 50, 30, 50, 55, 28, 9, 43], continuation_successor=87, length=46.81m, replan_ms=32.8; vertex_clustering=127->11, unknown_cycle_suppression=vertices:7,removed_edges:2, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472972.859463512] [exploration_coordinator]: Checking hierarchical GVD macro vertex=87 goal=(3.22, 2.12), travel=3.46m, utility=0.281; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472972.862382755] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=87: goal=(3.22, 2.12), cost=2.22.
+[bt_navigator-9] [INFO] [1782472972.862964456] [bt_navigator]: Begin navigating from current location (4.55, 3.74) to (3.22, 2.12)
+[controller_server-5] [INFO] [1782472972.883270493] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472973.933489366] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472974.983489453] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472975.935002882] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472975.973231588] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472975.973423617] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=87; degree=2, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472975.989943116] [exploration_coordinator]: Checking hierarchical GVD macro vertex=50 goal=(3.82, -0.28), travel=3.20m, utility=0.303; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472975.993169709] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=50: goal=(3.82, -0.28), cost=2.89.
+[bt_navigator-9] [INFO] [1782472975.993707010] [bt_navigator]: Begin navigating from current location (3.29, 2.27) to (3.82, -0.28)
+[controller_server-5] [INFO] [1782472976.013978218] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472977.064166379] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [INFO] [1782472977.081712415] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=6: 11 nodes/10 edges, route_phase=expansion, expansion_targets=[30, 43, 96], cleanup_targets=[], targets=[30, 43, 96], transit=[50, 55, 76, 96, 76, 55, 50, 30, 50, 55, 28, 9, 43], continuation_successor=50, length=43.77m, replan_ms=25.6; vertex_clustering=132->11, unknown_cycle_suppression=vertices:6,removed_edges:2, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[planner_server-7] [INFO] [1782472977.127085149] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 225 X 173 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782472978.114165863] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472978.965684862] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472979.004141966] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472979.004255071] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=50; degree=3, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472979.040661399] [exploration_coordinator]: Checking hierarchical GVD macro vertex=55 goal=(-0.08, -0.12), travel=4.17m, utility=0.234; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472979.044972799] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=55: goal=(-0.08, -0.12), cost=3.99.
+[bt_navigator-9] [INFO] [1782472979.045334229] [bt_navigator]: Begin navigating from current location (3.87, -0.07) to (-0.08, -0.12)
+[controller_server-5] [INFO] [1782472979.065622727] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472980.115840668] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472981.165842228] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472982.165844381] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472983.215842851] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472983.667325622] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472983.705754924] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472983.705857525] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=55; degree=4, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472983.732716508] [exploration_coordinator]: Checking hierarchical GVD macro vertex=76 goal=(-5.03, 0.47), travel=5.40m, utility=0.182; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472983.738305332] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=76: goal=(-5.03, 0.47), cost=5.65.
+[bt_navigator-9] [INFO] [1782472983.738668515] [bt_navigator]: Begin navigating from current location (0.12, -0.17) to (-5.03, 0.47)
+[controller_server-5] [INFO] [1782472983.759023676] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782472984.770284958] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782472984.809168207] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472985.859162660] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472986.859169128] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [INFO] [1782472987.081291294] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=7: 11 nodes/10 edges, route_phase=expansion, expansion_targets=[25, 27, 29, 93], cleanup_targets=[], targets=[25, 27, 29, 93], transit=[76, 103, 25, 103, 76, 93, 76, 58, 27, 58, 54, 29], continuation_successor=76, length=35.26m, replan_ms=25.4; vertex_clustering=128->11, unknown_cycle_suppression=vertices:5,removed_edges:3, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472987.081508931] [exploration_coordinator]: Hierarchical GVD TSP first step changed after map update; keeping the active Nav2 macro goal until it finishes.
+[planner_server-7] [INFO] [1782472987.127083184] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 239 X 173 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782472987.909163657] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472988.909166599] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472989.261500953] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472989.298897830] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472989.299170831] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=76; degree=3, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472989.306225259] [exploration_coordinator]: Checking hierarchical GVD macro vertex=103 goal=(-3.98, -1.03), travel=3.37m, utility=0.288; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472989.309538533] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=103: goal=(-3.98, -1.03), cost=1.86.
+[bt_navigator-9] [INFO] [1782472989.310109900] [bt_navigator]: Begin navigating from current location (-4.85, 0.56) to (-3.98, -1.03)
+[controller_server-5] [INFO] [1782472989.330381480] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472990.380553721] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472991.332051386] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472991.370349723] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472991.370543259] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=103; degree=2, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472991.389618158] [exploration_coordinator]: Checking hierarchical GVD macro vertex=25 goal=(-4.12, -3.12), travel=2.32m, utility=0.413; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472991.393342274] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=25: goal=(-4.12, -3.12), cost=2.27.
+[bt_navigator-9] [INFO] [1782472991.393912469] [bt_navigator]: Begin navigating from current location (-4.04, -0.88) to (-4.12, -3.12)
+[controller_server-5] [INFO] [1782472991.414201293] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472992.464382857] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472993.514384759] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472994.216001612] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472994.254177197] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472994.254644713] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=25; degree=1, next_phase=local_clear.
+[exploration_coordinator-13] [INFO] [1782472994.286532477] [exploration_coordinator]: Hierarchical GVD local cleanup around vertex=25: known_coverage=0.0%, 0 clusters, 0 safe candidates.
+[exploration_coordinator-13] [INFO] [1782472994.286950656] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=25: no Nav2-reachable Region-local frontier remains; returning to macro traversal.
+[exploration_coordinator-13] [INFO] [1782472994.344562902] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=8: 11 nodes/10 edges, route_phase=expansion, expansion_targets=[27, 29, 93], cleanup_targets=[], targets=[27, 29, 93], transit=[103, 76, 93, 76, 58, 27, 58, 54, 29], continuation_successor=103, length=28.16m, replan_ms=25.5; vertex_clustering=128->11, unknown_cycle_suppression=vertices:5,removed_edges:3, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472994.344842408] [exploration_coordinator]: Checking hierarchical GVD macro vertex=103 goal=(-3.98, -1.03), travel=2.34m, utility=0.410; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472994.348883076] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=103: goal=(-3.98, -1.03), cost=2.17.
+[bt_navigator-9] [INFO] [1782472994.349369632] [bt_navigator]: Begin navigating from current location (-4.05, -2.96) to (-3.98, -1.03)
+[controller_server-5] [INFO] [1782472994.369670638] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782472995.419844074] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472996.469843374] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472996.771343901] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782472996.809609424] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782472996.810094370] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=103; degree=2, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782472996.849801537] [exploration_coordinator]: Checking hierarchical GVD macro vertex=76 goal=(-5.33, 0.92), travel=2.98m, utility=0.324; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472996.857410749] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=76: goal=(-5.33, 0.92), cost=2.61.
+[bt_navigator-9] [INFO] [1782472996.857813686] [bt_navigator]: Begin navigating from current location (-4.00, -1.24) to (-5.33, 0.92)
+[planner_server-7] [WARN] [1782472996.858756809] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782472996.878146257] [controller_server]: Received a goal, begin computing control effort.
+[exploration_coordinator-13] [INFO] [1782472997.084272148] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=9: 10 nodes/9 edges, route_phase=expansion, expansion_targets=[20, 22, 61], cleanup_targets=[], targets=[20, 22, 61], transit=[40, 61, 40, 36, 20, 36, 26, 22], continuation_successor=None, length=23.96m, replan_ms=23.9; vertex_clustering=89->10, unknown_cycle_suppression=vertices:3,removed_edges:1, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782472997.084446887] [exploration_coordinator]: Hierarchical GVD TSP first step changed after map update; keeping the active Nav2 macro goal until it finishes.
+[planner_server-7] [INFO] [1782472997.127083281] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 242 X 198 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782472997.928293475] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472998.978294762] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782472999.978294906] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473000.030004580] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473000.068069479] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [WARN] [1782473000.068282703] [exploration_coordinator]: Nav2 reached a hierarchical GVD macro goal that no longer maps to the rebuilt topology; replanning.
+[exploration_coordinator-13] [INFO] [1782473000.116254118] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=10: 10 nodes/9 edges, route_phase=expansion, expansion_targets=[20, 22, 61], cleanup_targets=[], targets=[20, 22, 61], transit=[40, 61, 40, 36, 20, 36, 26, 22], continuation_successor=None, length=23.96m, replan_ms=24.0; vertex_clustering=89->10, unknown_cycle_suppression=vertices:3,removed_edges:1, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473000.116431902] [exploration_coordinator]: Checking hierarchical GVD macro vertex=40 goal=(-4.12, 0.17), travel=1.22m, utility=0.759; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473000.120027819] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=40: goal=(-4.12, 0.17), cost=1.30.
+[bt_navigator-9] [INFO] [1782473000.120621003] [bt_navigator]: Begin navigating from current location (-5.18, 0.78) to (-4.12, 0.17)
+[controller_server-5] [INFO] [1782473000.140913136] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473001.191082712] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473001.492564477] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473001.530867675] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473001.535080236] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=40; degree=3, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782473001.573996489] [exploration_coordinator]: Checking hierarchical GVD macro vertex=61 goal=(-4.12, 3.32), travel=3.41m, utility=0.285; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473001.578496950] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=61: goal=(-4.12, 3.32), cost=3.19.
+[bt_navigator-9] [INFO] [1782473001.578900107] [bt_navigator]: Begin navigating from current location (-4.22, 0.27) to (-4.12, 3.32)
+[controller_server-5] [INFO] [1782473001.599225229] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473002.649397270] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473003.649392418] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473004.699392456] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473005.000892121] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473005.039154953] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473005.039617427] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=61; degree=1, next_phase=local_clear.
+[exploration_coordinator-13] [INFO] [1782473005.064142634] [exploration_coordinator]: Hierarchical GVD local cleanup around vertex=61: known_coverage=0.0%, 0 clusters, 0 safe candidates.
+[exploration_coordinator-13] [INFO] [1782473005.064402466] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=61: no Nav2-reachable Region-local frontier remains; returning to macro traversal.
+[exploration_coordinator-13] [INFO] [1782473005.125049754] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=11: 10 nodes/9 edges, route_phase=expansion, expansion_targets=[20, 22], cleanup_targets=[], targets=[20, 22], transit=[40, 36, 20, 36, 26, 22], continuation_successor=40, length=17.41m, replan_ms=26.5; vertex_clustering=89->10, unknown_cycle_suppression=vertices:3,removed_edges:1, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473005.125234071] [exploration_coordinator]: Checking hierarchical GVD macro vertex=40 goal=(-4.12, 0.17), travel=3.45m, utility=0.282; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473005.130027938] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=40: goal=(-4.12, 0.17), cost=3.01.
+[bt_navigator-9] [INFO] [1782473005.130646055] [bt_navigator]: Begin navigating from current location (-4.07, 3.16) to (-4.12, 0.17)
+[controller_server-5] [INFO] [1782473005.150927093] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473006.201095886] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [INFO] [1782473007.091773821] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=12: 10 nodes/9 edges, route_phase=expansion, expansion_targets=[20, 22], cleanup_targets=[], targets=[20, 22], transit=[40, 36, 20, 36, 26, 22], continuation_successor=40, length=17.41m, replan_ms=23.6; vertex_clustering=89->10, unknown_cycle_suppression=vertices:2,removed_edges:1, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[planner_server-7] [INFO] [1782473007.127085587] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 242 X 200 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782473007.251095262] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473008.251098086] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473008.502585351] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473008.541126082] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473008.541513235] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=40; degree=3, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782473008.553652619] [exploration_coordinator]: Checking hierarchical GVD macro vertex=36 goal=(-0.23, 0.02), travel=4.13m, utility=0.236; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473008.560553845] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=36: goal=(-0.23, 0.02), cost=3.97.
+[bt_navigator-9] [INFO] [1782473008.560948617] [bt_navigator]: Begin navigating from current location (-4.07, 0.34) to (-0.23, 0.02)
+[controller_server-5] [INFO] [1782473008.581293031] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473009.631469845] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473010.681468992] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473011.681468992] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473011.682878252] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473011.731225174] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473011.731461957] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=36; degree=4, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782473011.760793183] [exploration_coordinator]: Checking hierarchical GVD macro vertex=20 goal=(-0.08, -3.12), travel=3.39m, utility=0.287; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473011.768892410] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=20: goal=(-0.08, -3.12), cost=3.52.
+[bt_navigator-9] [INFO] [1782473011.769494771] [bt_navigator]: Begin navigating from current location (-0.37, 0.12) to (-0.08, -3.12)
+[planner_server-7] [WARN] [1782473011.770706146] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473011.789771713] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473012.839938973] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473013.889938165] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473014.889937971] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473015.939935319] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473016.441460981] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473016.479911889] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473016.479959926] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=20; degree=1, next_phase=local_clear.
+[exploration_coordinator-13] [INFO] [1782473016.496524884] [exploration_coordinator]: Hierarchical GVD local cleanup around vertex=20: known_coverage=6.7%, 1 clusters, 1 safe candidates.
+[exploration_coordinator-13] [INFO] [1782473016.502491635] [exploration_coordinator]: Hierarchical GVD local approx-graph selected frontier score=24.242, size=427, source=unknown.
+[exploration_coordinator-13] [INFO] [1782473016.502658608] [exploration_coordinator]: Navigating to frontier goal=(-0.54, 0.80), size=427, cost=3.86, source=unknown, information_gain=0.60m^2
+[bt_navigator-9] [INFO] [1782473016.503237883] [bt_navigator]: Begin navigating from current location (0.03, -3.00) to (-0.54, 0.80)
+[controller_server-5] [INFO] [1782473016.523520319] [controller_server]: Received a goal, begin computing control effort.
+[exploration_coordinator-13] [INFO] [1782473017.078390739] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=13: 10 nodes/9 edges, route_phase=cleanup_ready, expansion_targets=[], cleanup_targets=[], targets=[], transit=[], continuation_successor=None, length=0.00m, replan_ms=22.6; vertex_clustering=70->10, unknown_cycle_suppression=vertices:1,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473017.078544382] [exploration_coordinator]: Refreshed hierarchical GVD TSP route during local cleanup; state=navigating.
+[planner_server-7] [INFO] [1782473017.127081225] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 242 X 201 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782473017.573699138] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473018.623700114] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473019.623700871] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473020.673699767] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473020.775227065] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473020.813572756] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473020.825683922] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473020.825890446] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.16 rad.
+[behavior_server-8] [INFO] [1782473020.826268982] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782473020.826379362] [behavior_server]: Turning -0.16 for spin behavior.
+[behavior_server-8] [INFO] [1782473021.126602036] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782473021.127145653] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782473021.127603372] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782473021.127771336] [behavior_server]: DriveOnHeading: no acceleration or deceleration limits set
+[behavior_server-8] [INFO] [1782473021.627816657] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782473021.628300886] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782473021.679417143] [exploration_coordinator]: Hierarchical GVD local cleanup around vertex=6: known_coverage=57.6%, 3 clusters, 3 safe candidates.
+[exploration_coordinator-13] [INFO] [1782473021.709545460] [exploration_coordinator]: Hierarchical GVD local approx-graph selected frontier score=23.087, size=529, source=unknown.
+[exploration_coordinator-13] [INFO] [1782473021.709702920] [exploration_coordinator]: Navigating to frontier goal=(0.26, -4.67), size=529, cost=4.92, source=unknown, information_gain=1.73m^2
+[bt_navigator-9] [INFO] [1782473021.710309206] [bt_navigator]: Begin navigating from current location (-0.57, 0.12) to (0.26, -4.67)
+[controller_server-5] [INFO] [1782473021.730641447] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473022.780816606] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473023.830785899] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473024.830816501] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473025.880814902] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473026.382352717] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473026.420731926] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473026.420745446] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473026.420969769] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-2.20 rad.
+[behavior_server-8] [INFO] [1782473026.421234857] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782473026.421279990] [behavior_server]: Turning -2.20 for spin behavior.
+[exploration_coordinator-13] [INFO] [1782473027.081878945] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=14: 10 nodes/9 edges, route_phase=cleanup_ready, expansion_targets=[], cleanup_targets=[], targets=[], transit=[], continuation_successor=None, length=0.00m, replan_ms=22.5; vertex_clustering=65->10, unknown_cycle_suppression=vertices:1,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473027.082027027] [exploration_coordinator]: Refreshed hierarchical GVD TSP route during local cleanup; state=aligning_frontier_probe.
+[exploration_coordinator-13] [INFO] [1782473027.082547258] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=3: Region known coverage 99.6% reached 90.0%; returning to macro traversal.
+[behavior_server-8] [INFO] [1782473027.121352531] [behavior_server]: Canceling spin
+[behavior_server-8] [INFO] [1782473027.121403647] [behavior_server]: [spin] [ActionServer] Client requested to cancel the goal. Cancelling.
+[planner_server-7] [INFO] [1782473027.127086631] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 242 X 202 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782473028.091364162] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=15: 10 nodes/9 edges, route_phase=expansion, expansion_targets=[4], cleanup_targets=[], targets=[4], transit=[3, 16, 5, 4], continuation_successor=None, length=10.15m, replan_ms=22.9; vertex_clustering=65->10, unknown_cycle_suppression=vertices:1,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473028.091540021] [exploration_coordinator]: Checking hierarchical GVD macro vertex=3 goal=(-0.08, -3.12), travel=1.41m, utility=0.663; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473028.095811160] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=3: goal=(-0.08, -3.12), cost=1.47.
+[bt_navigator-9] [INFO] [1782473028.096385695] [bt_navigator]: Begin navigating from current location (0.17, -4.51) to (-0.08, -3.12)
+[controller_server-5] [INFO] [1782473028.116690445] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473029.166867453] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473030.216863912] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473030.368365612] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473030.406807630] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473030.406832149] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=3; degree=1, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782473030.433493427] [exploration_coordinator]: Checking hierarchical GVD macro vertex=16 goal=(-0.23, 0.02), travel=3.39m, utility=0.287; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473030.438872667] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=16: goal=(-0.23, 0.02), cost=3.41.
+[bt_navigator-9] [INFO] [1782473030.439446079] [bt_navigator]: Begin navigating from current location (0.00, -3.28) to (-0.23, 0.02)
+[controller_server-5] [INFO] [1782473030.459715187] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782473031.470509478] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473031.509887893] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473032.559886679] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473033.559886242] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473033.961401988] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473033.999885205] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473033.999986523] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=16; degree=4, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782473034.038722777] [exploration_coordinator]: Checking hierarchical GVD macro vertex=5 goal=(3.82, -0.42), travel=4.42m, utility=0.221; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473034.044525736] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=5: goal=(3.82, -0.42), cost=4.09.
+[bt_navigator-9] [INFO] [1782473034.045098811] [bt_navigator]: Begin navigating from current location (-0.16, -0.14) to (3.82, -0.42)
+[controller_server-5] [INFO] [1782473034.065398240] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473035.115591114] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473036.165588981] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [INFO] [1782473037.058314183] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=16: 10 nodes/9 edges, route_phase=expansion, expansion_targets=[2], cleanup_targets=[], targets=[2], transit=[5, 2], continuation_successor=5, length=2.85m, replan_ms=23.0; vertex_clustering=66->10, unknown_cycle_suppression=vertices:1,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[controller_server-5] [INFO] [1782473037.165588088] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473037.667119658] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473037.705338620] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473037.705643508] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=5; degree=3, next_phase=macro.
+[exploration_coordinator-13] [INFO] [1782473037.727544153] [exploration_coordinator]: Checking hierarchical GVD macro vertex=2 goal=(3.82, -3.28), travel=3.01m, utility=0.322; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473037.732745579] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=2: goal=(3.82, -3.28), cost=2.98.
+[bt_navigator-9] [INFO] [1782473037.733321895] [bt_navigator]: Begin navigating from current location (3.70, -0.33) to (3.82, -3.28)
+[controller_server-5] [INFO] [1782473037.753587090] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782473038.764467848] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473038.803772099] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473039.853771320] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473040.853773995] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473040.955286896] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473040.993732647] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473040.993786346] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=2; degree=1, next_phase=local_clear.
+[exploration_coordinator-13] [INFO] [1782473041.013261930] [exploration_coordinator]: Hierarchical GVD local cleanup around vertex=2: known_coverage=0.0%, 0 clusters, 0 safe candidates.
+[exploration_coordinator-13] [INFO] [1782473041.013549384] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=2: no Nav2-reachable Region-local frontier remains; returning to macro traversal.
+[exploration_coordinator-13] [INFO] [1782473041.074601762] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=17: 10 nodes/9 edges, route_phase=cleanup, expansion_targets=[], cleanup_targets=[5, 16, 19], targets=[5, 16, 19], transit=[2, 5, 16, 19], continuation_successor=None, length=11.05m, replan_ms=23.4; vertex_clustering=66->10, unknown_cycle_suppression=vertices:1,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473041.074791442] [exploration_coordinator]: Checking hierarchical GVD macro vertex=5 goal=(3.82, -0.42), travel=3.01m, utility=0.322; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473041.080402140] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=5: goal=(3.82, -0.42), cost=2.78.
+[bt_navigator-9] [INFO] [1782473041.080980048] [bt_navigator]: Begin navigating from current location (3.87, -3.12) to (3.82, -0.42)
+[controller_server-5] [INFO] [1782473041.101284023] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473042.151460531] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473043.201459927] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782473044.171756911] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473044.201460415] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473044.302951042] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473044.341234831] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473044.341499918] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=5; degree=3, next_phase=local_clear.
+[exploration_coordinator-13] [INFO] [1782473044.380753717] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=5: Region known coverage 99.1% reached 90.0%; returning to macro traversal.
+[exploration_coordinator-13] [INFO] [1782473044.440337717] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=18: 10 nodes/9 edges, route_phase=cleanup, expansion_targets=[], cleanup_targets=[16, 19], targets=[16, 19], transit=[16, 19], continuation_successor=16, length=3.96m, replan_ms=22.9; vertex_clustering=66->10, unknown_cycle_suppression=vertices:1,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473044.440520879] [exploration_coordinator]: Checking hierarchical GVD macro vertex=16 goal=(-0.23, 0.02), travel=4.42m, utility=0.221; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473044.446953174] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=16: goal=(-0.23, 0.02), cost=4.25.
+[bt_navigator-9] [INFO] [1782473044.447308799] [bt_navigator]: Begin navigating from current location (3.88, -0.60) to (-0.23, 0.02)
+[controller_server-5] [INFO] [1782473044.467593872] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473045.517768080] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473046.567769976] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [INFO] [1782473047.054213619] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=19: 10 nodes/9 edges, route_phase=cleanup, expansion_targets=[], cleanup_targets=[22, 25], targets=[22, 25], transit=[22, 25], continuation_successor=22, length=3.96m, replan_ms=22.9; vertex_clustering=69->10, unknown_cycle_suppression=vertices:0,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[planner_server-7] [INFO] [1782473047.127082660] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 242 X 204 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782473047.567734513] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473048.617767749] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473049.169266563] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473049.207727671] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473049.207864708] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=22; degree=4, next_phase=local_clear.
+[exploration_coordinator-13] [INFO] [1782473049.223636234] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=22: Region known coverage 97.7% reached 90.0%; returning to macro traversal.
+[exploration_coordinator-13] [INFO] [1782473049.284305889] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=20: 10 nodes/9 edges, route_phase=cleanup, expansion_targets=[], cleanup_targets=[25], targets=[25], transit=[25], continuation_successor=25, length=0.00m, replan_ms=22.9; vertex_clustering=69->10, unknown_cycle_suppression=vertices:0,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473049.284491313] [exploration_coordinator]: Checking hierarchical GVD macro vertex=25 goal=(-4.12, 0.17), travel=4.18m, utility=0.234; switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473049.290881315] [exploration_coordinator]: Navigating to hierarchical GVD macro vertex=25: goal=(-4.12, 0.17), cost=4.20.
+[bt_navigator-9] [INFO] [1782473049.291444096] [bt_navigator]: Begin navigating from current location (-0.02, -0.03) to (-4.12, 0.17)
+[controller_server-5] [INFO] [1782473049.311732479] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473050.361926033] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473051.411927101] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473052.411927020] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473053.461926309] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473054.163426515] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473054.201849963] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473054.201978502] [exploration_coordinator]: Nav2 reached hierarchical GVD macro vertex=25; degree=3, next_phase=local_clear.
+[exploration_coordinator-13] [INFO] [1782473054.232155771] [exploration_coordinator]: Hierarchical GVD local cleanup completed for vertex=25: Region known coverage 99.9% reached 90.0%; returning to macro traversal.
+[exploration_coordinator-13] [INFO] [1782473054.292913478] [exploration_coordinator]: Rebuilt hierarchical GVD TSP route version=21: 10 nodes/9 edges, route_phase=cleanup, expansion_targets=[], cleanup_targets=[], targets=[], transit=[], continuation_successor=None, length=0.00m, replan_ms=22.7; vertex_clustering=69->10, unknown_cycle_suppression=vertices:0,removed_edges:0, switching_connections=gvd:0,astar:0,components:1,cache:0/0.
+[exploration_coordinator-13] [INFO] [1782473054.293068592] [exploration_coordinator]: Hierarchical GVD macro traversal completed; starting global frontier cleanup.
+[exploration_coordinator-13] [INFO] [1782473054.379108634] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=85.8.
+[exploration_coordinator-13] [INFO] [1782473054.379269840] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.92m^2, utility=0.190.
+[exploration_coordinator-13] [INFO] [1782473054.390876905] [exploration_coordinator]: Navigating to frontier goal=(-3.29, -4.55), size=219, cost=4.86, source=unknown, information_gain=0.92m^2
+[bt_navigator-9] [INFO] [1782473054.391485823] [bt_navigator]: Begin navigating from current location (-3.94, 0.16) to (-3.29, -4.55)
+[controller_server-5] [INFO] [1782473054.411773318] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473055.461944609] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] WARNING: Logging before InitGoogleLogging() is written to STDERR
+[sync_slam_toolbox_node-4] W0626 19:24:15.887672 2564962 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782473056.511944955] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782473057.127086767] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 242 X 205 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782473057.511942887] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473058.561944343] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473059.413727136] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473059.451903229] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473059.451942095] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473059.562247515] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=80.9.
+[exploration_coordinator-13] [INFO] [1782473059.562401416] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.01m^2, utility=0.447.
+[exploration_coordinator-13] [INFO] [1782473059.576899318] [exploration_coordinator]: Navigating to frontier goal=(-5.53, -4.39), size=50, cost=2.31, source=unknown, information_gain=1.01m^2
+[bt_navigator-9] [INFO] [1782473059.577486893] [bt_navigator]: Begin navigating from current location (-3.38, -4.37) to (-5.53, -4.39)
+[controller_server-5] [INFO] [1782473059.597751947] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473060.647925475] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473061.697924400] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473062.600333753] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473062.637745540] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473062.637908562] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473062.724717665] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=76.2.
+[exploration_coordinator-13] [INFO] [1782473062.724874548] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.75m^2, utility=0.647.
+[exploration_coordinator-13] [INFO] [1782473062.738816129] [exploration_coordinator]: Navigating to frontier goal=(-4.33, -4.29), size=50, cost=1.17, source=unknown, information_gain=0.75m^2
+[bt_navigator-9] [INFO] [1782473062.739416046] [bt_navigator]: Begin navigating from current location (-5.40, -4.29) to (-4.33, -4.29)
+[controller_server-5] [INFO] [1782473062.759728078] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473063.809897479] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473064.461411366] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473064.499833524] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473064.500124681] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473064.634502875] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=97.9.
+[exploration_coordinator-13] [INFO] [1782473064.634728498] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.92m^2, utility=0.888.
+[exploration_coordinator-13] [INFO] [1782473064.644462451] [exploration_coordinator]: Navigating to frontier goal=(-5.48, -4.29), size=50, cost=0.97, source=unknown, information_gain=0.92m^2
+[bt_navigator-9] [INFO] [1782473064.644876924] [bt_navigator]: Begin navigating from current location (-4.54, -4.26) to (-5.48, -4.29)
+[controller_server-5] [INFO] [1782473064.665163946] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473065.715346871] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473066.316800888] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473066.355230156] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473066.355310618] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473066.455684094] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=78.0.
+[exploration_coordinator-13] [INFO] [1782473066.455837740] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.75m^2, utility=0.738.
+[exploration_coordinator-13] [INFO] [1782473066.469840628] [exploration_coordinator]: Navigating to frontier goal=(-4.38, -4.24), size=50, cost=0.97, source=unknown, information_gain=0.75m^2
+[bt_navigator-9] [INFO] [1782473066.470363882] [bt_navigator]: Begin navigating from current location (-5.30, -4.24) to (-4.38, -4.24)
+[controller_server-5] [INFO] [1782473066.490681142] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473067.540866155] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473068.142453598] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473068.180779214] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473068.183735239] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473068.295726070] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=68.3.
+[exploration_coordinator-13] [INFO] [1782473068.412396859] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.97m^2, utility=0.113.
+[exploration_coordinator-13] [INFO] [1782473068.427099452] [exploration_coordinator]: Navigating to frontier goal=(-5.58, 4.16), size=26, cost=9.05, source=unknown, information_gain=0.97m^2
+[bt_navigator-9] [INFO] [1782473068.427496555] [bt_navigator]: Begin navigating from current location (-4.57, -4.27) to (-5.58, 4.16)
+[controller_server-5] [INFO] [1782473068.447960768] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473069.498145738] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473070.548145494] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473071.548141180] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473072.598149747] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] W0626 19:24:32.806588 2564962 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782473073.598145568] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473074.648147788] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473075.698147714] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473076.698147735] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473076.699728328] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473076.747943938] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473076.748272634] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473076.841628797] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=74.6.
+[exploration_coordinator-13] [INFO] [1782473076.841785651] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.88m^2, utility=0.912.
+[exploration_coordinator-13] [INFO] [1782473076.856493898] [exploration_coordinator]: Navigating to frontier goal=(-5.43, 3.16), size=26, cost=0.94, source=unknown, information_gain=0.88m^2
+[bt_navigator-9] [INFO] [1782473076.857089237] [bt_navigator]: Begin navigating from current location (-5.45, 4.03) to (-5.43, 3.16)
+[controller_server-5] [INFO] [1782473076.877390545] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782473077.127083243] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 242 X 205 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782473077.927555958] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473078.479071638] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473078.517500380] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473078.517555224] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473078.577992105] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=50.5.
+[exploration_coordinator-13] [INFO] [1782473078.655493418] [exploration_coordinator]: Splitting far frontier target: final=(3.37, -4.79), staging=(-1.48, -0.79), straight_distance=12.00m, segment_limit=6.00m.
+[exploration_coordinator-13] [INFO] [1782473078.655650532] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.94m^2, utility=0.077, staging first.
+[exploration_coordinator-13] [INFO] [1782473078.673046935] [exploration_coordinator]: Navigating to frontier staging goal=(-1.48, -0.79) toward final=(3.37, -4.79), cost=6.05, source=unknown.
+[bt_navigator-9] [INFO] [1782473078.673694296] [bt_navigator]: Begin navigating from current location (-5.44, 3.36) to (-1.48, -0.79)
+[controller_server-5] [INFO] [1782473078.694009947] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473079.744164178] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473080.794166367] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473081.794164060] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473082.844165362] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473083.795310840] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473083.834095196] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473083.834119574] [exploration_coordinator]: Nav2 reached a frontier staging waypoint; continuing toward the final frontier on the next selection pass.
+[exploration_coordinator-13] [INFO] [1782473083.913611596] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=51.0.
+[exploration_coordinator-13] [INFO] [1782473083.949446355] [exploration_coordinator]: Splitting far frontier target: final=(3.37, -4.79), staging=(3.77, -1.69), straight_distance=6.48m, segment_limit=6.00m.
+[exploration_coordinator-13] [INFO] [1782473083.949597137] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.94m^2, utility=0.142, staging first.
+[exploration_coordinator-13] [INFO] [1782473083.966376382] [exploration_coordinator]: Navigating to frontier staging goal=(3.77, -1.69) toward final=(3.37, -4.79), cost=6.08, source=unknown.
+[bt_navigator-9] [INFO] [1782473083.966771570] [bt_navigator]: Begin navigating from current location (-1.64, -0.69) to (3.77, -1.69)
+[controller_server-5] [INFO] [1782473083.987145311] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473085.037331146] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473086.087331137] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473087.087331954] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] W0626 19:24:47.475343 2564962 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782473088.137330405] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473088.689023527] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473088.727213345] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473088.727467984] [exploration_coordinator]: Nav2 reached a frontier staging waypoint; continuing toward the final frontier on the next selection pass.
+[exploration_coordinator-13] [INFO] [1782473088.790164315] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=37.2.
+[exploration_coordinator-13] [INFO] [1782473088.790318761] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.88m^2, utility=0.240.
+[exploration_coordinator-13] [INFO] [1782473088.801843677] [exploration_coordinator]: Navigating to frontier goal=(5.02, -4.84), size=232, cost=3.92, source=unknown, information_gain=0.88m^2
+[bt_navigator-9] [INFO] [1782473088.802452301] [bt_navigator]: Begin navigating from current location (3.81, -1.50) to (5.02, -4.84)
+[controller_server-5] [INFO] [1782473088.822732536] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473089.872909716] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473090.922903904] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782473091.893437147] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473091.922908683] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473092.874412232] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473092.912672918] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473092.912874761] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473092.954814284] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=35.3.
+[exploration_coordinator-13] [INFO] [1782473092.954964660] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.76m^2, utility=0.332.
+[exploration_coordinator-13] [INFO] [1782473092.965995331] [exploration_coordinator]: Navigating to frontier goal=(2.72, -4.59), size=13, cost=2.35, source=unknown, information_gain=0.76m^2
+[bt_navigator-9] [INFO] [1782473092.966669116] [bt_navigator]: Begin navigating from current location (4.91, -4.63) to (2.72, -4.59)
+[controller_server-5] [INFO] [1782473092.986981980] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782473093.997670455] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473094.037164737] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473095.087165047] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473095.739541353] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473095.777095364] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473095.777110941] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473095.840650060] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=36.1.
+[exploration_coordinator-13] [INFO] [1782473095.840804206] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.71m^2, utility=0.785.
+[exploration_coordinator-13] [INFO] [1782473095.851007890] [exploration_coordinator]: Navigating to frontier goal=(3.67, -4.59), size=13, cost=0.94, source=unknown, information_gain=0.71m^2
+[bt_navigator-9] [INFO] [1782473095.851599040] [bt_navigator]: Begin navigating from current location (2.87, -4.51) to (3.67, -4.59)
+[controller_server-5] [INFO] [1782473095.871903158] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782473096.882564253] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473096.922082709] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782473097.127081563] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 242 X 204 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782473097.323584095] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473097.361994388] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473097.362052094] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473097.385754165] [exploration_coordinator]: Shared frontier pool has 10 candidates: unknown=10, open_edge=0, local_filter_ms=18.1.
+[exploration_coordinator-13] [INFO] [1782473097.409810087] [exploration_coordinator]: Splitting far frontier target: final=(1.71, 4.35), staging=(2.16, 0.60), straight_distance=9.11m, segment_limit=6.00m.
+[exploration_coordinator-13] [INFO] [1782473097.410131896] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.30m^2, utility=0.032, staging first.
+[exploration_coordinator-13] [INFO] [1782473097.429172898] [exploration_coordinator]: Navigating to frontier staging goal=(2.16, 0.60) toward final=(1.71, 4.35), cost=5.86, source=unknown.
+[bt_navigator-9] [INFO] [1782473097.429785693] [bt_navigator]: Begin navigating from current location (3.46, -4.59) to (2.16, 0.60)
+[controller_server-5] [INFO] [1782473097.450112554] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473098.500313841] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473099.550310236] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473100.550309309] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473101.600311979] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473102.600312407] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473102.701834762] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473102.740078122] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473102.740231623] [exploration_coordinator]: Nav2 reached a frontier staging waypoint; continuing toward the final frontier on the next selection pass.
+[exploration_coordinator-13] [INFO] [1782473102.796205128] [exploration_coordinator]: Shared frontier pool has 10 candidates: unknown=10, open_edge=0, local_filter_ms=18.5.
+[exploration_coordinator-13] [INFO] [1782473102.796361586] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.30m^2, utility=0.074.
+[exploration_coordinator-13] [INFO] [1782473102.804836028] [exploration_coordinator]: Navigating to frontier goal=(1.71, 4.35), size=18, cost=4.77, source=unknown, information_gain=0.30m^2
+[bt_navigator-9] [INFO] [1782473102.805431547] [bt_navigator]: Begin navigating from current location (2.29, 0.48) to (1.71, 4.35)
+[controller_server-5] [INFO] [1782473102.825826091] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473103.876002879] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] W0626 19:25:04.545307 2564962 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[planner_server-7] [WARN] [1782473104.867639834] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782473104.867684099] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (1.71, 4.35)
+[planner_server-7] [WARN] [1782473104.867695707] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[planner_server-7] [INFO] [1782473104.885616840] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782473105.136839101] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 0.7692 Hz
+[controller_server-5] [INFO] [1782473105.176005405] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473106.226005298] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473106.677552328] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473106.715669647] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473106.715856307] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473106.761218126] [exploration_coordinator]: Shared frontier pool has 10 candidates: unknown=10, open_edge=0, local_filter_ms=18.1.
+[exploration_coordinator-13] [INFO] [1782473106.761365593] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.33m^2, utility=0.883.
+[exploration_coordinator-13] [INFO] [1782473106.767046082] [exploration_coordinator]: Navigating to frontier goal=(1.66, 4.50), size=18, cost=0.28, source=unknown, information_gain=0.33m^2
+[bt_navigator-9] [INFO] [1782473106.767641491] [bt_navigator]: Begin navigating from current location (1.59, 4.24) to (1.66, 4.50)
+[controller_server-5] [INFO] [1782473106.787891027] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473106.889362008] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473106.928094829] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473106.928104891] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473106.961341759] [exploration_coordinator]: Shared frontier pool has 10 candidates: unknown=10, open_edge=0, local_filter_ms=18.2.
+[exploration_coordinator-13] [INFO] [1782473106.961489421] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.33m^2, utility=0.915.
+[exploration_coordinator-13] [INFO] [1782473106.967019264] [exploration_coordinator]: Navigating to frontier goal=(1.56, 4.55), size=18, cost=0.27, source=unknown, information_gain=0.33m^2
+[bt_navigator-9] [INFO] [1782473106.967418476] [bt_navigator]: Begin navigating from current location (1.62, 4.30) to (1.56, 4.55)
+[controller_server-5] [INFO] [1782473106.987717169] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782473107.127146373] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 243 X 206 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782473107.339378458] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473107.377838688] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473107.377855346] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473107.398719383] [exploration_coordinator]: Shared frontier pool has 8 candidates: unknown=8, open_edge=0, local_filter_ms=15.3.
+[exploration_coordinator-13] [INFO] [1782473107.398873078] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.11m^2, utility=0.028.
+[planner_server-7] [WARN] [1782473107.399896279] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[exploration_coordinator-13] [INFO] [1782473107.406864205] [exploration_coordinator]: Navigating to frontier goal=(-0.13, 0.86), size=30, cost=4.10, source=unknown, information_gain=0.11m^2
+[bt_navigator-9] [INFO] [1782473107.407511481] [bt_navigator]: Begin navigating from current location (1.62, 4.31) to (-0.13, 0.86)
+[controller_server-5] [INFO] [1782473107.427794614] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473108.477980926] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473109.527977224] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473110.527981754] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473111.577978417] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473112.079519585] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473112.117752298] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473112.117930422] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473112.166797776] [exploration_coordinator]: Shared frontier pool has 8 candidates: unknown=8, open_edge=0, local_filter_ms=15.4.
+[exploration_coordinator-13] [INFO] [1782473112.166946385] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.11m^2, utility=0.148.
+[exploration_coordinator-13] [INFO] [1782473112.172893683] [exploration_coordinator]: Navigating to frontier goal=(0.47, 1.06), size=10, cost=0.62, source=unknown, information_gain=0.11m^2
+[bt_navigator-9] [INFO] [1782473112.173265358] [bt_navigator]: Begin navigating from current location (-0.17, 1.06) to (0.47, 1.06)
+[controller_server-5] [INFO] [1782473112.193599571] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473113.243787363] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473113.495304017] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473113.533529604] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473113.533689151] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473113.569826532] [exploration_coordinator]: Shared frontier pool has 8 candidates: unknown=8, open_edge=0, local_filter_ms=15.7.
+[exploration_coordinator-13] [INFO] [1782473113.569972821] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.11m^2, utility=0.116.
+[exploration_coordinator-13] [INFO] [1782473113.576232172] [exploration_coordinator]: Navigating to frontier goal=(0.37, 1.96), size=30, cost=0.86, source=unknown, information_gain=0.11m^2
+[bt_navigator-9] [INFO] [1782473113.576784116] [bt_navigator]: Begin navigating from current location (0.38, 1.11) to (0.37, 1.96)
+[controller_server-5] [INFO] [1782473113.597039891] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473114.647165417] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473115.498667611] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473115.537040453] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473115.537210748] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473115.574983065] [exploration_coordinator]: Shared frontier pool has 8 candidates: unknown=8, open_edge=0, local_filter_ms=15.8.
+[exploration_coordinator-13] [INFO] [1782473115.575130949] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.11m^2, utility=0.096.
+[exploration_coordinator-13] [INFO] [1782473115.581365217] [exploration_coordinator]: Navigating to frontier goal=(-0.13, 0.86), size=30, cost=1.06, source=unknown, information_gain=0.11m^2
+[bt_navigator-9] [INFO] [1782473115.581979574] [bt_navigator]: Begin navigating from current location (0.35, 1.79) to (-0.13, 0.86)
+[controller_server-5] [INFO] [1782473115.602291755] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473116.652481060] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473117.353978304] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473117.392219943] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473117.392406420] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473117.412989529] [exploration_coordinator]: Shared frontier pool has 6 candidates: unknown=6, open_edge=0, local_filter_ms=10.2.
+[exploration_coordinator-13] [INFO] [1782473117.413135008] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.03m^2, utility=0.007.
+[exploration_coordinator-13] [INFO] [1782473117.422928326] [exploration_coordinator]: Navigating to frontier goal=(-2.63, -1.99), size=15, cost=6.62, source=unknown, information_gain=0.03m^2
+[bt_navigator-9] [INFO] [1782473117.423298708] [bt_navigator]: Begin navigating from current location (-0.05, 1.02) to (-2.63, -1.99)
+[controller_server-5] [INFO] [1782473117.443612604] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473118.493803905] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473119.543806069] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] W0626 19:25:20.465593 2564962 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782473120.543803863] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473121.593803120] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473122.593784944] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473123.143831639] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473123.143881994] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473123.163465439] [local_costmap.local_costmap]: Received request to clear entirely the local_costmap
+[controller_server-5] [INFO] [1782473123.163736008] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [WARN] [1782473123.315933026] [controller_server]: Control loop missed its desired rate of 20.0000Hz
+[controller_server-5] [INFO] [1782473123.624312394] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782473124.634377095] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473124.701512429] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473125.366013340] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473125.366068976] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473125.383493122] [local_costmap.local_costmap]: Received request to clear entirely the local_costmap
+[planner_server-7] [INFO] [1782473125.383639752] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782473125.634864612] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 0.8333 Hz
+[controller_server-5] [INFO] [1782473125.653568182] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473126.703752415] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782473127.127080972] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 240 X 203 at 0.050000 m/pix
+[controller_server-5] [ERROR] [1782473127.703770062] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473127.703820015] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473127.713562005] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473128.763755049] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] W0626 19:25:29.284780 2564962 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782473129.763754735] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473130.315338469] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473130.353711351] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473130.356644018] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473130.408199293] [exploration_coordinator]: Shared frontier pool has 8 candidates: unknown=6, open_edge=2, local_filter_ms=11.9.
+[exploration_coordinator-13] [INFO] [1782473130.467743672] [exploration_coordinator]: Splitting far frontier target: final=(5.49, 4.60), staging=(-0.31, 1.05), straight_distance=10.59m, segment_limit=6.00m.
+[exploration_coordinator-13] [INFO] [1782473130.467903634] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.24m^2, utility=0.209, staging first.
+[exploration_coordinator-13] [INFO] [1782473130.481336989] [exploration_coordinator]: Navigating to frontier staging goal=(-0.31, 1.05) toward final=(5.49, 4.60), cost=6.28, source=open_edge.
+[bt_navigator-9] [INFO] [1782473130.481740259] [bt_navigator]: Begin navigating from current location (-2.81, -1.97) to (-0.31, 1.05)
+[controller_server-5] [INFO] [1782473130.502075529] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473131.552269684] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473132.552291815] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473132.552338887] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473132.562082924] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473133.612259560] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473134.612274822] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473134.612321814] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473134.622076984] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473135.672256025] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473136.672276783] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473136.672324967] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473136.682100098] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782473137.127083030] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 240 X 203 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782473137.732247914] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473138.732276606] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473138.732345614] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473138.742071296] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473139.792248331] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473140.792266230] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473140.792313569] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473140.802059586] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473141.852236523] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473142.852264985] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473142.852314239] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473142.862101783] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473143.912302144] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473144.912323944] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473144.912374274] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473144.922176657] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473145.972352876] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473146.972369430] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473146.972409669] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473146.982086197] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473148.032272847] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473149.032291994] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473149.032336080] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473149.042053868] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473150.092235172] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473151.092256622] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473151.092306654] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473151.102032206] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473152.152165222] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [WARN] [1782473152.754678818] [exploration_coordinator]: Exploration has made no effective translation for 20.0s; starting bounded random-walk recovery.
+[exploration_coordinator-13] [INFO] [1782473152.754901956] [exploration_coordinator]: GVD random-walk recovery attempt 1/3: Nav2 Spin delta=-1.20rad.
+[behavior_server-8] [INFO] [1782473152.755278883] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782473152.755330731] [behavior_server]: Turning -1.20 for spin behavior.
+[bt_navigator-9] [ERROR] [1782473152.782005948] [bt_navigator_navigate_to_pose_rclcpp_node]: Failed to get result for follow_path in node halt!
+[bt_navigator-9] [INFO] [1782473152.782048689] [bt_navigator]: [navigate_to_pose] [ActionServer] Client requested to cancel the goal. Cancelling.
+[bt_navigator-9] [INFO] [1782473152.782228362] [bt_navigator]: Goal canceled
+[controller_server-5] [INFO] [1782473152.802165392] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-5] [INFO] [1782473152.802186790] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[behavior_server-8] [INFO] [1782473153.255566990] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782473153.256037167] [exploration_coordinator]: GVD random-walk recovery driving 0.45m at 0.20m/s with Nav2 collision checking.
+[behavior_server-8] [INFO] [1782473153.256431711] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782473153.756673970] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782473153.757539254] [exploration_coordinator]: GVD random-walk recovery completed; reselecting.
+[exploration_coordinator-13] [INFO] [1782473153.803445738] [exploration_coordinator]: Shared frontier pool has 4 candidates: unknown=4, open_edge=0, local_filter_ms=6.1.
+[exploration_coordinator-13] [INFO] [1782473153.803601803] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.02m^2, utility=0.009.
+[exploration_coordinator-13] [INFO] [1782473153.812795330] [exploration_coordinator]: Navigating to frontier goal=(-1.64, -1.44), size=12, cost=5.28, source=unknown, information_gain=0.02m^2
+[bt_navigator-9] [INFO] [1782473153.813397630] [bt_navigator]: Begin navigating from current location (-2.95, -2.33) to (-1.64, -1.44)
+[controller_server-5] [INFO] [1782473153.833708884] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473154.883894236] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473155.933894543] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473156.883908270] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473156.883942410] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473156.903708322] [local_costmap.local_costmap]: Received request to clear entirely the local_costmap
+[controller_server-5] [INFO] [1782473156.903975940] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473156.954149069] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473157.954147181] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473158.954171814] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473158.954215685] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[behavior_server-8] [INFO] [1782473158.973948760] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782473158.974003125] [behavior_server]: Turning 1.57 for spin behavior.
+[behavior_server-8] [INFO] [1782473159.574234313] [behavior_server]: spin completed successfully
+[controller_server-5] [INFO] [1782473159.623759375] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473160.673948311] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473161.673966065] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473161.674012986] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473161.683738906] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473162.733919225] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473163.733936942] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473163.733989079] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473163.743712129] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473164.793899627] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473165.793913307] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473165.793956086] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473165.803733386] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473166.853905953] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473167.853927615] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473167.853976677] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473167.863754504] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473168.913947391] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473169.913962597] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473169.914005274] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473169.923716283] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473170.973913029] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782473171.964641839] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [ERROR] [1782473171.973932089] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473171.973976630] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473171.983701628] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473173.033888119] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473174.033906836] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473174.033955050] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473174.043717957] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473175.093892427] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473176.093911999] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473176.093957490] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473176.103730205] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473177.153916175] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473178.153934088] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473178.153978896] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473178.163704956] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473179.213897777] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473180.213917597] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473180.213966935] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473180.223740787] [controller_server]: Received a goal, begin computing control effort.
+[exploration_coordinator-13] [WARN] [1782473180.888247312] [exploration_coordinator]: Exploration has made no effective translation for 20.0s; starting bounded random-walk recovery.
+[exploration_coordinator-13] [INFO] [1782473180.888648311] [exploration_coordinator]: GVD random-walk recovery attempt 1/3: Nav2 Spin delta=-2.21rad.
+[behavior_server-8] [INFO] [1782473180.888930540] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782473180.888982291] [behavior_server]: Turning -2.21 for spin behavior.
+[bt_navigator-9] [ERROR] [1782473180.913699688] [bt_navigator_navigate_to_pose_rclcpp_node]: Failed to get result for follow_path in node halt!
+[bt_navigator-9] [INFO] [1782473180.913762854] [bt_navigator]: [navigate_to_pose] [ActionServer] Client requested to cancel the goal. Cancelling.
+[bt_navigator-9] [INFO] [1782473180.914136822] [bt_navigator]: Goal canceled
+[controller_server-5] [INFO] [1782473180.923933858] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-5] [INFO] [1782473180.923965211] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[behavior_server-8] [INFO] [1782473181.589210470] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782473181.590108380] [exploration_coordinator]: GVD random-walk recovery driving 0.45m at 0.20m/s with Nav2 collision checking.
+[behavior_server-8] [INFO] [1782473181.590539686] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782473182.090786064] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782473182.091262700] [exploration_coordinator]: GVD random-walk recovery completed; reselecting.
+[exploration_coordinator-13] [INFO] [1782473182.133493178] [exploration_coordinator]: Shared frontier pool has 3 candidates: unknown=3, open_edge=0, local_filter_ms=6.1.
+[exploration_coordinator-13] [INFO] [1782473182.133640423] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.02m^2, utility=0.004.
+[exploration_coordinator-13] [INFO] [1782473182.142668388] [exploration_coordinator]: Navigating to frontier goal=(0.46, -1.39), size=12, cost=5.82, source=unknown, information_gain=0.02m^2
+[bt_navigator-9] [INFO] [1782473182.143244026] [bt_navigator]: Begin navigating from current location (-4.00, -2.07) to (0.46, -1.39)
+[controller_server-5] [INFO] [1782473182.163599003] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473183.213808323] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473184.263809217] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473185.263807526] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473186.313807357] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473187.313808878] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473187.865377065] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473187.903671200] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473187.903698423] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473187.943964115] [exploration_coordinator]: Shared frontier pool has 3 candidates: unknown=3, open_edge=0, local_filter_ms=4.4.
+[exploration_coordinator-13] [INFO] [1782473187.944110773] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.01m^2, utility=0.004.
+[exploration_coordinator-13] [INFO] [1782473187.953434386] [exploration_coordinator]: Navigating to frontier goal=(-2.79, -1.64), size=11, cost=6.66, source=unknown, information_gain=0.01m^2
+[bt_navigator-9] [INFO] [1782473187.954051162] [bt_navigator]: Begin navigating from current location (0.28, -1.32) to (-2.79, -1.64)
+[planner_server-7] [WARN] [1782473187.955621080] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473187.974433909] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473189.024628085] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473190.074627720] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473191.074628185] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473192.124627375] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473192.524645179] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473192.524689076] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473192.544230580] [local_costmap.local_costmap]: Received request to clear entirely the local_costmap
+[controller_server-5] [INFO] [1782473192.544499207] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [WARN] [1782473192.716858224] [controller_server]: Control loop missed its desired rate of 20.0000Hz
+[controller_server-5] [INFO] [1782473193.129172860] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473194.158112799] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473194.766933296] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473194.766984368] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[behavior_server-8] [INFO] [1782473194.784293333] [behavior_server]: Running wait
+[behavior_server-8] [INFO] [1782473195.784423180] [behavior_server]: wait completed successfully
+[controller_server-5] [INFO] [1782473195.834295915] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473196.884494831] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473197.884514737] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473197.884572376] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473197.894328837] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473198.944500954] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473199.944515411] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473199.944558059] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473199.954331687] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473201.004497565] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473202.004521477] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473202.004568373] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473202.014369223] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473203.064562005] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473204.064592444] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473204.064660445] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473204.074353784] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473205.124513755] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473206.124532837] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473206.124578281] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473206.134398011] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473207.184568045] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473208.184587731] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473208.184636798] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473208.194384627] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473209.244559349] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473210.244580745] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473210.244629406] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473210.254311030] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473211.304474663] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473212.304492986] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473212.304539531] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473212.314357319] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473213.364534533] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473214.364555056] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473214.364611033] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473214.374405715] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473215.424576015] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473216.424597923] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473216.424643613] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473216.434319292] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473217.484498224] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [WARN] [1782473217.993234709] [exploration_coordinator]: Nav2 goal timed out after 30.0s; canceling and selecting another target.
+[exploration_coordinator-13] [WARN] [1782473217.993460624] [exploration_coordinator]: Nav2 navigation timed out; retrying.
+[bt_navigator-9] [ERROR] [1782473218.014319176] [bt_navigator_navigate_to_pose_rclcpp_node]: Failed to get result for follow_path in node halt!
+[bt_navigator-9] [INFO] [1782473218.014364960] [bt_navigator]: [navigate_to_pose] [ActionServer] Client requested to cancel the goal. Cancelling.
+[bt_navigator-9] [INFO] [1782473218.014600494] [bt_navigator]: Goal canceled
+[controller_server-5] [INFO] [1782473218.034497615] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-5] [INFO] [1782473218.034530417] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[exploration_coordinator-13] [INFO] [1782473218.038077037] [exploration_coordinator]: Shared frontier pool has 3 candidates: unknown=3, open_edge=0, local_filter_ms=4.5.
+[exploration_coordinator-13] [INFO] [1782473218.038230723] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.01m^2, utility=0.008.
+[exploration_coordinator-13] [INFO] [1782473218.045110997] [exploration_coordinator]: Navigating to frontier goal=(-1.64, -1.69), size=11, cost=2.44, source=unknown, information_gain=0.01m^2
+[bt_navigator-9] [INFO] [1782473218.045477384] [bt_navigator]: Begin navigating from current location (-2.92, -0.97) to (-1.64, -1.69)
+[controller_server-5] [INFO] [1782473218.065767301] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473219.115940954] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473220.115960947] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473220.116015098] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473220.125779596] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782473221.136614627] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782473221.175944919] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473222.175960995] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473222.176006187] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473222.185776720] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473223.235948198] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473224.235969906] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473224.236015947] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473224.245801187] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473225.296001515] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782473226.286588034] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [ERROR] [1782473226.296023591] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473226.296067036] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473226.305822275] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473227.355994947] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473228.356022290] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473228.356075743] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473228.365789437] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473229.415980195] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473230.415996531] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473230.416041453] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473230.425829033] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473231.476006224] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473232.476024151] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473232.476069347] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473232.485762183] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473233.535923959] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473234.535942878] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473234.535987761] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473234.545799481] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473235.595978973] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782473236.596006656] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782473236.596071710] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782473236.605765881] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473237.655933516] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [WARN] [1782473238.071087240] [exploration_coordinator]: Exploration has made no effective translation for 20.0s; starting bounded random-walk recovery.
+[exploration_coordinator-13] [INFO] [1782473238.071323043] [exploration_coordinator]: GVD random-walk recovery attempt 1/3: Nav2 Spin delta=-1.42rad.
+[behavior_server-8] [INFO] [1782473238.071646542] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782473238.071695126] [behavior_server]: Turning -1.42 for spin behavior.
+[bt_navigator-9] [ERROR] [1782473238.095750860] [bt_navigator_navigate_to_pose_rclcpp_node]: Failed to get result for follow_path in node halt!
+[bt_navigator-9] [INFO] [1782473238.095798251] [bt_navigator]: [navigate_to_pose] [ActionServer] Client requested to cancel the goal. Cancelling.
+[bt_navigator-9] [INFO] [1782473238.095969774] [bt_navigator]: Goal canceled
+[controller_server-5] [INFO] [1782473238.105935074] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-5] [INFO] [1782473238.105965098] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[behavior_server-8] [INFO] [1782473238.671920724] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782473238.672376228] [exploration_coordinator]: GVD random-walk recovery driving 0.45m at 0.20m/s with Nav2 collision checking.
+[behavior_server-8] [INFO] [1782473238.672782645] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782473239.173034022] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782473239.173464010] [exploration_coordinator]: GVD random-walk recovery completed; reselecting.
+[exploration_coordinator-13] [INFO] [1782473239.202120066] [exploration_coordinator]: Shared frontier pool has 2 candidates: unknown=2, open_edge=0, local_filter_ms=8.5.
+[exploration_coordinator-13] [INFO] [1782473239.202342211] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.02m^2, utility=0.004.
+[exploration_coordinator-13] [INFO] [1782473239.212831710] [exploration_coordinator]: Navigating to frontier goal=(-4.14, 2.56), size=10, cost=3.53, source=unknown, information_gain=0.02m^2
+[bt_navigator-9] [INFO] [1782473239.213443821] [bt_navigator]: Begin navigating from current location (-3.39, -0.82) to (-4.14, 2.56)
+[controller_server-5] [INFO] [1782473239.233741735] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473240.283944339] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473241.333945634] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473242.333943927] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782473242.935435306] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782473242.973706107] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782473242.973876708] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782473243.003923656] [exploration_coordinator]: Shared frontier pool has 3 candidates: unknown=3, open_edge=0, local_filter_ms=4.4.
+[exploration_coordinator-13] [INFO] [1782473243.004073631] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.02m^2, utility=0.015.
+[exploration_coordinator-13] [INFO] [1782473243.009654672] [exploration_coordinator]: Navigating to frontier goal=(-4.09, 1.46), size=10, cost=0.97, source=unknown, information_gain=0.02m^2
+[bt_navigator-9] [INFO] [1782473243.010199804] [bt_navigator]: Begin navigating from current location (-4.08, 2.34) to (-4.09, 1.46)
+[controller_server-5] [INFO] [1782473243.030508825] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782473244.080696859] [controller_server]: Passing new path to controller.

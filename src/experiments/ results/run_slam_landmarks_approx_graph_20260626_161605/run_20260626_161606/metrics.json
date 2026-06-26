@@ -1,0 +1,22 @@
+{
+  "final_coverage": 0.2658001512963345,
+  "total_path_length": 95.99195324250759,
+  "total_time": 1407.8,
+  "world_name": "slam_landmarks",
+  "evaluation_bounds": [
+    -6.540018366025246,
+    6.540018366025246,
+    -5.54,
+    5.54
+  ],
+  "gt_model_name": "burger",
+  "gt_topic": "/odom",
+  "est_parent_frame": "map",
+  "est_child_frame": "base_footprint",
+  "estimated_samples": 288,
+  "ground_truth_samples": 289,
+  "ate_rmse": 0.10427298366788787,
+  "ate_samples": 288,
+  "occupied_iou": 0.3248259860788863,
+  "free_iou": 0.9616600790513834
+}

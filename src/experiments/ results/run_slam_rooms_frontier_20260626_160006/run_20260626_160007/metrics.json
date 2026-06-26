@@ -1,0 +1,22 @@
+{
+  "final_coverage": 0.7597883054156819,
+  "total_path_length": 130.72681728785705,
+  "total_time": 1515.2,
+  "world_name": "slam_rooms",
+  "evaluation_bounds": [
+    -6.550018366025179,
+    6.550018366025179,
+    -5.55,
+    5.55
+  ],
+  "gt_model_name": "burger",
+  "gt_topic": "/odom",
+  "est_parent_frame": "map",
+  "est_child_frame": "base_footprint",
+  "estimated_samples": 308,
+  "ground_truth_samples": 308,
+  "ate_rmse": 0.08731834705980868,
+  "ate_samples": 308,
+  "occupied_iou": 0.3357920618194591,
+  "free_iou": 0.9564335906001613
+}

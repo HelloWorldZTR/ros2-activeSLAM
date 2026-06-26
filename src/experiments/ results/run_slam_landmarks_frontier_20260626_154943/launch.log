@@ -1,0 +1,1532 @@
+[INFO] [launch]: All log files can be found below /home/psirobot/.ros/log/2026-06-26-15-49-43-446964-bj01-dc21-2099150
+[INFO] [launch]: Default logging verbosity is set to INFO
+urdf_file_name : turtlebot3_burger.urdf
+urdf_file_name : turtlebot3_burger.urdf
+[INFO] [gzserver-1]: process started with pid [2099157]
+[INFO] [robot_state_publisher-2]: process started with pid [2099159]
+[INFO] [spawn_entity.py-3]: process started with pid [2099161]
+[INFO] [sync_slam_toolbox_node-4]: process started with pid [2099163]
+[INFO] [controller_server-5]: process started with pid [2099165]
+[INFO] [smoother_server-6]: process started with pid [2099167]
+[INFO] [planner_server-7]: process started with pid [2099169]
+[INFO] [behavior_server-8]: process started with pid [2099171]
+[INFO] [bt_navigator-9]: process started with pid [2099173]
+[INFO] [waypoint_follower-10]: process started with pid [2099175]
+[INFO] [velocity_smoother-11]: process started with pid [2099177]
+[INFO] [lifecycle_manager-12]: process started with pid [2099179]
+[INFO] [exploration_coordinator-13]: process started with pid [2099181]
+[INFO] [slam_evaluator-14]: process started with pid [2099183]
+[waypoint_follower-10] [INFO] [1782460183.836475771] [waypoint_follower]: 
+[waypoint_follower-10] 	waypoint_follower lifecycle node launched. 
+[waypoint_follower-10] 	Waiting on external lifecycle transitions to activate
+[waypoint_follower-10] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[waypoint_follower-10] [INFO] [1782460183.836685209] [waypoint_follower]: Creating
+[lifecycle_manager-12] [INFO] [1782460183.838060838] [lifecycle_manager_navigation]: Creating
+[lifecycle_manager-12] [INFO] [1782460183.839405500] [lifecycle_manager_navigation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[velocity_smoother-11] [INFO] [1782460183.839651665] [velocity_smoother]: 
+[velocity_smoother-11] 	velocity_smoother lifecycle node launched. 
+[velocity_smoother-11] 	Waiting on external lifecycle transitions to activate
+[velocity_smoother-11] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-9] [INFO] [1782460183.840024834] [bt_navigator]: 
+[bt_navigator-9] 	bt_navigator lifecycle node launched. 
+[bt_navigator-9] 	Waiting on external lifecycle transitions to activate
+[bt_navigator-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-9] [INFO] [1782460183.840068543] [bt_navigator]: Creating
+[robot_state_publisher-2] [INFO] [1782460183.844207754] [robot_state_publisher]: got segment base_footprint
+[robot_state_publisher-2] [INFO] [1782460183.844263684] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-2] [INFO] [1782460183.844268250] [robot_state_publisher]: got segment base_scan
+[robot_state_publisher-2] [INFO] [1782460183.844271196] [robot_state_publisher]: got segment caster_back_link
+[robot_state_publisher-2] [INFO] [1782460183.844274014] [robot_state_publisher]: got segment imu_link
+[robot_state_publisher-2] [INFO] [1782460183.844276606] [robot_state_publisher]: got segment wheel_left_link
+[robot_state_publisher-2] [INFO] [1782460183.844278619] [robot_state_publisher]: got segment wheel_right_link
+[planner_server-7] [INFO] [1782460183.846742103] [planner_server]: 
+[planner_server-7] 	planner_server lifecycle node launched. 
+[planner_server-7] 	Waiting on external lifecycle transitions to activate
+[planner_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782460183.846765275] [controller_server]: 
+[controller_server-5] 	controller_server lifecycle node launched. 
+[controller_server-5] 	Waiting on external lifecycle transitions to activate
+[controller_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782460183.847309058] [planner_server]: Creating
+[smoother_server-6] [INFO] [1782460183.847905352] [smoother_server]: 
+[smoother_server-6] 	smoother_server lifecycle node launched. 
+[smoother_server-6] 	Waiting on external lifecycle transitions to activate
+[smoother_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782460183.848035910] [controller_server]: Creating controller server
+[behavior_server-8] [INFO] [1782460183.848359165] [behavior_server]: 
+[behavior_server-8] 	behavior_server lifecycle node launched. 
+[behavior_server-8] 	Waiting on external lifecycle transitions to activate
+[behavior_server-8] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[smoother_server-6] [INFO] [1782460183.848566769] [smoother_server]: Creating smoother server
+[planner_server-7] [INFO] [1782460183.851945373] [global_costmap.global_costmap]: 
+[planner_server-7] 	global_costmap lifecycle node launched. 
+[planner_server-7] 	Waiting on external lifecycle transitions to activate
+[planner_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782460183.852170441] [global_costmap.global_costmap]: Creating Costmap
+[controller_server-5] [INFO] [1782460183.853199124] [local_costmap.local_costmap]: 
+[controller_server-5] 	local_costmap lifecycle node launched. 
+[controller_server-5] 	Waiting on external lifecycle transitions to activate
+[controller_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782460183.853412881] [local_costmap.local_costmap]: Creating Costmap
+[sync_slam_toolbox_node-4] [INFO] [1782460183.871772385] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[lifecycle_manager-12] [INFO] [1782460183.954631727] [lifecycle_manager_navigation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-12] [INFO] [1782460183.954669443] [lifecycle_manager_navigation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-5] [INFO] [1782460183.955975537] [controller_server]: Configuring controller interface
+[controller_server-5] [INFO] [1782460183.956150825] [controller_server]: getting goal checker plugins..
+[controller_server-5] [INFO] [1782460183.956375104] [controller_server]: Controller frequency set to 20.0000Hz
+[controller_server-5] [INFO] [1782460183.956406634] [local_costmap.local_costmap]: Configuring
+[controller_server-5] [INFO] [1782460183.962305610] [local_costmap.local_costmap]: Using plugin "voxel_layer"
+[controller_server-5] [INFO] [1782460183.965213273] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-5] [INFO] [1782460183.971593044] [local_costmap.local_costmap]: Initialized plugin "voxel_layer"
+[controller_server-5] [INFO] [1782460183.971612384] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-5] [INFO] [1782460183.972343050] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[controller_server-5] [INFO] [1782460183.979453552] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-5] [INFO] [1782460183.979773205] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-5] [INFO] [1782460183.979895965] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[controller_server-5] [INFO] [1782460183.980916344] [controller_server]: Created controller : FollowPath of type dwb_core::DWBLocalPlanner
+[controller_server-5] [INFO] [1782460183.981212552] [controller_server]: Setting transform_tolerance to 0.200000
+[controller_server-5] [INFO] [1782460183.985888632] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[controller_server-5] [INFO] [1782460183.986002185] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782460183.986030764] [controller_server]: Using critic "Oscillation" (dwb_critics::OscillationCritic)
+[controller_server-5] [INFO] [1782460183.986123170] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782460183.986149876] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[controller_server-5] [INFO] [1782460183.986189534] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782460183.986215953] [controller_server]: Using critic "GoalAlign" (dwb_critics::GoalAlignCritic)
+[controller_server-5] [INFO] [1782460183.986293506] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782460183.986322519] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[controller_server-5] [INFO] [1782460183.986390505] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782460183.986417652] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[controller_server-5] [INFO] [1782460183.986470926] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782460183.986492013] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[controller_server-5] [INFO] [1782460183.986544829] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782460183.986550643] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-12] [INFO] [1782460183.994915327] [lifecycle_manager_navigation]: [34m[1mConfiguring smoother_server[0m[0m
+[smoother_server-6] [INFO] [1782460183.995512432] [smoother_server]: Configuring smoother server
+[smoother_server-6] [INFO] [1782460184.002752387] [smoother_server]: Created smoother : simple_smoother of type nav2_smoother::SimpleSmoother
+[smoother_server-6] [INFO] [1782460184.003938466] [smoother_server]: Smoother Server has simple_smoother  smoothers available.
+[lifecycle_manager-12] [INFO] [1782460184.011001835] [lifecycle_manager_navigation]: [34m[1mConfiguring planner_server[0m[0m
+[planner_server-7] [INFO] [1782460184.011143821] [planner_server]: Configuring
+[planner_server-7] [INFO] [1782460184.011171637] [global_costmap.global_costmap]: Configuring
+[planner_server-7] [INFO] [1782460184.013200364] [global_costmap.global_costmap]: Using plugin "static_layer"
+[planner_server-7] [INFO] [1782460184.016055790] [global_costmap.global_costmap]: Subscribing to the map topic (/map) with transient local durability
+[planner_server-7] [INFO] [1782460184.016733952] [global_costmap.global_costmap]: Initialized plugin "static_layer"
+[planner_server-7] [INFO] [1782460184.016746522] [global_costmap.global_costmap]: Using plugin "obstacle_layer"
+[planner_server-7] [INFO] [1782460184.017859452] [global_costmap.global_costmap]: Subscribed to Topics: scan
+[planner_server-7] [INFO] [1782460184.022164779] [global_costmap.global_costmap]: Initialized plugin "obstacle_layer"
+[planner_server-7] [INFO] [1782460184.022180065] [global_costmap.global_costmap]: Using plugin "inflation_layer"
+[planner_server-7] [INFO] [1782460184.023594727] [global_costmap.global_costmap]: Initialized plugin "inflation_layer"
+[planner_server-7] [INFO] [1782460184.031514588] [planner_server]: Created global planner plugin GridBased of type nav2_navfn_planner/NavfnPlanner
+[planner_server-7] [INFO] [1782460184.031537468] [planner_server]: Configuring plugin GridBased of type NavfnPlanner
+[planner_server-7] [INFO] [1782460184.032778059] [planner_server]: Planner Server has GridBased  planners available.
+[lifecycle_manager-12] [INFO] [1782460184.040871249] [lifecycle_manager_navigation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-8] [INFO] [1782460184.041060831] [behavior_server]: Configuring
+[behavior_server-8] [INFO] [1782460184.043705786] [behavior_server]: Creating behavior plugin spin of type nav2_behaviors/Spin
+[behavior_server-8] [INFO] [1782460184.043999906] [behavior_server]: Configuring spin
+[behavior_server-8] [INFO] [1782460184.045241298] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-8] [INFO] [1782460184.045501037] [behavior_server]: Configuring backup
+[behavior_server-8] [INFO] [1782460184.047067621] [behavior_server]: Creating behavior plugin drive_on_heading of type nav2_behaviors/DriveOnHeading
+[behavior_server-8] [INFO] [1782460184.047539964] [behavior_server]: Configuring drive_on_heading
+[behavior_server-8] [INFO] [1782460184.049638335] [behavior_server]: Creating behavior plugin assisted_teleop of type nav2_behaviors/AssistedTeleop
+[behavior_server-8] [INFO] [1782460184.050682831] [behavior_server]: Configuring assisted_teleop
+[behavior_server-8] [INFO] [1782460184.053210595] [behavior_server]: Creating behavior plugin wait of type nav2_behaviors/Wait
+[behavior_server-8] [INFO] [1782460184.053648131] [behavior_server]: Configuring wait
+[lifecycle_manager-12] [INFO] [1782460184.055533269] [lifecycle_manager_navigation]: [34m[1mConfiguring bt_navigator[0m[0m
+[bt_navigator-9] [INFO] [1782460184.055673243] [bt_navigator]: Configuring
+[spawn_entity.py-3] [INFO] [1782460184.068106459] [spawn_entity]: Spawn Entity started
+[spawn_entity.py-3] [INFO] [1782460184.068254433] [spawn_entity]: Loading entity XML from file /opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf
+[spawn_entity.py-3] [INFO] [1782460184.068602128] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[spawn_entity.py-3] [INFO] [1782460184.068705879] [spawn_entity]: Waiting for service /spawn_entity
+[lifecycle_manager-12] [INFO] [1782460184.076413439] [lifecycle_manager_navigation]: [34m[1mConfiguring waypoint_follower[0m[0m
+[waypoint_follower-10] [INFO] [1782460184.076527584] [waypoint_follower]: Configuring
+[waypoint_follower-10] [INFO] [1782460184.079543172] [waypoint_follower]: Created waypoint_task_executor : wait_at_waypoint of type nav2_waypoint_follower::WaitAtWaypoint
+[lifecycle_manager-12] [INFO] [1782460184.079767959] [lifecycle_manager_navigation]: [34m[1mConfiguring velocity_smoother[0m[0m
+[velocity_smoother-11] [INFO] [1782460184.079911115] [velocity_smoother]: Configuring velocity smoother
+[lifecycle_manager-12] [INFO] [1782460184.081654360] [lifecycle_manager_navigation]: [34m[1mActivating controller_server[0m[0m
+[controller_server-5] [INFO] [1782460184.081758895] [controller_server]: Activating
+[controller_server-5] [INFO] [1782460184.081796084] [local_costmap.local_costmap]: Activating
+[controller_server-5] [INFO] [1782460184.081808849] [local_costmap.local_costmap]: Checking transform
+[controller_server-5] [INFO] [1782460184.081828839] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[exploration_coordinator-13] [INFO] [1782460184.200307588] [exploration_coordinator]: Exploration coordinator started with Nav2 backend. SLAM mode: frontier
+[slam_evaluator-14] [INFO] [1782460184.365886858] [slam_evaluator]: Evaluator logging to logs/run_slam_landmarks_frontier_20260626_154943/run_20260626_154944 for world slam_landmarks
+[slam_evaluator-14] [INFO] [1782460184.366047445] [slam_evaluator]: Sampling every 1.00s; waiting for map/TF data.
+[controller_server-5] [INFO] [1782460184.581886106] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[spawn_entity.py-3] [INFO] [1782460185.074823527] [spawn_entity]: Calling service /spawn_entity
+[controller_server-5] [INFO] [1782460185.081883641] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[gzserver-1] [INFO] [1782460185.231410123] [turtlebot3_imu]: <initial_orientation_as_reference> is unset, using default value of false to comply with REP 145 (world as orientation reference)
+[spawn_entity.py-3] [INFO] [1782460185.275729185] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [burger]
+[gzserver-1] [INFO] [1782460185.383959768] [turtlebot3_diff_drive]: Wheel pair 1 separation set to [0.160000m]
+[gzserver-1] [INFO] [1782460185.383988930] [turtlebot3_diff_drive]: Wheel pair 1 diameter set to [0.066000m]
+[gzserver-1] [INFO] [1782460185.384680992] [turtlebot3_diff_drive]: Subscribed to [/cmd_vel]
+[gzserver-1] [INFO] [1782460185.385633757] [turtlebot3_diff_drive]: Advertise odometry on [/odom]
+[gzserver-1] [INFO] [1782460185.386752859] [turtlebot3_diff_drive]: Publishing odom transforms between [odom] and [base_footprint]
+[gzserver-1] [INFO] [1782460185.391697998] [turtlebot3_joint_state]: Going to publish joint [wheel_left_joint]
+[gzserver-1] [INFO] [1782460185.391717620] [turtlebot3_joint_state]: Going to publish joint [wheel_right_joint]
+[INFO] [spawn_entity.py-3]: process has finished cleanly [pid 2099161]
+[controller_server-5] [INFO] [1782460185.581978655] [local_costmap.local_costmap]: start
+[sync_slam_toolbox_node-4] [WARN] [1782460185.595540246] [slam_toolbox]: minimum laser range setting (0.0 m) exceeds the capabilities of the used Lidar (0.1 m)
+[sync_slam_toolbox_node-4] [WARN] [1782460185.595641356] [slam_toolbox]: maximum laser range setting (25.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[sync_slam_toolbox_node-4] Info: clipped range threshold to be within minimum and maximum range!
+[sync_slam_toolbox_node-4] Registering sensor: [Custom Described Lidar]
+[slam_evaluator-14] [INFO] [1782460185.763707304] [slam_evaluator]: Waiting for data: /map, TF map->base_footprint, ground truth model burger on /model_states, /gazebo/model_states, /get_entity_state, or /odom
+[controller_server-5] [INFO] [1782460185.782607128] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782460185.884759635] [lifecycle_manager_navigation]: Server controller_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782460185.884786760] [lifecycle_manager_navigation]: [34m[1mActivating smoother_server[0m[0m
+[smoother_server-6] [INFO] [1782460185.884974990] [smoother_server]: Activating
+[smoother_server-6] [INFO] [1782460185.884992866] [smoother_server]: Creating bond (smoother_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782460185.986407841] [lifecycle_manager_navigation]: Server smoother_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782460185.986430112] [lifecycle_manager_navigation]: [34m[1mActivating planner_server[0m[0m
+[planner_server-7] [INFO] [1782460185.986568875] [planner_server]: Activating
+[planner_server-7] [INFO] [1782460185.986591943] [global_costmap.global_costmap]: Activating
+[planner_server-7] [INFO] [1782460185.986597351] [global_costmap.global_costmap]: Checking transform
+[planner_server-7] [INFO] [1782460185.986624979] [global_costmap.global_costmap]: Timed out waiting for transform from base_link to map to become available, tf error: Lookup would require extrapolation into the past.  Requested time 0.932000 but the earliest data is at time 1.054000, when looking up transform from frame [base_link] to frame [map]
+[planner_server-7] [INFO] [1782460186.486695416] [global_costmap.global_costmap]: start
+[planner_server-7] [INFO] [1782460187.037132276] [planner_server]: Activating plugin GridBased of type NavfnPlanner
+[planner_server-7] [INFO] [1782460187.037615376] [planner_server]: Creating bond (planner_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782460187.139113920] [lifecycle_manager_navigation]: Server planner_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782460187.139140619] [lifecycle_manager_navigation]: [34m[1mActivating behavior_server[0m[0m
+[behavior_server-8] [INFO] [1782460187.139383071] [behavior_server]: Activating
+[behavior_server-8] [INFO] [1782460187.139408724] [behavior_server]: Activating spin
+[behavior_server-8] [INFO] [1782460187.139420180] [behavior_server]: Activating backup
+[behavior_server-8] [INFO] [1782460187.139429092] [behavior_server]: Activating drive_on_heading
+[behavior_server-8] [INFO] [1782460187.139437578] [behavior_server]: Activating assisted_teleop
+[behavior_server-8] [INFO] [1782460187.139446334] [behavior_server]: Activating wait
+[behavior_server-8] [INFO] [1782460187.139456751] [behavior_server]: Creating bond (behavior_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782460187.241363954] [lifecycle_manager_navigation]: Server behavior_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782460187.241388371] [lifecycle_manager_navigation]: [34m[1mActivating bt_navigator[0m[0m
+[bt_navigator-9] [INFO] [1782460187.241597383] [bt_navigator]: Activating
+[bt_navigator-9] [INFO] [1782460187.254053061] [bt_navigator]: Creating bond (bt_navigator) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782460187.355533994] [lifecycle_manager_navigation]: Server bt_navigator connected with bond.
+[lifecycle_manager-12] [INFO] [1782460187.355557639] [lifecycle_manager_navigation]: [34m[1mActivating waypoint_follower[0m[0m
+[waypoint_follower-10] [INFO] [1782460187.355745120] [waypoint_follower]: Activating
+[waypoint_follower-10] [INFO] [1782460187.355777769] [waypoint_follower]: Creating bond (waypoint_follower) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782460187.457852644] [lifecycle_manager_navigation]: Server waypoint_follower connected with bond.
+[lifecycle_manager-12] [INFO] [1782460187.457876319] [lifecycle_manager_navigation]: [34m[1mActivating velocity_smoother[0m[0m
+[velocity_smoother-11] [INFO] [1782460187.458092999] [velocity_smoother]: Activating
+[velocity_smoother-11] [INFO] [1782460187.458142110] [velocity_smoother]: Creating bond (velocity_smoother) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782460187.560308438] [lifecycle_manager_navigation]: Server velocity_smoother connected with bond.
+[lifecycle_manager-12] [INFO] [1782460187.560331587] [lifecycle_manager_navigation]: [34m[1mManaged nodes are active[0m[0m
+[lifecycle_manager-12] [INFO] [1782460187.560339846] [lifecycle_manager_navigation]: [34m[1mCreating bond timer...[0m[0m
+[slam_evaluator-14] [INFO] [1782460191.368053427] [slam_evaluator]: Waiting for data: /map
+[planner_server-7] [WARN] [1782460191.486870642] [global_costmap.global_costmap]: Can't update static costmap layer, no map received
+[planner_server-7] [INFO] [1782460193.878808447] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 85 X 119 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782460193.905409253] [exploration_coordinator]: Nav2 and the first map are ready; starting exploration.
+[exploration_coordinator-13] [INFO] [1782460193.944548142] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=2.6.
+[exploration_coordinator-13] [INFO] [1782460193.944702765] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.59m^2, utility=1.565.
+[exploration_coordinator-13] [INFO] [1782460193.947791053] [exploration_coordinator]: Navigating to frontier goal=(-2.13, -2.05), size=157, cost=1.60, source=unknown, information_gain=2.59m^2
+[bt_navigator-9] [INFO] [1782460193.948258379] [bt_navigator]: Begin navigating from current location (-2.00, -0.50) to (-2.13, -2.05)
+[controller_server-5] [INFO] [1782460193.968665921] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [WARN] [1782460193.968702487] [controller_server]: No goal checker was specified in parameter 'current_goal_checker'. Server will use only plugin loaded general_goal_checker . This warning will appear once.
+[controller_server-5] [INFO] [1782460195.018856706] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460196.068857881] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460196.370383447] [controller_server]: Reached the goal!
+[slam_evaluator-14] [INFO] [1782460196.378983269] [slam_evaluator]: Evaluator is recording samples.
+[bt_navigator-9] [INFO] [1782460196.408477463] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460196.409001602] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460196.409429323] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=3.13 rad.
+[behavior_server-8] [INFO] [1782460196.409799712] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460196.409912967] [behavior_server]: Turning 3.13 for spin behavior.
+[behavior_server-8] [INFO] [1782460197.210024877] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460197.210579454] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460197.210878517] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460197.210964161] [behavior_server]: DriveOnHeading: no acceleration or deceleration limits set
+[behavior_server-8] [INFO] [1782460197.711049316] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460197.711532736] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460197.747065079] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=2.6.
+[exploration_coordinator-13] [INFO] [1782460197.747219012] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.92m^2, utility=0.868.
+[exploration_coordinator-13] [INFO] [1782460197.750683869] [exploration_coordinator]: Navigating to frontier goal=(-2.73, 0.90), size=157, cost=3.38, source=unknown, information_gain=2.92m^2
+[bt_navigator-9] [INFO] [1782460197.750948538] [bt_navigator]: Begin navigating from current location (-1.79, -2.22) to (-2.73, 0.90)
+[controller_server-5] [INFO] [1782460197.771303194] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460198.821469900] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460199.871468256] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460200.871468476] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460201.773023694] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460201.811084427] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460201.811447095] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460201.811669994] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-2.59 rad.
+[behavior_server-8] [INFO] [1782460201.811949221] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460201.811996892] [behavior_server]: Turning -2.59 for spin behavior.
+[behavior_server-8] [INFO] [1782460202.512125688] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460202.513109131] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460202.513457152] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460203.013640073] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460203.014088930] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460203.030223799] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=2.5.
+[exploration_coordinator-13] [INFO] [1782460203.030369368] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.57m^2, utility=0.788.
+[exploration_coordinator-13] [INFO] [1782460203.033814778] [exploration_coordinator]: Navigating to frontier goal=(-2.28, -1.90), size=157, cost=3.23, source=unknown, information_gain=2.57m^2
+[bt_navigator-9] [INFO] [1782460203.034177884] [bt_navigator]: Begin navigating from current location (-2.72, 1.23) to (-2.28, -1.90)
+[controller_server-5] [INFO] [1782460203.054447401] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782460203.986806448] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 146 X 173 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460204.104667194] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460205.154667194] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460206.154666550] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460207.056219611] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460207.094314371] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460207.095016457] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460207.095458862] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=3.03 rad.
+[behavior_server-8] [INFO] [1782460207.095761107] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460207.095815062] [behavior_server]: Turning 3.03 for spin behavior.
+[behavior_server-8] [INFO] [1782460207.995934492] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460207.996758174] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460207.997094391] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460208.497213964] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460208.497728475] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460208.515673507] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782460208.515828199] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.90m^2, utility=0.416.
+[exploration_coordinator-13] [INFO] [1782460208.520314994] [exploration_coordinator]: Navigating to frontier goal=(-2.90, 2.24), size=900, cost=4.54, source=unknown, information_gain=1.90m^2
+[bt_navigator-9] [INFO] [1782460208.520643303] [bt_navigator]: Begin navigating from current location (-2.31, -2.19) to (-2.90, 2.24)
+[controller_server-5] [INFO] [1782460208.540949498] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460209.591164556] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460210.641177667] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460211.641167062] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460212.691164501] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460213.492619417] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460213.530773621] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460213.531375674] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460213.531603755] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.44 rad.
+[behavior_server-8] [INFO] [1782460213.531880783] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460213.531933910] [behavior_server]: Turning 1.44 for spin behavior.
+[planner_server-7] [INFO] [1782460213.986804435] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 147 X 180 at 0.050000 m/pix
+[behavior_server-8] [INFO] [1782460214.032109239] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460214.033167458] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460214.033500748] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460214.533646676] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460214.534643590] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460214.578856246] [exploration_coordinator]: Shared frontier pool has 10 candidates: unknown=10, open_edge=0, local_filter_ms=22.1.
+[exploration_coordinator-13] [INFO] [1782460214.579009424] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.41m^2, utility=2.350.
+[exploration_coordinator-13] [INFO] [1782460214.581150790] [exploration_coordinator]: Navigating to frontier goal=(-1.66, 2.59), size=11, cost=0.93, source=unknown, information_gain=2.41m^2
+[bt_navigator-9] [INFO] [1782460214.581470031] [bt_navigator]: Begin navigating from current location (-2.57, 2.43) to (-1.66, 2.59)
+[controller_server-5] [INFO] [1782460214.601741166] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460215.603466681] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460215.641634213] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460215.642125276] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460215.642350400] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.28 rad.
+[behavior_server-8] [INFO] [1782460215.642582110] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460215.642635355] [behavior_server]: Turning -0.28 for spin behavior.
+[behavior_server-8] [INFO] [1782460215.942765549] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460215.943573985] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460215.943828840] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782460215.943935304] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782460215.943947856] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782460215.943955849] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782460215.944962992] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460215.977703014] [exploration_coordinator]: Shared frontier pool has 9 candidates: unknown=9, open_edge=0, local_filter_ms=20.8.
+[exploration_coordinator-13] [INFO] [1782460215.977853136] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.37m^2, utility=0.415.
+[exploration_coordinator-13] [INFO] [1782460215.984222476] [exploration_coordinator]: Navigating to frontier goal=(0.29, -2.61), size=11, cost=7.12, source=unknown, information_gain=2.37m^2
+[bt_navigator-9] [INFO] [1782460215.984439684] [bt_navigator]: Begin navigating from current location (-1.78, 2.60) to (0.29, -2.61)
+[controller_server-5] [INFO] [1782460216.004827431] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460216.004994472] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460217.055055157] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460218.105052482] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460219.105054562] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460220.155053060] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460221.155051894] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460221.406562710] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460221.444563675] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460221.445308174] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460221.445776474] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460221.446012886] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460222.146171574] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460222.147151352] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460222.185127639] [exploration_coordinator]: Shared frontier pool has 8 candidates: unknown=8, open_edge=0, local_filter_ms=23.1.
+[exploration_coordinator-13] [INFO] [1782460222.185285015] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.33m^2, utility=3.641.
+[exploration_coordinator-13] [INFO] [1782460222.187294433] [exploration_coordinator]: Navigating to frontier goal=(-0.21, -2.91), size=11, cost=0.94, source=unknown, information_gain=2.33m^2
+[bt_navigator-9] [INFO] [1782460222.187550178] [bt_navigator]: Begin navigating from current location (0.33, -2.99) to (-0.21, -2.91)
+[controller_server-5] [INFO] [1782460222.207811063] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460223.258013166] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782460223.986846119] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 154 X 201 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460224.109515764] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460224.147687977] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460224.148170681] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460224.148391975] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.14 rad.
+[behavior_server-8] [INFO] [1782460224.148599000] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460224.148649706] [behavior_server]: Turning -1.14 for spin behavior.
+[behavior_server-8] [INFO] [1782460224.648767275] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460224.649348535] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460224.649599296] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782460224.649702299] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782460224.649715003] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782460224.649722536] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782460224.650284738] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460224.719126891] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=35.6.
+[exploration_coordinator-13] [INFO] [1782460224.719287121] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.98m^2, utility=0.547.
+[exploration_coordinator-13] [INFO] [1782460224.722040282] [exploration_coordinator]: Navigating to frontier goal=(-1.46, -1.83), size=12, cost=1.73, source=unknown, information_gain=0.98m^2
+[bt_navigator-9] [INFO] [1782460224.722303097] [bt_navigator]: Begin navigating from current location (-0.06, -2.78) to (-1.46, -1.83)
+[controller_server-5] [INFO] [1782460224.742606068] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460225.792774235] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460226.842775029] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460227.294284551] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460227.332461514] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460227.332874290] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460227.333110144] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460227.402617325] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=37.4.
+[exploration_coordinator-13] [INFO] [1782460227.402770592] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.26m^2, utility=1.190.
+[exploration_coordinator-13] [INFO] [1782460227.405083665] [exploration_coordinator]: Navigating to frontier goal=(-0.36, -2.08), size=12, cost=0.98, source=unknown, information_gain=1.26m^2
+[bt_navigator-9] [INFO] [1782460227.405340145] [bt_navigator]: Begin navigating from current location (-1.31, -1.96) to (-0.36, -2.08)
+[controller_server-5] [INFO] [1782460227.425597478] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460228.475763212] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460229.027265689] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460229.065491618] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460229.065773707] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460229.066010767] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460229.141525756] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=54.4.
+[exploration_coordinator-13] [INFO] [1782460229.141685905] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.62m^2, utility=0.533.
+[exploration_coordinator-13] [INFO] [1782460229.146396796] [exploration_coordinator]: Navigating to frontier goal=(-2.16, -4.48), size=220, cost=2.93, source=unknown, information_gain=1.62m^2
+[bt_navigator-9] [INFO] [1782460229.146670760] [bt_navigator]: Begin navigating from current location (-0.54, -2.03) to (-2.16, -4.48)
+[controller_server-5] [INFO] [1782460229.166972529] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460230.217164750] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460231.267166124] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460232.267166321] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460232.468681574] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460232.506839127] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460232.507208416] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460232.507448899] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.81 rad.
+[behavior_server-8] [INFO] [1782460232.507708019] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460232.507763174] [behavior_server]: Turning 1.81 for spin behavior.
+[behavior_server-8] [INFO] [1782460233.107892986] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460233.108477736] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460233.108693826] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460233.608841158] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460233.609976467] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460233.685753864] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=36.1.
+[exploration_coordinator-13] [INFO] [1782460233.685912205] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.82m^2, utility=0.366.
+[exploration_coordinator-13] [INFO] [1782460233.691967539] [exploration_coordinator]: Navigating to frontier goal=(-4.91, -0.18), size=11, cost=6.28, source=unknown, information_gain=1.82m^2
+[bt_navigator-9] [INFO] [1782460233.692294654] [bt_navigator]: Begin navigating from current location (-2.52, -4.41) to (-4.91, -0.18)
+[controller_server-5] [INFO] [1782460233.712660522] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782460233.986809722] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 155 X 201 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460234.762850353] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460235.812850516] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460236.812849836] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460237.862849663] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460238.862849528] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460239.912848781] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460239.914423155] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460239.962449934] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460239.962735786] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460239.963071860] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460240.021707968] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=47.9.
+[exploration_coordinator-13] [INFO] [1782460240.021865230] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.60m^2, utility=0.636.
+[exploration_coordinator-13] [INFO] [1782460240.026723153] [exploration_coordinator]: Navigating to frontier goal=(-4.81, 2.15), size=408, cost=2.54, source=unknown, information_gain=1.60m^2
+[bt_navigator-9] [INFO] [1782460240.026966310] [bt_navigator]: Begin navigating from current location (-4.75, -0.26) to (-4.81, 2.15)
+[controller_server-5] [INFO] [1782460240.047290302] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460241.097481314] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460242.147479444] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460243.147479588] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460243.398990606] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460243.437090012] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460243.437728276] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460243.438042566] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.95 rad.
+[behavior_server-8] [INFO] [1782460243.438321697] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460243.438370535] [behavior_server]: Turning -1.95 for spin behavior.
+[planner_server-7] [INFO] [1782460243.986810286] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 155 X 201 at 0.050000 m/pix
+[behavior_server-8] [INFO] [1782460244.038501466] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460244.039128316] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460244.039347500] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460244.539498867] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460244.539993258] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460244.634399774] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=57.7.
+[exploration_coordinator-13] [INFO] [1782460244.634556430] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.20m^2, utility=0.242.
+[planner_server-7] [WARN] [1782460244.635746955] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[exploration_coordinator-13] [INFO] [1782460244.641037236] [exploration_coordinator]: Navigating to frontier goal=(-5.56, -2.71), size=185, cost=4.93, source=unknown, information_gain=1.20m^2
+[bt_navigator-9] [INFO] [1782460244.641375869] [bt_navigator]: Begin navigating from current location (-5.33, 2.13) to (-5.56, -2.71)
+[controller_server-5] [INFO] [1782460244.661660305] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460245.711838346] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460246.761837665] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460247.761836763] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460248.811837165] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460249.811837588] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460249.863352944] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460249.901529824] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460249.902077271] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460249.902318484] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.70 rad.
+[behavior_server-8] [INFO] [1782460249.902525430] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460249.902576571] [behavior_server]: Turning -1.70 for spin behavior.
+[behavior_server-8] [INFO] [1782460250.502690416] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460250.503264203] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460250.503475847] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460251.003626891] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460251.004178198] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460251.083988637] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=62.9.
+[exploration_coordinator-13] [INFO] [1782460251.084148743] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.17m^2, utility=0.358.
+[planner_server-7] [ERROR] [1782460251.085558123] [planner_server]: Failed to create a plan from potential when a legal potential was found. This shouldn't happen.
+[planner_server-7] [WARN] [1782460251.085601189] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460251.085612945] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (0.54, -2.76)
+[planner_server-7] [WARN] [1782460251.085623332] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [INFO] [1782460251.087682864] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.83m^2, utility=0.320.
+[exploration_coordinator-13] [INFO] [1782460251.091182845] [exploration_coordinator]: Navigating to frontier goal=(-3.81, -1.16), size=185, cost=2.51, source=unknown, information_gain=0.83m^2
+[bt_navigator-9] [INFO] [1782460251.091431512] [bt_navigator]: Begin navigating from current location (-5.42, -3.05) to (-3.81, -1.16)
+[controller_server-5] [INFO] [1782460251.131712951] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460252.181884090] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460253.231883291] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782460254.202151336] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782460254.231884638] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460254.433397990] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460254.471559120] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460254.472460680] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460254.472864753] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.83 rad.
+[behavior_server-8] [INFO] [1782460254.473073221] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460254.473127799] [behavior_server]: Turning 0.83 for spin behavior.
+[behavior_server-8] [INFO] [1782460254.873210189] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460254.873940223] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460254.874129549] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782460254.974407397] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782460254.974444135] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782460254.974453238] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782460254.975006260] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460255.059222568] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=74.2.
+[exploration_coordinator-13] [INFO] [1782460255.059382242] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.84m^2, utility=0.355.
+[exploration_coordinator-13] [INFO] [1782460255.064507939] [exploration_coordinator]: Navigating to frontier goal=(-1.91, -0.36), size=25, cost=2.30, source=unknown, information_gain=0.84m^2
+[bt_navigator-9] [INFO] [1782460255.064790033] [bt_navigator]: Begin navigating from current location (-3.93, -1.36) to (-1.91, -0.36)
+[controller_server-5] [INFO] [1782460255.095052016] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460256.145175527] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460257.195169950] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460258.046709758] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460258.084949664] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460258.085257718] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460258.085494347] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.30 rad.
+[behavior_server-8] [INFO] [1782460258.085669982] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460258.085725095] [behavior_server]: Turning -1.30 for spin behavior.
+[behavior_server-8] [INFO] [1782460258.585843591] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460258.588872429] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460258.589126714] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460259.089273674] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460259.089862242] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460259.169186196] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=61.3.
+[exploration_coordinator-13] [INFO] [1782460259.169342225] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.84m^2, utility=0.714.
+[exploration_coordinator-13] [INFO] [1782460259.173905017] [exploration_coordinator]: Navigating to frontier goal=(-2.81, -0.51), size=25, cost=1.07, source=unknown, information_gain=0.84m^2
+[bt_navigator-9] [INFO] [1782460259.174176937] [bt_navigator]: Begin navigating from current location (-1.84, -0.02) to (-2.81, -0.51)
+[controller_server-5] [INFO] [1782460259.194474338] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460260.244645605] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460261.294645978] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460261.396210207] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460261.434307594] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460261.435242873] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460261.435691906] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460261.532047454] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=63.1.
+[exploration_coordinator-13] [INFO] [1782460261.532209932] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.88m^2, utility=1.025.
+[exploration_coordinator-13] [INFO] [1782460261.536434666] [exploration_coordinator]: Navigating to frontier goal=(-1.91, -0.36), size=25, cost=0.74, source=unknown, information_gain=0.88m^2
+[bt_navigator-9] [INFO] [1782460261.536681204] [bt_navigator]: Begin navigating from current location (-2.67, -0.37) to (-1.91, -0.36)
+[controller_server-5] [INFO] [1782460261.556896939] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460262.606986102] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460263.108505392] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460263.146819050] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460263.147330462] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460263.147574632] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460263.211540508] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=61.5.
+[exploration_coordinator-13] [INFO] [1782460263.211699811] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.90m^2, utility=0.332.
+[exploration_coordinator-13] [INFO] [1782460263.219276452] [exploration_coordinator]: Navigating to frontier goal=(-4.96, 4.49), size=10, cost=6.31, source=unknown, information_gain=1.90m^2
+[bt_navigator-9] [INFO] [1782460263.219528623] [bt_navigator]: Begin navigating from current location (-2.12, -0.34) to (-4.96, 4.49)
+[controller_server-5] [INFO] [1782460263.239876668] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782460264.250946052] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782460264.290066843] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460265.340065776] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460266.340062981] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460267.390062503] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460268.390062188] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460269.191546551] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460269.229685519] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460269.230691353] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460269.231151291] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460269.292373399] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=57.9.
+[exploration_coordinator-13] [INFO] [1782460269.292530996] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.90m^2, utility=2.371.
+[planner_server-7] [WARN] [1782460269.293422520] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[exploration_coordinator-13] [INFO] [1782460269.297080587] [exploration_coordinator]: Navigating to frontier goal=(-4.61, 3.69), size=10, cost=0.70, source=unknown, information_gain=1.90m^2
+[bt_navigator-9] [INFO] [1782460269.297355589] [bt_navigator]: Begin navigating from current location (-4.79, 4.37) to (-4.61, 3.69)
+[controller_server-5] [INFO] [1782460269.317646882] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460270.367811162] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460270.869316897] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460270.907518421] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460270.908148879] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460270.908406719] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460270.973106217] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=57.1.
+[exploration_coordinator-13] [INFO] [1782460270.973270283] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.02m^2, utility=0.462.
+[exploration_coordinator-13] [INFO] [1782460270.978935152] [exploration_coordinator]: Navigating to frontier goal=(-2.46, 3.79), size=227, cost=2.09, source=unknown, information_gain=1.02m^2
+[bt_navigator-9] [INFO] [1782460270.979297416] [bt_navigator]: Begin navigating from current location (-4.56, 3.79) to (-2.46, 3.79)
+[controller_server-5] [INFO] [1782460270.999599861] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460272.049771333] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460273.099770554] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460273.851318732] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460273.889458425] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460273.921588360] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460273.921828020] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.99 rad.
+[behavior_server-8] [INFO] [1782460273.922131253] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460273.922197625] [behavior_server]: Turning 0.99 for spin behavior.
+[planner_server-7] [INFO] [1782460273.986819056] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 155 X 202 at 0.050000 m/pix
+[behavior_server-8] [INFO] [1782460274.222397429] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460274.223008843] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460274.223209910] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460274.723367185] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460274.723763425] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460274.803866994] [exploration_coordinator]: Shared frontier pool has 11 candidates: unknown=11, open_edge=0, local_filter_ms=46.0.
+[exploration_coordinator-13] [INFO] [1782460274.804019506] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.42m^2, utility=0.564.
+[exploration_coordinator-13] [INFO] [1782460274.809513677] [exploration_coordinator]: Navigating to frontier goal=(-0.91, 4.64), size=23, cost=2.49, source=unknown, information_gain=1.42m^2
+[bt_navigator-9] [INFO] [1782460274.809738174] [bt_navigator]: Begin navigating from current location (-2.99, 3.43) to (-0.91, 4.64)
+[controller_server-5] [INFO] [1782460274.840050957] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460275.890229840] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460276.940232140] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460277.940231992] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460277.991731949] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460278.029873568] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460278.030178186] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460278.030450836] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460278.030673376] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460278.730925674] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460278.731534442] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460278.804910121] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=43.6.
+[exploration_coordinator-13] [INFO] [1782460278.805065558] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=1.423.
+[exploration_coordinator-13] [INFO] [1782460278.809634340] [exploration_coordinator]: Navigating to frontier goal=(-1.56, 4.39), size=23, cost=0.87, source=unknown, information_gain=1.24m^2
+[bt_navigator-9] [INFO] [1782460278.809863058] [bt_navigator]: Begin navigating from current location (-0.88, 4.03) to (-1.56, 4.39)
+[controller_server-5] [INFO] [1782460278.840154277] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460279.890328604] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460280.940329643] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460281.291834659] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460281.330001141] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460281.330583375] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460281.330799448] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.49 rad.
+[behavior_server-8] [INFO] [1782460281.330979762] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460281.331031727] [behavior_server]: Turning -0.49 for spin behavior.
+[behavior_server-8] [INFO] [1782460281.631198131] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460281.632309424] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460281.632577425] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782460281.732763995] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782460281.732798792] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782460281.732808048] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782460281.733948714] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460281.807639733] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=44.7.
+[exploration_coordinator-13] [INFO] [1782460281.807798237] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.37m^2, utility=2.440.
+[exploration_coordinator-13] [INFO] [1782460281.812133672] [exploration_coordinator]: Navigating to frontier goal=(-0.96, 4.64), size=23, cost=0.48, source=unknown, information_gain=1.37m^2
+[bt_navigator-9] [INFO] [1782460281.812393382] [bt_navigator]: Begin navigating from current location (-1.37, 4.43) to (-0.96, 4.64)
+[controller_server-5] [INFO] [1782460281.832624878] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460282.882786155] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460283.284292367] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460283.322522713] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460283.323071128] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460283.323508598] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.34 rad.
+[behavior_server-8] [INFO] [1782460283.323789508] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460283.323842601] [behavior_server]: Turning -0.34 for spin behavior.
+[behavior_server-8] [INFO] [1782460283.523972739] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460283.524642505] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460283.524896553] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460284.025099366] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460284.025756826] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460284.088852742] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=44.4.
+[exploration_coordinator-13] [INFO] [1782460284.097218057] [exploration_coordinator]: Splitting far frontier target: final=(0.24, -2.81), staging=(-1.86, -1.01), straight_distance=6.88m, segment_limit=6.00m.
+[exploration_coordinator-13] [INFO] [1782460284.097360791] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.57m^2, utility=0.225, staging first.
+[exploration_coordinator-13] [INFO] [1782460284.105441523] [exploration_coordinator]: Navigating to frontier staging goal=(-1.86, -1.01) toward final=(0.24, -2.81), cost=6.65, source=unknown.
+[bt_navigator-9] [INFO] [1782460284.105718133] [bt_navigator]: Begin navigating from current location (-0.71, 4.00) to (-1.86, -1.01)
+[controller_server-5] [INFO] [1782460284.126101656] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460285.176284803] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460286.176320938] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460286.176365088] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460286.186053756] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460287.236237661] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782460288.227211299] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [ERROR] [1782460288.236256422] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460288.236295719] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460288.246100484] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460289.296281762] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460290.296306491] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460290.296350710] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460290.306051130] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460291.356232721] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460292.356253177] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460292.356298516] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460292.366063940] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460293.416242906] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460294.416264972] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460294.416310109] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460294.426060429] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460295.476257971] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460296.476281131] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460296.476324031] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460296.486036190] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460297.536236208] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460298.536260896] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460298.536311894] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460298.546032154] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460299.596222781] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460300.596242243] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460300.596294609] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460300.606050548] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460301.656244517] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460302.656268958] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460302.656316606] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460302.666049021] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782460303.677175814] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782460303.716225479] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [WARN] [1782460304.139154199] [exploration_coordinator]: Exploration has made no effective translation for 20.0s; starting bounded random-walk recovery.
+[exploration_coordinator-13] [INFO] [1782460304.139568873] [exploration_coordinator]: GVD random-walk recovery attempt 1/3: Nav2 Spin delta=-0.97rad.
+[behavior_server-8] [INFO] [1782460304.139822858] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460304.139884358] [behavior_server]: Turning -0.97 for spin behavior.
+[bt_navigator-9] [ERROR] [1782460304.166085977] [bt_navigator_navigate_to_pose_rclcpp_node]: Failed to get result for follow_path in node halt!
+[bt_navigator-9] [INFO] [1782460304.166141954] [bt_navigator]: [navigate_to_pose] [ActionServer] Client requested to cancel the goal. Cancelling.
+[bt_navigator-9] [INFO] [1782460304.166220015] [bt_navigator]: Goal canceled
+[controller_server-5] [INFO] [1782460304.166227717] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-5] [INFO] [1782460304.166264548] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[behavior_server-8] [INFO] [1782460304.640020121] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460304.640462781] [exploration_coordinator]: GVD random-walk recovery driving 0.45m at 0.20m/s with Nav2 collision checking.
+[behavior_server-8] [INFO] [1782460304.640672716] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460305.140812506] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460305.141442877] [exploration_coordinator]: GVD random-walk recovery completed; reselecting.
+[exploration_coordinator-13] [INFO] [1782460305.224020746] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=45.1.
+[exploration_coordinator-13] [INFO] [1782460305.224186397] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.23m^2, utility=1.847.
+[exploration_coordinator-13] [INFO] [1782460305.229318696] [exploration_coordinator]: Navigating to frontier goal=(-1.41, 4.39), size=27, cost=0.66, source=unknown, information_gain=1.23m^2
+[bt_navigator-9] [INFO] [1782460305.229579284] [bt_navigator]: Begin navigating from current location (-0.86, 4.48) to (-1.41, 4.39)
+[controller_server-5] [INFO] [1782460305.259895582] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460306.310080874] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460306.661581750] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460306.699756430] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460306.701754959] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460306.702162100] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.39 rad.
+[behavior_server-8] [INFO] [1782460306.702435145] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460306.702486178] [behavior_server]: Turning -0.39 for spin behavior.
+[behavior_server-8] [INFO] [1782460307.002612481] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460307.003619027] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460307.003836853] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460307.503984916] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460307.505186976] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460307.586404530] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=45.2.
+[exploration_coordinator-13] [INFO] [1782460307.586562935] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.36m^2, utility=2.119.
+[exploration_coordinator-13] [INFO] [1782460307.591474519] [exploration_coordinator]: Navigating to frontier goal=(-1.21, 4.59), size=27, cost=0.59, source=unknown, information_gain=1.36m^2
+[bt_navigator-9] [INFO] [1782460307.591745887] [bt_navigator]: Begin navigating from current location (-0.97, 4.11) to (-1.21, 4.59)
+[controller_server-5] [INFO] [1782460307.622025316] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460308.672164461] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460309.573672017] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460309.611886817] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460309.612580424] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460309.612823412] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.10 rad.
+[behavior_server-8] [INFO] [1782460309.613041751] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460309.613097547] [behavior_server]: Turning 0.10 for spin behavior.
+[behavior_server-8] [INFO] [1782460309.713227179] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460309.713946030] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460309.714209431] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460310.314362200] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460310.315060656] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460310.399996152] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=56.5.
+[exploration_coordinator-13] [INFO] [1782460310.400152078] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.32m^2, utility=1.402.
+[exploration_coordinator-13] [INFO] [1782460310.405537636] [exploration_coordinator]: Navigating to frontier goal=(-1.41, 4.34), size=27, cost=0.94, source=unknown, information_gain=1.32m^2
+[bt_navigator-9] [INFO] [1782460310.405761150] [bt_navigator]: Begin navigating from current location (-0.56, 4.33) to (-1.41, 4.34)
+[controller_server-5] [INFO] [1782460310.436048303] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460311.486239232] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460312.536240093] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460312.837727045] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460312.875916183] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460312.876532984] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460312.876758935] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.33 rad.
+[behavior_server-8] [INFO] [1782460312.876960164] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460312.877014385] [behavior_server]: Turning -0.33 for spin behavior.
+[behavior_server-8] [INFO] [1782460313.177121735] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460313.177788578] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460313.178010977] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460313.678165453] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460313.678881621] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460313.749537377] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=44.4.
+[exploration_coordinator-13] [INFO] [1782460313.749704815] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.33m^2, utility=1.778.
+[exploration_coordinator-13] [INFO] [1782460313.754862192] [exploration_coordinator]: Navigating to frontier goal=(-1.51, 4.09), size=27, cost=0.95, source=unknown, information_gain=1.33m^2
+[bt_navigator-9] [INFO] [1782460313.755180927] [bt_navigator]: Begin navigating from current location (-0.86, 4.08) to (-1.51, 4.09)
+[controller_server-5] [INFO] [1782460313.775487701] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782460313.986848844] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 160 X 202 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460314.825680580] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460315.875678828] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460316.227170442] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460316.265346099] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460316.265936356] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460316.266387929] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.37 rad.
+[behavior_server-8] [INFO] [1782460316.266636975] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460316.266692086] [behavior_server]: Turning -0.37 for spin behavior.
+[behavior_server-8] [INFO] [1782460316.466816131] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460316.467638617] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460316.467841387] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782460316.467932161] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782460316.467944934] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782460316.467953256] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782460316.468763363] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460316.563738852] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=56.7.
+[exploration_coordinator-13] [INFO] [1782460316.563895391] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.42m^2, utility=1.317.
+[exploration_coordinator-13] [INFO] [1782460316.569349591] [exploration_coordinator]: Navigating to frontier goal=(-0.41, 4.14), size=37, cost=1.11, source=unknown, information_gain=1.42m^2
+[bt_navigator-9] [INFO] [1782460316.569617469] [bt_navigator]: Begin navigating from current location (-1.38, 4.22) to (-0.41, 4.14)
+[controller_server-5] [INFO] [1782460316.599915622] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460317.650082387] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460318.201600511] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460318.239782879] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460318.240467812] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460318.240695184] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=2.30 rad.
+[behavior_server-8] [INFO] [1782460318.240883038] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460318.240936822] [behavior_server]: Turning 2.30 for spin behavior.
+[behavior_server-8] [INFO] [1782460318.941114412] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460318.941864870] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460318.942086638] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460319.442198576] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460319.443367851] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460319.534083512] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=63.8.
+[exploration_coordinator-13] [INFO] [1782460319.534810020] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.57m^2, utility=0.216.
+[exploration_coordinator-13] [INFO] [1782460319.545576570] [exploration_coordinator]: Navigating to frontier goal=(0.19, -2.81), size=238, cost=9.60, source=unknown, information_gain=1.57m^2
+[bt_navigator-9] [INFO] [1782460319.545846187] [bt_navigator]: Begin navigating from current location (-0.12, 4.33) to (0.19, -2.81)
+[controller_server-5] [INFO] [1782460319.576280776] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460320.626479057] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460321.676481168] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460322.676479555] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460323.726480940] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782460323.986802836] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 161 X 202 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460324.726479955] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460325.776480512] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460326.826479202] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460327.826479465] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460328.577999145] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460328.615985206] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460328.616288279] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460328.616511079] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.90 rad.
+[behavior_server-8] [INFO] [1782460328.616727722] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460328.616779432] [behavior_server]: Turning -0.90 for spin behavior.
+[behavior_server-8] [INFO] [1782460329.016954519] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460329.017730008] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460329.017945068] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460329.518179064] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460329.518960299] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460329.609027279] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=51.7.
+[exploration_coordinator-13] [INFO] [1782460329.609185119] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.46m^2, utility=0.596.
+[exploration_coordinator-13] [INFO] [1782460329.616555154] [exploration_coordinator]: Navigating to frontier goal=(0.74, -4.76), size=69, cost=3.65, source=unknown, information_gain=1.46m^2
+[bt_navigator-9] [INFO] [1782460329.616826287] [bt_navigator]: Begin navigating from current location (0.50, -2.41) to (0.74, -4.76)
+[controller_server-5] [INFO] [1782460329.637156023] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460330.687343035] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782460331.677544635] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782460331.737343256] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460332.737342298] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460333.787341803] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460333.838867565] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460333.876958772] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460333.877781668] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460333.878017363] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.54 rad.
+[behavior_server-8] [INFO] [1782460333.878193513] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460333.878249576] [behavior_server]: Turning -0.54 for spin behavior.
+[planner_server-7] [INFO] [1782460333.986804059] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 188 X 205 at 0.050000 m/pix
+[behavior_server-8] [INFO] [1782460334.178376497] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460334.179743234] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460334.180005872] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460334.680153190] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460334.682122271] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460334.770336679] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=50.0.
+[exploration_coordinator-13] [INFO] [1782460334.770495777] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.71m^2, utility=1.506.
+[exploration_coordinator-13] [INFO] [1782460334.776749834] [exploration_coordinator]: Navigating to frontier goal=(2.04, -4.93), size=111, cost=1.11, source=unknown, information_gain=1.71m^2
+[bt_navigator-9] [INFO] [1782460334.777063272] [bt_navigator]: Begin navigating from current location (1.08, -4.53) to (2.04, -4.93)
+[controller_server-5] [INFO] [1782460334.797414500] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460335.847608596] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460336.599120965] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460336.637216190] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460336.637984570] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460336.638224549] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.25 rad.
+[behavior_server-8] [INFO] [1782460336.638493412] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460336.638548659] [behavior_server]: Turning -1.25 for spin behavior.
+[behavior_server-8] [INFO] [1782460337.138661935] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460337.139390685] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460337.139593782] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460337.639740517] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460337.640436390] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460337.705418783] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=62.8.
+[exploration_coordinator-13] [INFO] [1782460337.705574712] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.87m^2, utility=0.372.
+[exploration_coordinator-13] [INFO] [1782460337.712256122] [exploration_coordinator]: Navigating to frontier goal=(0.14, -3.83), size=111, cost=2.28, source=unknown, information_gain=0.87m^2
+[bt_navigator-9] [INFO] [1782460337.712530904] [bt_navigator]: Begin navigating from current location (2.27, -4.53) to (0.14, -3.83)
+[controller_server-5] [INFO] [1782460337.742830526] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460338.793001872] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460339.843000292] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460340.794487570] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460340.832687479] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460340.833956144] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460340.834378557] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.46 rad.
+[behavior_server-8] [INFO] [1782460340.834675668] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460340.834729265] [behavior_server]: Turning 0.46 for spin behavior.
+[behavior_server-8] [INFO] [1782460341.134850464] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460341.135341546] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460341.135568220] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460341.635731679] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460341.636439476] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460341.688878258] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=43.7.
+[exploration_coordinator-13] [INFO] [1782460341.689034290] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.04m^2, utility=0.984.
+[exploration_coordinator-13] [INFO] [1782460341.699694416] [exploration_coordinator]: Navigating to frontier goal=(0.69, -4.53), size=111, cost=1.00, source=unknown, information_gain=1.04m^2
+[bt_navigator-9] [INFO] [1782460341.700020039] [bt_navigator]: Begin navigating from current location (0.68, -3.56) to (0.69, -4.53)
+[controller_server-5] [INFO] [1782460341.720375099] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460342.770516540] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460343.622001620] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460343.660161830] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460343.660473465] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460343.660732655] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460343.660937148] [behavior_server]: Running drive_on_heading
+[planner_server-7] [INFO] [1782460343.986825987] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 232 X 207 at 0.050000 m/pix
+[behavior_server-8] [INFO] [1782460344.261085806] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460344.261897379] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460344.354970354] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=67.9.
+[exploration_coordinator-13] [INFO] [1782460344.355128311] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.87m^2, utility=0.619.
+[exploration_coordinator-13] [INFO] [1782460344.362337765] [exploration_coordinator]: Navigating to frontier goal=(3.34, -2.19), size=244, cost=2.99, source=unknown, information_gain=1.87m^2
+[bt_navigator-9] [INFO] [1782460344.362590503] [bt_navigator]: Begin navigating from current location (1.13, -4.09) to (3.34, -2.19)
+[controller_server-5] [INFO] [1782460344.392928606] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460345.443104226] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460346.493103997] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460347.493105910] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460347.644619377] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460347.682749330] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460347.683041344] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460347.683293801] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.73 rad.
+[behavior_server-8] [INFO] [1782460347.683505074] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460347.683554691] [behavior_server]: Turning -1.73 for spin behavior.
+[behavior_server-8] [INFO] [1782460348.283673239] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460348.284441197] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460348.284682968] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460348.784840682] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460348.785541295] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460348.866176642] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=55.4.
+[exploration_coordinator-13] [INFO] [1782460348.866331499] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.36m^2, utility=0.426.
+[exploration_coordinator-13] [INFO] [1782460348.873809806] [exploration_coordinator]: Navigating to frontier goal=(3.24, -4.94), size=184, cost=3.12, source=unknown, information_gain=1.36m^2
+[bt_navigator-9] [INFO] [1782460348.874121747] [bt_navigator]: Begin navigating from current location (2.95, -1.85) to (3.24, -4.94)
+[controller_server-5] [INFO] [1782460348.894396257] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460349.944588173] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460350.994588941] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460351.994585409] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460352.796095879] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460352.834259190] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460352.835638607] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460352.836046413] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.62 rad.
+[behavior_server-8] [INFO] [1782460352.836284201] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460352.836338356] [behavior_server]: Turning -0.62 for spin behavior.
+[behavior_server-8] [INFO] [1782460353.136469241] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460353.137301222] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460353.137531694] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460353.637680699] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460353.638113469] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460353.738469807] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=83.6.
+[exploration_coordinator-13] [INFO] [1782460353.738627793] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.56m^2, utility=0.816.
+[exploration_coordinator-13] [INFO] [1782460353.746651533] [exploration_coordinator]: Navigating to frontier goal=(2.89, -3.04), size=184, cost=1.82, source=unknown, information_gain=1.56m^2
+[bt_navigator-9] [INFO] [1782460353.746985433] [bt_navigator]: Begin navigating from current location (3.70, -4.66) to (2.89, -3.04)
+[controller_server-5] [INFO] [1782460353.767312617] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782460353.986806098] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 234 X 208 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460354.817501172] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460355.867501874] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460356.418990258] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460356.457127650] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460356.457471276] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460356.457696965] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.68 rad.
+[behavior_server-8] [INFO] [1782460356.457919091] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460356.457969315] [behavior_server]: Turning 0.68 for spin behavior.
+[behavior_server-8] [INFO] [1782460356.858086839] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460356.858895061] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460356.859114663] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460357.359215639] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460357.359958283] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460357.430672993] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=54.3.
+[exploration_coordinator-13] [INFO] [1782460357.430828276] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.39m^2, utility=1.371.
+[exploration_coordinator-13] [INFO] [1782460357.437935814] [exploration_coordinator]: Navigating to frontier goal=(3.39, -1.61), size=161, cost=2.20, source=unknown, information_gain=2.39m^2
+[bt_navigator-9] [INFO] [1782460357.438210169] [bt_navigator]: Begin navigating from current location (3.48, -3.25) to (3.39, -1.61)
+[controller_server-5] [INFO] [1782460357.468534277] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460358.518704579] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460359.568705088] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460360.568705787] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460360.620232375] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460360.658381851] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460360.661090572] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460360.661498784] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.85 rad.
+[behavior_server-8] [INFO] [1782460360.661747067] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460360.661798210] [behavior_server]: Turning -0.85 for spin behavior.
+[behavior_server-8] [INFO] [1782460360.961928831] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460360.963418700] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460360.963613378] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460361.463747026] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460361.464529310] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460361.564611319] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=64.4.
+[exploration_coordinator-13] [INFO] [1782460361.564763414] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.43m^2, utility=0.484.
+[exploration_coordinator-13] [INFO] [1782460361.573171530] [exploration_coordinator]: Navigating to frontier goal=(5.34, -2.91), size=77, cost=4.06, source=unknown, information_gain=1.43m^2
+[bt_navigator-9] [INFO] [1782460361.573449002] [bt_navigator]: Begin navigating from current location (2.86, -1.48) to (5.34, -2.91)
+[controller_server-5] [INFO] [1782460361.593813803] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460362.643987277] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460363.693988071] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782460363.986816441] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 234 X 208 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460364.693987300] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460365.743988323] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460365.946551064] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460365.983608547] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460365.983898421] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460365.984116694] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.81 rad.
+[behavior_server-8] [INFO] [1782460365.984318062] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460365.984370129] [behavior_server]: Turning -0.81 for spin behavior.
+[behavior_server-8] [INFO] [1782460366.384539268] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460366.385436664] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460366.385657076] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460366.885811070] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460366.886562923] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460366.970481652] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=67.3.
+[exploration_coordinator-13] [INFO] [1782460366.970641751] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.54m^2, utility=0.440.
+[exploration_coordinator-13] [INFO] [1782460366.977492007] [exploration_coordinator]: Navigating to frontier goal=(4.24, -2.66), size=154, cost=1.15, source=unknown, information_gain=0.54m^2
+[bt_navigator-9] [INFO] [1782460366.977755099] [bt_navigator]: Begin navigating from current location (5.37, -2.50) to (4.24, -2.66)
+[controller_server-5] [INFO] [1782460366.998048945] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460368.048236904] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460369.098237565] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460369.149958624] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460369.187880107] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460369.188634916] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460369.188853507] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.25 rad.
+[behavior_server-8] [INFO] [1782460369.189051347] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460369.189102588] [behavior_server]: Turning 1.25 for spin behavior.
+[behavior_server-8] [INFO] [1782460369.689225689] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460369.690037632] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460369.690264844] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460370.190412491] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460370.191192698] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460370.280283922] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=55.1.
+[exploration_coordinator-13] [INFO] [1782460370.280437812] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.07m^2, utility=0.758.
+[exploration_coordinator-13] [INFO] [1782460370.287396290] [exploration_coordinator]: Navigating to frontier goal=(5.29, -2.31), size=154, cost=1.31, source=unknown, information_gain=1.07m^2
+[bt_navigator-9] [INFO] [1782460370.287652863] [bt_navigator]: Begin navigating from current location (3.98, -2.35) to (5.29, -2.31)
+[controller_server-5] [INFO] [1782460370.307989844] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460371.358164431] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460372.408165017] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460372.559687254] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460372.597785955] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460372.598769354] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460372.599007403] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.41 rad.
+[behavior_server-8] [INFO] [1782460372.599273316] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460372.599325557] [behavior_server]: Turning -0.41 for spin behavior.
+[behavior_server-8] [INFO] [1782460372.899437096] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460372.900347339] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460372.900583309] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460373.400712267] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460373.401558614] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460373.482332130] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=53.6.
+[exploration_coordinator-13] [INFO] [1782460373.482487749] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.873.
+[exploration_coordinator-13] [INFO] [1782460373.490109978] [exploration_coordinator]: Navigating to frontier goal=(4.04, -2.51), size=154, cost=1.31, source=unknown, information_gain=1.24m^2
+[bt_navigator-9] [INFO] [1782460373.490358653] [bt_navigator]: Begin navigating from current location (5.17, -1.85) to (4.04, -2.51)
+[controller_server-5] [INFO] [1782460373.510683181] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [INFO] [1782460373.986808563] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 237 X 208 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460374.560866035] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460375.610866623] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460375.862407002] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460375.900540949] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460375.900909468] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460375.901175540] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=1.77 rad.
+[behavior_server-8] [INFO] [1782460375.901402126] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460375.901458096] [behavior_server]: Turning 1.77 for spin behavior.
+[behavior_server-8] [INFO] [1782460376.501586307] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460376.503138624] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460376.503389450] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782460376.503487191] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782460376.503499255] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782460376.503507469] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782460376.504567048] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460376.563544553] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=53.7.
+[exploration_coordinator-13] [INFO] [1782460376.563698008] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.58m^2, utility=0.590.
+[exploration_coordinator-13] [INFO] [1782460376.571568673] [exploration_coordinator]: Navigating to frontier goal=(5.44, -0.18), size=135, cost=2.81, source=unknown, information_gain=1.58m^2
+[bt_navigator-9] [INFO] [1782460376.571848093] [bt_navigator]: Begin navigating from current location (4.19, -2.42) to (5.44, -0.18)
+[controller_server-5] [INFO] [1782460376.592121812] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460377.642293250] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460378.692293237] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460379.692294074] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460379.793775060] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460379.831993015] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460379.832849010] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460379.833070890] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.40 rad.
+[behavior_server-8] [INFO] [1782460379.833249188] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460379.833307100] [behavior_server]: Turning -1.40 for spin behavior.
+[behavior_server-8] [INFO] [1782460380.333423935] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460380.335028281] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460380.335270501] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460380.835416312] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460380.836864679] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460380.930908573] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=56.8.
+[exploration_coordinator-13] [INFO] [1782460380.931071563] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.97m^2, utility=0.529.
+[planner_server-7] [WARN] [1782460380.932096069] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[exploration_coordinator-13] [INFO] [1782460380.940825062] [exploration_coordinator]: Navigating to frontier goal=(5.09, -1.68), size=135, cost=1.78, source=unknown, information_gain=0.97m^2
+[bt_navigator-9] [INFO] [1782460380.941135381] [bt_navigator]: Begin navigating from current location (5.04, 0.05) to (5.09, -1.68)
+[controller_server-5] [INFO] [1782460380.961400247] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460382.011579153] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460383.061581457] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460383.663112139] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460383.701312293] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460383.701603496] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460383.701831672] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.83 rad.
+[behavior_server-8] [INFO] [1782460383.702044801] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460383.702101068] [behavior_server]: Turning 0.83 for spin behavior.
+[planner_server-7] [INFO] [1782460383.986807992] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 238 X 208 at 0.050000 m/pix
+[behavior_server-8] [INFO] [1782460384.102221467] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460384.103131514] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460384.103317270] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460384.603462161] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460384.604293891] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460384.694227409] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=59.0.
+[exploration_coordinator-13] [INFO] [1782460384.694381039] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.74m^2, utility=0.216.
+[exploration_coordinator-13] [INFO] [1782460384.703195610] [exploration_coordinator]: Navigating to frontier goal=(1.69, -2.98), size=22, cost=4.48, source=unknown, information_gain=0.74m^2
+[bt_navigator-9] [INFO] [1782460384.703477350] [bt_navigator]: Begin navigating from current location (4.59, -1.33) to (1.69, -2.98)
+[controller_server-5] [INFO] [1782460384.723823037] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460385.774000632] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460386.824004646] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460387.823997366] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460388.873997741] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460389.375483658] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460389.413595706] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460389.414389274] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460389.414625838] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460389.495225518] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=56.0.
+[exploration_coordinator-13] [INFO] [1782460389.495387807] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.52m^2, utility=0.492.
+[exploration_coordinator-13] [INFO] [1782460389.502408761] [exploration_coordinator]: Navigating to frontier goal=(2.69, -2.63), size=22, cost=0.98, source=unknown, information_gain=0.52m^2
+[bt_navigator-9] [INFO] [1782460389.502654076] [bt_navigator]: Begin navigating from current location (1.85, -3.07) to (2.69, -2.63)
+[controller_server-5] [INFO] [1782460389.532965034] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460390.583130456] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460391.234642630] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460391.272793170] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460391.273091436] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460391.273324921] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.11 rad.
+[behavior_server-8] [INFO] [1782460391.273499622] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460391.273550919] [behavior_server]: Turning -0.11 for spin behavior.
+[behavior_server-8] [INFO] [1782460391.473678557] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460391.474564275] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460391.474768070] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460391.974956492] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460391.975821370] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460392.050033609] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=49.5.
+[exploration_coordinator-13] [INFO] [1782460392.050193461] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.56m^2, utility=0.638.
+[exploration_coordinator-13] [INFO] [1782460392.057261402] [exploration_coordinator]: Navigating to frontier goal=(2.84, -2.73), size=22, cost=0.80, source=unknown, information_gain=0.56m^2
+[bt_navigator-9] [INFO] [1782460392.057561622] [bt_navigator]: Begin navigating from current location (2.05, -2.70) to (2.84, -2.73)
+[controller_server-5] [INFO] [1782460392.077870997] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460393.128049515] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782460393.986865108] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 238 X 208 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460394.079563064] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460394.117723374] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460394.118022781] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460394.118269437] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.31 rad.
+[behavior_server-8] [INFO] [1782460394.118486214] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460394.118538765] [behavior_server]: Turning -0.31 for spin behavior.
+[behavior_server-8] [INFO] [1782460394.318670650] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460394.320277562] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460394.320550853] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460394.820696872] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460394.821550473] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460394.890463238] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=48.3.
+[exploration_coordinator-13] [INFO] [1782460394.890627295] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.57m^2, utility=0.763.
+[exploration_coordinator-13] [INFO] [1782460394.898040806] [exploration_coordinator]: Navigating to frontier goal=(2.24, -3.28), size=10, cost=0.66, source=unknown, information_gain=0.57m^2
+[bt_navigator-9] [INFO] [1782460394.898352093] [bt_navigator]: Begin navigating from current location (2.16, -2.64) to (2.24, -3.28)
+[controller_server-5] [INFO] [1782460394.928715088] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460395.978898391] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460396.530389632] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460396.568449111] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460396.568975766] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460396.569282142] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460396.650354973] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=46.3.
+[exploration_coordinator-13] [INFO] [1782460396.650511132] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.68m^2, utility=0.733.
+[exploration_coordinator-13] [INFO] [1782460396.657664994] [exploration_coordinator]: Navigating to frontier goal=(2.14, -2.33), size=10, cost=0.82, source=unknown, information_gain=0.68m^2
+[bt_navigator-9] [INFO] [1782460396.657988453] [bt_navigator]: Begin navigating from current location (2.14, -3.15) to (2.14, -2.33)
+[controller_server-5] [INFO] [1782460396.678342406] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460397.728504875] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460398.179982325] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460398.218122608] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460398.218464178] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460398.218712177] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460398.292920118] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=48.2.
+[exploration_coordinator-13] [INFO] [1782460398.293074759] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.55m^2, utility=0.264.
+[exploration_coordinator-13] [INFO] [1782460398.303639232] [exploration_coordinator]: Navigating to frontier goal=(-1.71, 1.72), size=741, cost=7.13, source=unknown, information_gain=1.55m^2
+[bt_navigator-9] [INFO] [1782460398.303923341] [bt_navigator]: Begin navigating from current location (2.16, -2.52) to (-1.71, 1.72)
+[controller_server-5] [INFO] [1782460398.324288196] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460399.374482213] [controller_server]: Passing new path to controller.
+[planner_server-7] [WARN] [1782460400.365302584] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782460400.424484231] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460401.424483218] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460402.474481676] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460403.474481333] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460404.524482539] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460404.926027880] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460404.964055653] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460404.965629742] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460404.966113779] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460404.966375928] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460405.566536813] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460405.567334099] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460405.625882678] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=56.3.
+[exploration_coordinator-13] [INFO] [1782460405.626044673] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.76m^2, utility=0.422.
+[exploration_coordinator-13] [INFO] [1782460405.634523799] [exploration_coordinator]: Navigating to frontier goal=(-2.26, -0.08), size=10, cost=1.73, source=unknown, information_gain=0.76m^2
+[bt_navigator-9] [INFO] [1782460405.634809517] [bt_navigator]: Begin navigating from current location (-1.29, 1.32) to (-2.26, -0.08)
+[controller_server-5] [INFO] [1782460405.665127184] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460406.715305603] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460407.765305728] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460408.166815177] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460408.204939131] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460408.205271499] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460408.205520922] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460408.266513353] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=55.1.
+[exploration_coordinator-13] [INFO] [1782460408.266667243] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.96m^2, utility=0.894.
+[exploration_coordinator-13] [INFO] [1782460408.273342593] [exploration_coordinator]: Navigating to frontier goal=(-1.71, 0.92), size=10, cost=1.00, source=unknown, information_gain=0.96m^2
+[bt_navigator-9] [INFO] [1782460408.273616905] [bt_navigator]: Begin navigating from current location (-2.15, 0.05) to (-1.71, 0.92)
+[controller_server-5] [INFO] [1782460408.293927450] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460409.344105068] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460410.045615279] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460410.083777142] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460410.084316649] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460410.084785593] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460410.148414320] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=55.8.
+[exploration_coordinator-13] [INFO] [1782460410.148567212] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.39m^2, utility=0.333.
+[exploration_coordinator-13] [INFO] [1782460410.157758524] [exploration_coordinator]: Navigating to frontier goal=(-0.56, 4.62), size=143, cost=5.04, source=unknown, information_gain=1.39m^2
+[bt_navigator-9] [INFO] [1782460410.158084912] [bt_navigator]: Begin navigating from current location (-1.82, 0.75) to (-0.56, 4.62)
+[controller_server-5] [INFO] [1782460410.178463369] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460411.228655215] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460412.278655512] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] WARNING: Logging before InitGoogleLogging() is written to STDERR
+[sync_slam_toolbox_node-4] W0626 15:53:32.820865 2099337 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782460413.278655274] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782460413.986828042] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 240 X 209 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460414.328655486] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460415.130136263] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460415.168209639] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460415.169711774] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460415.170135911] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.53 rad.
+[behavior_server-8] [INFO] [1782460415.170353700] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460415.170404956] [behavior_server]: Turning 0.53 for spin behavior.
+[behavior_server-8] [INFO] [1782460415.470486178] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460415.471280918] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460415.471498889] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460415.971651804] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460415.972791550] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460416.025499536] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=48.0.
+[exploration_coordinator-13] [INFO] [1782460416.025665127] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.95m^2, utility=1.233.
+[exploration_coordinator-13] [INFO] [1782460416.033273271] [exploration_coordinator]: Navigating to frontier goal=(1.29, 2.86), size=138, cost=2.44, source=unknown, information_gain=2.95m^2
+[bt_navigator-9] [INFO] [1782460416.033562306] [bt_navigator]: Begin navigating from current location (-0.28, 4.55) to (1.29, 2.86)
+[controller_server-5] [INFO] [1782460416.053902451] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460417.104073779] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460418.154074142] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460418.905585850] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460418.943718668] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460418.944004067] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460418.944240940] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.34 rad.
+[behavior_server-8] [INFO] [1782460418.944429944] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460418.944483443] [behavior_server]: Turning 0.34 for spin behavior.
+[behavior_server-8] [INFO] [1782460419.244601080] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460419.245423206] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460419.245606933] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460419.745752444] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460419.746526997] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460419.827399590] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=48.5.
+[exploration_coordinator-13] [INFO] [1782460419.827553810] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=2.99m^2, utility=1.972.
+[exploration_coordinator-13] [INFO] [1782460419.834665545] [exploration_coordinator]: Navigating to frontier goal=(-0.11, 1.61), size=21, cost=1.91, source=unknown, information_gain=2.99m^2
+[bt_navigator-9] [INFO] [1782460419.835032435] [bt_navigator]: Begin navigating from current location (0.68, 2.79) to (-0.11, 1.61)
+[controller_server-5] [INFO] [1782460419.865414084] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460420.915579197] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460421.965579486] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460421.967138077] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460422.015185723] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460422.016025064] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460422.016263507] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=3.08 rad.
+[behavior_server-8] [INFO] [1782460422.016457187] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460422.016511488] [behavior_server]: Turning 3.08 for spin behavior.
+[behavior_server-8] [INFO] [1782460422.816635004] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460422.817497931] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460422.817715994] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460423.317871970] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460423.318706547] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460423.396747340] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=54.6.
+[exploration_coordinator-13] [INFO] [1782460423.396899814] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=3.04m^2, utility=1.629.
+[exploration_coordinator-13] [INFO] [1782460423.404824013] [exploration_coordinator]: Navigating to frontier goal=(1.29, 1.96), size=21, cost=2.55, source=unknown, information_gain=3.04m^2
+[bt_navigator-9] [INFO] [1782460423.405141904] [bt_navigator]: Begin navigating from current location (-0.40, 1.42) to (1.29, 1.96)
+[controller_server-5] [INFO] [1782460423.425441699] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460424.475628608] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460425.525626687] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460426.177137642] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460426.215303787] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460426.216134755] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460426.216377614] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=3.10 rad.
+[behavior_server-8] [INFO] [1782460426.216591307] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460426.216642637] [behavior_server]: Turning 3.10 for spin behavior.
+[behavior_server-8] [INFO] [1782460427.016755133] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460427.017666841] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460427.017925672] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460427.518076086] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460427.518926744] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460427.589347763] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=44.8.
+[exploration_coordinator-13] [INFO] [1782460427.589510315] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.79m^2, utility=0.692.
+[exploration_coordinator-13] [INFO] [1782460427.598055365] [exploration_coordinator]: Navigating to frontier goal=(2.59, 4.36), size=63, cost=3.62, source=unknown, information_gain=1.79m^2
+[bt_navigator-9] [INFO] [1782460427.598369956] [bt_navigator]: Begin navigating from current location (1.59, 2.09) to (2.59, 4.36)
+[controller_server-5] [INFO] [1782460427.618701577] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460428.668874452] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460429.668896712] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460429.668946073] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460429.678688134] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460430.728881392] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460431.728903406] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460431.728955221] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460431.738691850] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460432.788866513] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460433.788886378] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460433.788933016] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460433.798720900] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460434.848896077] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460435.848920751] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460435.848970868] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460435.858660028] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782460436.869353988] [planner_server]: Planner loop missed its desired rate of 20.0000 Hz. Current loop rate is 10.0000 Hz
+[controller_server-5] [INFO] [1782460436.908844904] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460437.908866025] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460437.908911655] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460437.918750539] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460438.968936603] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460439.968963520] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460439.969019584] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460439.978725150] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460441.028904923] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460442.028931497] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460442.028978815] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460442.038696480] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460443.088878758] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460444.088901498] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460444.088945155] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460444.098713766] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460445.148888815] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460446.148956758] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460446.149023741] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460446.158649541] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460447.208811182] [controller_server]: Passing new path to controller.
+[exploration_coordinator-13] [WARN] [1782460447.638145425] [exploration_coordinator]: Exploration has made no effective translation for 20.0s; starting bounded random-walk recovery.
+[exploration_coordinator-13] [INFO] [1782460447.638375482] [exploration_coordinator]: GVD random-walk recovery attempt 1/3: Nav2 Spin delta=1.98rad.
+[behavior_server-8] [INFO] [1782460447.638569133] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460447.638623613] [behavior_server]: Turning 1.98 for spin behavior.
+[controller_server-5] [INFO] [1782460447.658811128] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-5] [INFO] [1782460447.658832595] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[bt_navigator-9] [ERROR] [1782460447.658887906] [bt_navigator_navigate_to_pose_rclcpp_node]: Failed to get result for follow_path in node halt!
+[bt_navigator-9] [INFO] [1782460447.658953672] [bt_navigator]: [navigate_to_pose] [ActionServer] Client requested to cancel the goal. Cancelling.
+[bt_navigator-9] [INFO] [1782460447.659026719] [bt_navigator]: Goal canceled
+[behavior_server-8] [INFO] [1782460448.338753160] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460448.340213980] [exploration_coordinator]: GVD random-walk recovery driving 0.45m at 0.20m/s with Nav2 collision checking.
+[behavior_server-8] [INFO] [1782460448.340478119] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460448.840626186] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460448.842090684] [exploration_coordinator]: GVD random-walk recovery completed; reselecting.
+[exploration_coordinator-13] [INFO] [1782460448.920643029] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=41.8.
+[exploration_coordinator-13] [INFO] [1782460448.920805492] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.05m^2, utility=0.209.
+[exploration_coordinator-13] [INFO] [1782460448.930328545] [exploration_coordinator]: Navigating to frontier goal=(5.34, -0.29), size=1249, cost=5.15, source=unknown, information_gain=1.05m^2
+[bt_navigator-9] [INFO] [1782460448.930695858] [bt_navigator]: Begin navigating from current location (1.12, 2.24) to (5.34, -0.29)
+[controller_server-5] [INFO] [1782460448.951092317] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460450.001292659] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460451.001297149] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460452.051293213] [controller_server]: Passing new path to controller.
+[sync_slam_toolbox_node-4] W0626 15:54:13.050603 2099337 preprocessor.cc:62] Specified options.num_threads: 50 exceeds maximum available from the threading model Ceres was compiled with: 32.  Bounding to maximum number available.
+[controller_server-5] [INFO] [1782460453.101294582] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782460453.986809513] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 238 X 206 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460454.101354203] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460454.153149056] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460454.190860867] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460454.191404690] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460454.191832171] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-0.57 rad.
+[behavior_server-8] [INFO] [1782460454.192099093] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460454.192154595] [behavior_server]: Turning -0.57 for spin behavior.
+[behavior_server-8] [INFO] [1782460454.492286584] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460454.493209867] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460454.493436853] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460454.993643459] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460454.995134812] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460455.071093605] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=67.3.
+[exploration_coordinator-13] [INFO] [1782460455.071265978] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.44m^2, utility=0.509.
+[exploration_coordinator-13] [INFO] [1782460455.079224271] [exploration_coordinator]: Navigating to frontier goal=(5.89, 2.74), size=100, cost=3.25, source=unknown, information_gain=1.44m^2
+[bt_navigator-9] [INFO] [1782460455.079453035] [bt_navigator]: Begin navigating from current location (5.07, 0.15) to (5.89, 2.74)
+[controller_server-5] [INFO] [1782460455.099812981] [controller_server]: Received a goal, begin computing control effort.
+[planner_server-7] [WARN] [1782460456.112120572] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460456.112154561] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460456.112162473] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[planner_server-7] [INFO] [1782460456.129698290] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782460456.493602991] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460456.493640282] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460456.493651978] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[bt_navigator-9] [ERROR] [1782460456.529753599] [bt_navigator_navigate_to_pose_rclcpp_node]: Failed to get result for follow_path in node halt!
+[controller_server-5] [INFO] [1782460456.529915788] [local_costmap.local_costmap]: Received request to clear entirely the local_costmap
+[planner_server-7] [INFO] [1782460456.530116508] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[bt_navigator-9] [WARN] [1782460456.530418851] [BehaviorTreeEngine]: Behavior Tree tick rate 100.00 was exceeded!
+[controller_server-5] [INFO] [1782460456.549997582] [controller_server]: Goal was canceled. Stopping the robot.
+[controller_server-5] [INFO] [1782460456.550014303] [controller_server]: [follow_path] [ActionServer] Client requested to cancel the goal. Cancelling.
+[planner_server-7] [WARN] [1782460456.992775991] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460456.992803752] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460456.992809691] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[planner_server-7] [INFO] [1782460457.007473733] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782460457.491243086] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460457.491279951] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460457.491291845] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[behavior_server-8] [INFO] [1782460457.510619538] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460457.510671950] [behavior_server]: Turning 1.57 for spin behavior.
+[behavior_server-8] [INFO] [1782460457.910789803] [behavior_server]: spin completed successfully
+[planner_server-7] [WARN] [1782460457.944083283] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460457.944119286] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460457.944130375] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[planner_server-7] [INFO] [1782460457.960530129] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782460457.993900929] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460457.993941435] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460457.993953656] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[behavior_server-8] [INFO] [1782460458.010677146] [behavior_server]: Running wait
+[behavior_server-8] [INFO] [1782460459.010808731] [behavior_server]: wait completed successfully
+[planner_server-7] [WARN] [1782460459.043892081] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460459.043930085] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460459.043940837] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[planner_server-7] [INFO] [1782460459.060597462] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782460459.493997601] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460459.494035806] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460459.494048089] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[behavior_server-8] [INFO] [1782460459.510721266] [behavior_server]: Running backup
+[behavior_server-8] [INFO] [1782460459.510821187] [behavior_server]: DriveOnHeading: no acceleration or deceleration limits set
+[behavior_server-8] [INFO] [1782460460.810871072] [behavior_server]: backup completed successfully
+[planner_server-7] [WARN] [1782460460.843942332] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460460.843981059] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460460.843991994] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[planner_server-7] [INFO] [1782460460.860532428] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782460460.993436690] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460460.993466425] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460460.993472097] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460461.010524241] [local_costmap.local_costmap]: Received request to clear entirely the local_costmap
+[planner_server-7] [INFO] [1782460461.010651088] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782460461.493786507] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460461.493817442] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460461.493823137] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[planner_server-7] [INFO] [1782460461.510522260] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782460461.993911129] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460461.993941471] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460461.993946881] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[behavior_server-8] [INFO] [1782460462.010621763] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460462.010673442] [behavior_server]: Turning 1.57 for spin behavior.
+[behavior_server-8] [INFO] [1782460462.410797652] [behavior_server]: spin completed successfully
+[planner_server-7] [WARN] [1782460462.443805749] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460462.443844885] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460462.443856025] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[planner_server-7] [INFO] [1782460462.460529062] [global_costmap.global_costmap]: Received request to clear entirely the global_costmap
+[planner_server-7] [WARN] [1782460462.492877303] [planner_server]: GridBased: failed to create plan with tolerance 0.05.
+[planner_server-7] [WARN] [1782460462.492905523] [planner_server]: Planning algorithm GridBased failed to generate a valid path to (5.89, 2.74)
+[planner_server-7] [WARN] [1782460462.492910800] [planner_server]: [compute_path_to_pose] [ActionServer] Aborting handle.
+[bt_navigator-9] [WARN] [1782460462.520468013] [bt_navigator]: [navigate_to_pose] [ActionServer] Aborting handle.
+[bt_navigator-9] [ERROR] [1782460462.520530767] [bt_navigator]: Goal failed
+[exploration_coordinator-13] [WARN] [1782460462.520867348] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460462.582189766] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=53.0.
+[exploration_coordinator-13] [INFO] [1782460462.582346866] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.18m^2, utility=0.457.
+[exploration_coordinator-13] [INFO] [1782460462.590553495] [exploration_coordinator]: Navigating to frontier goal=(3.34, 0.99), size=100, cost=2.79, source=unknown, information_gain=1.18m^2
+[bt_navigator-9] [INFO] [1782460462.590782536] [bt_navigator]: Begin navigating from current location (5.62, 2.00) to (3.34, 0.99)
+[controller_server-5] [INFO] [1782460462.611059934] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460463.661247714] [controller_server]: Passing new path to controller.
+[planner_server-7] [INFO] [1782460463.986805113] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 239 X 206 at 0.050000 m/pix
+[controller_server-5] [INFO] [1782460464.711243879] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460465.711243132] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460465.812756539] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460465.850921298] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460465.852709014] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460465.852925073] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.77 rad.
+[behavior_server-8] [INFO] [1782460465.853134790] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460465.853194308] [behavior_server]: Turning 0.77 for spin behavior.
+[behavior_server-8] [INFO] [1782460466.253319180] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460466.255016290] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460466.255283361] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782460466.255382387] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782460466.255395178] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782460466.255403069] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782460466.257395433] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460466.370229358] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=78.5.
+[exploration_coordinator-13] [INFO] [1782460466.370387832] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.64m^2, utility=1.616.
+[exploration_coordinator-13] [INFO] [1782460466.377732239] [exploration_coordinator]: Navigating to frontier goal=(3.44, 1.84), size=16, cost=1.74, source=unknown, information_gain=1.64m^2
+[bt_navigator-9] [INFO] [1782460466.378022517] [bt_navigator]: Begin navigating from current location (3.55, 0.93) to (3.44, 1.84)
+[controller_server-5] [INFO] [1782460466.398302153] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460467.400048786] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460467.438170916] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460467.438722829] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460467.439145601] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-2.63 rad.
+[behavior_server-8] [INFO] [1782460467.439421954] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460467.439476121] [behavior_server]: Turning -2.63 for spin behavior.
+[behavior_server-8] [INFO] [1782460468.139597570] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460468.140398077] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460468.140593472] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460468.640796516] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460468.641248155] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460468.726122576] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=73.0.
+[exploration_coordinator-13] [INFO] [1782460468.726280624] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.64m^2, utility=2.334.
+[exploration_coordinator-13] [INFO] [1782460468.733324014] [exploration_coordinator]: Navigating to frontier goal=(3.44, 1.84), size=16, cost=0.71, source=unknown, information_gain=1.64m^2
+[bt_navigator-9] [INFO] [1782460468.733579316] [bt_navigator]: Begin navigating from current location (4.03, 1.68) to (3.44, 1.84)
+[controller_server-5] [INFO] [1782460468.753852589] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460468.753962312] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460469.804017397] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460470.305789531] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460470.343780717] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460470.344083221] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460470.344343717] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-3.05 rad.
+[behavior_server-8] [INFO] [1782460470.344608189] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460470.344664132] [behavior_server]: Turning -3.05 for spin behavior.
+[behavior_server-8] [INFO] [1782460471.144791081] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460471.145712043] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460471.146002024] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460471.646155594] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460471.647686276] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460471.734850054] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=78.8.
+[exploration_coordinator-13] [INFO] [1782460471.735002828] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.64m^2, utility=2.210.
+[exploration_coordinator-13] [INFO] [1782460471.741847084] [exploration_coordinator]: Navigating to frontier goal=(3.44, 1.84), size=16, cost=0.74, source=unknown, information_gain=1.64m^2
+[bt_navigator-9] [INFO] [1782460471.742149277] [bt_navigator]: Begin navigating from current location (4.10, 1.86) to (3.44, 1.84)
+[controller_server-5] [INFO] [1782460471.762415194] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460472.763770463] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460472.802313227] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460472.803705862] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460472.804109251] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-2.77 rad.
+[behavior_server-8] [INFO] [1782460472.804371033] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460472.804423320] [behavior_server]: Turning -2.77 for spin behavior.
+[behavior_server-8] [INFO] [1782460473.604578792] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460473.605497800] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460473.605684150] [behavior_server]: Running drive_on_heading
+[planner_server-7] [INFO] [1782460473.986806571] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 240 X 206 at 0.050000 m/pix
+[behavior_server-8] [INFO] [1782460474.105825184] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460474.107452262] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460474.192350694] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=54.4.
+[exploration_coordinator-13] [INFO] [1782460474.192514818] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.48m^2, utility=0.466.
+[exploration_coordinator-13] [INFO] [1782460474.200306458] [exploration_coordinator]: Navigating to frontier goal=(3.24, 2.04), size=10, cost=0.95, source=unknown, information_gain=0.48m^2
+[bt_navigator-9] [INFO] [1782460474.200694576] [bt_navigator]: Begin navigating from current location (4.07, 1.64) to (3.24, 2.04)
+[controller_server-5] [INFO] [1782460474.221061227] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460474.221192606] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460475.271247569] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460476.321251250] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460476.372762335] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460476.410832660] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460476.412302657] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [WARN] [1782460476.412780112] [exploration_coordinator]: Cannot estimate frontier probe direction; retrying.
+[exploration_coordinator-13] [INFO] [1782460476.472741547] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=54.2.
+[exploration_coordinator-13] [INFO] [1782460476.472899932] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=0.98m^2, utility=0.451.
+[exploration_coordinator-13] [INFO] [1782460476.480417152] [exploration_coordinator]: Navigating to frontier goal=(3.69, 4.09), size=12, cost=2.08, source=unknown, information_gain=0.98m^2
+[bt_navigator-9] [INFO] [1782460476.480674484] [bt_navigator]: Begin navigating from current location (3.42, 2.04) to (3.69, 4.09)
+[controller_server-5] [INFO] [1782460476.500990556] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460477.551165053] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460478.402389071] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460478.440842740] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460478.441173752] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460478.441403795] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=0.21 rad.
+[behavior_server-8] [INFO] [1782460478.441569201] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460478.441623796] [behavior_server]: Turning 0.21 for spin behavior.
+[behavior_server-8] [INFO] [1782460478.741746943] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460478.743363240] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460478.743631397] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [INFO] [1782460479.243774352] [behavior_server]: drive_on_heading completed successfully
+[exploration_coordinator-13] [INFO] [1782460479.244557248] [exploration_coordinator]: Frontier Nav2 probe completed.
+[exploration_coordinator-13] [INFO] [1782460479.314913652] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=54.5.
+[exploration_coordinator-13] [INFO] [1782460479.315066725] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.00m^2, utility=1.178.
+[exploration_coordinator-13] [INFO] [1782460479.321795974] [exploration_coordinator]: Navigating to frontier goal=(4.24, 4.34), size=12, cost=1.16, source=unknown, information_gain=1.00m^2
+[bt_navigator-9] [INFO] [1782460479.322129400] [bt_navigator]: Begin navigating from current location (3.49, 4.38) to (4.24, 4.34)
+[controller_server-5] [INFO] [1782460479.342435751] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460480.392621981] [controller_server]: Passing new path to controller.
+[controller_server-5] [INFO] [1782460481.294265270] [controller_server]: Reached the goal!
+[bt_navigator-9] [INFO] [1782460481.332279480] [bt_navigator]: Goal succeeded
+[exploration_coordinator-13] [INFO] [1782460481.333738479] [exploration_coordinator]: Nav2 reached the active frontier goal.
+[exploration_coordinator-13] [INFO] [1782460481.333964436] [exploration_coordinator]: Aligning with unknown frontier normal using Nav2 Spin: delta=-1.10 rad.
+[behavior_server-8] [INFO] [1782460481.334172594] [behavior_server]: Running spin
+[behavior_server-8] [INFO] [1782460481.334224724] [behavior_server]: Turning -1.10 for spin behavior.
+[behavior_server-8] [INFO] [1782460481.734359959] [behavior_server]: spin completed successfully
+[exploration_coordinator-13] [INFO] [1782460481.735301671] [exploration_coordinator]: Probing beyond unknown frontier with Nav2 DriveOnHeading: distance=0.45m, speed=0.20m/s.
+[behavior_server-8] [INFO] [1782460481.735498029] [behavior_server]: Running drive_on_heading
+[behavior_server-8] [WARN] [1782460481.735591964] [behavior_server]: Collision Ahead - Exiting DriveOnHeading
+[behavior_server-8] [WARN] [1782460481.735603483] [behavior_server]: drive_on_heading failed
+[behavior_server-8] [WARN] [1782460481.735611460] [behavior_server]: [drive_on_heading] [ActionServer] Aborting handle.
+[exploration_coordinator-13] [WARN] [1782460481.736673898] [exploration_coordinator]: Frontier probe ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782460481.808011509] [exploration_coordinator]: Shared frontier pool has 12 candidates: unknown=12, open_edge=0, local_filter_ms=64.3.
+[exploration_coordinator-13] [INFO] [1782460481.808175867] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.00m^2, utility=1.266.
+[exploration_coordinator-13] [INFO] [1782460481.815439473] [exploration_coordinator]: Navigating to frontier goal=(3.34, 4.34), size=12, cost=1.20, source=unknown, information_gain=1.00m^2
+[bt_navigator-9] [INFO] [1782460481.815683919] [bt_navigator]: Begin navigating from current location (4.03, 4.26) to (3.34, 4.34)
+[controller_server-5] [INFO] [1782460481.845993588] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460482.896163846] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460483.896176209] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460483.896219066] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460483.905957044] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460484.956118546] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460485.956143359] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460485.956201056] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460485.965950674] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460487.016126395] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460488.016150690] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460488.016204510] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460488.025920087] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460489.076101604] [controller_server]: Passing new path to controller.
+[controller_server-5] [ERROR] [1782460490.076120461] [controller_server]: Failed to make progress
+[controller_server-5] [WARN] [1782460490.076172052] [controller_server]: [follow_path] [ActionServer] Aborting handle.
+[controller_server-5] [INFO] [1782460490.085948541] [controller_server]: Received a goal, begin computing control effort.
+[controller_server-5] [INFO] [1782460491.136169937] [controller_server]: Passing new path to controller.

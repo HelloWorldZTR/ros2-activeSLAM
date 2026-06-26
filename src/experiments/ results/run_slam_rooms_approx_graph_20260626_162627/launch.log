@@ -1,0 +1,505 @@
+[INFO] [launch]: All log files can be found below /home/psirobot/.ros/log/2026-06-26-16-26-28-009296-bj01-dc21-2181714
+[INFO] [launch]: Default logging verbosity is set to INFO
+urdf_file_name : turtlebot3_burger.urdf
+urdf_file_name : turtlebot3_burger.urdf
+[INFO] [gzserver-1]: process started with pid [2181732]
+[INFO] [robot_state_publisher-2]: process started with pid [2181734]
+[INFO] [spawn_entity.py-3]: process started with pid [2181736]
+[INFO] [sync_slam_toolbox_node-4]: process started with pid [2181738]
+[INFO] [controller_server-5]: process started with pid [2181740]
+[INFO] [smoother_server-6]: process started with pid [2181742]
+[INFO] [planner_server-7]: process started with pid [2181744]
+[INFO] [behavior_server-8]: process started with pid [2181746]
+[INFO] [bt_navigator-9]: process started with pid [2181748]
+[INFO] [waypoint_follower-10]: process started with pid [2181750]
+[INFO] [velocity_smoother-11]: process started with pid [2181752]
+[INFO] [lifecycle_manager-12]: process started with pid [2181754]
+[INFO] [exploration_coordinator-13]: process started with pid [2181756]
+[INFO] [slam_evaluator-14]: process started with pid [2181758]
+[robot_state_publisher-2] [INFO] [1782462388.401300008] [robot_state_publisher]: got segment base_footprint
+[robot_state_publisher-2] [INFO] [1782462388.401364215] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-2] [INFO] [1782462388.401369183] [robot_state_publisher]: got segment base_scan
+[robot_state_publisher-2] [INFO] [1782462388.401372146] [robot_state_publisher]: got segment caster_back_link
+[robot_state_publisher-2] [INFO] [1782462388.401375045] [robot_state_publisher]: got segment imu_link
+[robot_state_publisher-2] [INFO] [1782462388.401377610] [robot_state_publisher]: got segment wheel_left_link
+[robot_state_publisher-2] [INFO] [1782462388.401380043] [robot_state_publisher]: got segment wheel_right_link
+[lifecycle_manager-12] [INFO] [1782462388.405609953] [lifecycle_manager_navigation]: Creating
+[behavior_server-8] [INFO] [1782462388.407437176] [behavior_server]: 
+[behavior_server-8] 	behavior_server lifecycle node launched. 
+[behavior_server-8] 	Waiting on external lifecycle transitions to activate
+[behavior_server-8] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[smoother_server-6] [INFO] [1782462388.409536656] [smoother_server]: 
+[smoother_server-6] 	smoother_server lifecycle node launched. 
+[smoother_server-6] 	Waiting on external lifecycle transitions to activate
+[smoother_server-6] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782462388.410048323] [planner_server]: 
+[planner_server-7] 	planner_server lifecycle node launched. 
+[planner_server-7] 	Waiting on external lifecycle transitions to activate
+[planner_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[smoother_server-6] [INFO] [1782462388.410492725] [smoother_server]: Creating smoother server
+[bt_navigator-9] [INFO] [1782462388.410851845] [bt_navigator]: 
+[bt_navigator-9] 	bt_navigator lifecycle node launched. 
+[bt_navigator-9] 	Waiting on external lifecycle transitions to activate
+[bt_navigator-9] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[bt_navigator-9] [INFO] [1782462388.410907111] [bt_navigator]: Creating
+[planner_server-7] [INFO] [1782462388.410987073] [planner_server]: Creating
+[controller_server-5] [INFO] [1782462388.414210591] [controller_server]: 
+[controller_server-5] 	controller_server lifecycle node launched. 
+[controller_server-5] 	Waiting on external lifecycle transitions to activate
+[controller_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[lifecycle_manager-12] [INFO] [1782462388.415470801] [lifecycle_manager_navigation]: [34m[1mCreating and initializing lifecycle service clients[0m[0m
+[controller_server-5] [INFO] [1782462388.416336758] [controller_server]: Creating controller server
+[planner_server-7] [INFO] [1782462388.421242402] [global_costmap.global_costmap]: 
+[planner_server-7] 	global_costmap lifecycle node launched. 
+[planner_server-7] 	Waiting on external lifecycle transitions to activate
+[planner_server-7] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[planner_server-7] [INFO] [1782462388.421583892] [global_costmap.global_costmap]: Creating Costmap
+[velocity_smoother-11] [INFO] [1782462388.421777991] [velocity_smoother]: 
+[velocity_smoother-11] 	velocity_smoother lifecycle node launched. 
+[velocity_smoother-11] 	Waiting on external lifecycle transitions to activate
+[velocity_smoother-11] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782462388.425037597] [local_costmap.local_costmap]: 
+[controller_server-5] 	local_costmap lifecycle node launched. 
+[controller_server-5] 	Waiting on external lifecycle transitions to activate
+[controller_server-5] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[controller_server-5] [INFO] [1782462388.425383614] [local_costmap.local_costmap]: Creating Costmap
+[waypoint_follower-10] [INFO] [1782462388.426391258] [waypoint_follower]: 
+[waypoint_follower-10] 	waypoint_follower lifecycle node launched. 
+[waypoint_follower-10] 	Waiting on external lifecycle transitions to activate
+[waypoint_follower-10] 	See https://design.ros2.org/articles/node_lifecycle.html for more information.
+[waypoint_follower-10] [INFO] [1782462388.426659900] [waypoint_follower]: Creating
+[lifecycle_manager-12] [INFO] [1782462388.457934999] [lifecycle_manager_navigation]: [34m[1mStarting managed nodes bringup...[0m[0m
+[lifecycle_manager-12] [INFO] [1782462388.457967775] [lifecycle_manager_navigation]: [34m[1mConfiguring controller_server[0m[0m
+[controller_server-5] [INFO] [1782462388.458208180] [controller_server]: Configuring controller interface
+[controller_server-5] [INFO] [1782462388.458811898] [controller_server]: getting goal checker plugins..
+[controller_server-5] [INFO] [1782462388.459185256] [controller_server]: Controller frequency set to 20.0000Hz
+[controller_server-5] [INFO] [1782462388.459237633] [local_costmap.local_costmap]: Configuring
+[controller_server-5] [INFO] [1782462388.469117724] [local_costmap.local_costmap]: Using plugin "voxel_layer"
+[controller_server-5] [INFO] [1782462388.472714439] [local_costmap.local_costmap]: Subscribed to Topics: scan
+[controller_server-5] [INFO] [1782462388.487360758] [local_costmap.local_costmap]: Initialized plugin "voxel_layer"
+[controller_server-5] [INFO] [1782462388.488656809] [local_costmap.local_costmap]: Using plugin "inflation_layer"
+[controller_server-5] [INFO] [1782462388.490341102] [local_costmap.local_costmap]: Initialized plugin "inflation_layer"
+[sync_slam_toolbox_node-4] [INFO] [1782462388.508951443] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[controller_server-5] [INFO] [1782462388.509811341] [controller_server]: Created progress_checker : progress_checker of type nav2_controller::SimpleProgressChecker
+[controller_server-5] [INFO] [1782462388.512752104] [controller_server]: Created goal checker : general_goal_checker of type nav2_controller::SimpleGoalChecker
+[controller_server-5] [INFO] [1782462388.513022089] [controller_server]: Controller Server has general_goal_checker  goal checkers available.
+[controller_server-5] [INFO] [1782462388.513756708] [controller_server]: Created controller : FollowPath of type dwb_core::DWBLocalPlanner
+[controller_server-5] [INFO] [1782462388.524743897] [controller_server]: Setting transform_tolerance to 0.200000
+[controller_server-5] [INFO] [1782462388.554883089] [controller_server]: Using critic "RotateToGoal" (dwb_critics::RotateToGoalCritic)
+[controller_server-5] [INFO] [1782462388.555869956] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782462388.556083431] [controller_server]: Using critic "Oscillation" (dwb_critics::OscillationCritic)
+[controller_server-5] [INFO] [1782462388.556993628] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782462388.558020831] [controller_server]: Using critic "BaseObstacle" (dwb_critics::BaseObstacleCritic)
+[controller_server-5] [INFO] [1782462388.558751843] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782462388.559000347] [controller_server]: Using critic "GoalAlign" (dwb_critics::GoalAlignCritic)
+[controller_server-5] [INFO] [1782462388.559866118] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782462388.560258755] [controller_server]: Using critic "PathAlign" (dwb_critics::PathAlignCritic)
+[controller_server-5] [INFO] [1782462388.561241559] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782462388.561544024] [controller_server]: Using critic "PathDist" (dwb_critics::PathDistCritic)
+[controller_server-5] [INFO] [1782462388.562106732] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782462388.562486672] [controller_server]: Using critic "GoalDist" (dwb_critics::GoalDistCritic)
+[controller_server-5] [INFO] [1782462388.562896464] [controller_server]: Critic plugin initialized
+[controller_server-5] [INFO] [1782462388.562914247] [controller_server]: Controller Server has FollowPath  controllers available.
+[lifecycle_manager-12] [INFO] [1782462388.579787749] [lifecycle_manager_navigation]: [34m[1mConfiguring smoother_server[0m[0m
+[smoother_server-6] [INFO] [1782462388.580113893] [smoother_server]: Configuring smoother server
+[smoother_server-6] [INFO] [1782462388.592740429] [smoother_server]: Created smoother : simple_smoother of type nav2_smoother::SimpleSmoother
+[smoother_server-6] [INFO] [1782462388.595547150] [smoother_server]: Smoother Server has simple_smoother  smoothers available.
+[lifecycle_manager-12] [INFO] [1782462388.608952683] [lifecycle_manager_navigation]: [34m[1mConfiguring planner_server[0m[0m
+[planner_server-7] [INFO] [1782462388.610674814] [planner_server]: Configuring
+[planner_server-7] [INFO] [1782462388.610708690] [global_costmap.global_costmap]: Configuring
+[planner_server-7] [INFO] [1782462388.623533944] [global_costmap.global_costmap]: Using plugin "static_layer"
+[planner_server-7] [INFO] [1782462388.625655404] [global_costmap.global_costmap]: Subscribing to the map topic (/map) with transient local durability
+[planner_server-7] [INFO] [1782462388.626329531] [global_costmap.global_costmap]: Initialized plugin "static_layer"
+[planner_server-7] [INFO] [1782462388.626339774] [global_costmap.global_costmap]: Using plugin "obstacle_layer"
+[planner_server-7] [INFO] [1782462388.626854825] [global_costmap.global_costmap]: Subscribed to Topics: scan
+[planner_server-7] [INFO] [1782462388.628978972] [global_costmap.global_costmap]: Initialized plugin "obstacle_layer"
+[planner_server-7] [INFO] [1782462388.628989534] [global_costmap.global_costmap]: Using plugin "inflation_layer"
+[planner_server-7] [INFO] [1782462388.629547567] [global_costmap.global_costmap]: Initialized plugin "inflation_layer"
+[planner_server-7] [INFO] [1782462388.634088252] [planner_server]: Created global planner plugin GridBased of type nav2_navfn_planner/NavfnPlanner
+[planner_server-7] [INFO] [1782462388.634103239] [planner_server]: Configuring plugin GridBased of type NavfnPlanner
+[planner_server-7] [INFO] [1782462388.634777922] [planner_server]: Planner Server has GridBased  planners available.
+[spawn_entity.py-3] [INFO] [1782462388.638617188] [spawn_entity]: Spawn Entity started
+[spawn_entity.py-3] [INFO] [1782462388.638767173] [spawn_entity]: Loading entity XML from file /opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf
+[spawn_entity.py-3] [INFO] [1782462388.639155043] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[spawn_entity.py-3] [INFO] [1782462388.639278675] [spawn_entity]: Waiting for service /spawn_entity
+[lifecycle_manager-12] [INFO] [1782462388.639515859] [lifecycle_manager_navigation]: [34m[1mConfiguring behavior_server[0m[0m
+[behavior_server-8] [INFO] [1782462388.639801161] [behavior_server]: Configuring
+[behavior_server-8] [INFO] [1782462388.644048339] [behavior_server]: Creating behavior plugin spin of type nav2_behaviors/Spin
+[behavior_server-8] [INFO] [1782462388.644365196] [behavior_server]: Configuring spin
+[behavior_server-8] [INFO] [1782462388.647155989] [behavior_server]: Creating behavior plugin backup of type nav2_behaviors/BackUp
+[behavior_server-8] [INFO] [1782462388.647427233] [behavior_server]: Configuring backup
+[behavior_server-8] [INFO] [1782462388.649503558] [behavior_server]: Creating behavior plugin drive_on_heading of type nav2_behaviors/DriveOnHeading
+[behavior_server-8] [INFO] [1782462388.649778886] [behavior_server]: Configuring drive_on_heading
+[behavior_server-8] [INFO] [1782462388.653452375] [behavior_server]: Creating behavior plugin assisted_teleop of type nav2_behaviors/AssistedTeleop
+[behavior_server-8] [INFO] [1782462388.654074949] [behavior_server]: Configuring assisted_teleop
+[behavior_server-8] [INFO] [1782462388.659460716] [behavior_server]: Creating behavior plugin wait of type nav2_behaviors/Wait
+[behavior_server-8] [INFO] [1782462388.659743269] [behavior_server]: Configuring wait
+[lifecycle_manager-12] [INFO] [1782462388.661990688] [lifecycle_manager_navigation]: [34m[1mConfiguring bt_navigator[0m[0m
+[bt_navigator-9] [INFO] [1782462388.662210060] [bt_navigator]: Configuring
+[gzserver-1] [37;1m2026-06-26 16:26:28.669 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7437: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[exploration_coordinator-13] [37;1m2026-06-26 16:26:28.684 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7437: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[lifecycle_manager-12] [INFO] [1782462388.719272190] [lifecycle_manager_navigation]: [34m[1mConfiguring waypoint_follower[0m[0m
+[waypoint_follower-10] [INFO] [1782462388.719468718] [waypoint_follower]: Configuring
+[waypoint_follower-10] [INFO] [1782462388.728408550] [waypoint_follower]: Created waypoint_task_executor : wait_at_waypoint of type nav2_waypoint_follower::WaitAtWaypoint
+[lifecycle_manager-12] [INFO] [1782462388.729180677] [lifecycle_manager_navigation]: [34m[1mConfiguring velocity_smoother[0m[0m
+[velocity_smoother-11] [INFO] [1782462388.729349353] [velocity_smoother]: Configuring velocity smoother
+[lifecycle_manager-12] [INFO] [1782462388.732938706] [lifecycle_manager_navigation]: [34m[1mActivating controller_server[0m[0m
+[controller_server-5] [INFO] [1782462388.733118175] [controller_server]: Activating
+[controller_server-5] [INFO] [1782462388.733143264] [local_costmap.local_costmap]: Activating
+[controller_server-5] [INFO] [1782462388.733151076] [local_costmap.local_costmap]: Checking transform
+[controller_server-5] [INFO] [1782462388.733169082] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[exploration_coordinator-13] [INFO] [1782462388.802122431] [exploration_coordinator]: Exploration coordinator started with Nav2 backend. SLAM mode: approx_graph
+[exploration_coordinator-13] [INFO] [1782462388.802294977] [exploration_coordinator]: Pose graph source: approximate TF trajectory. slam_toolbox can serialize its pose graph, but this node does not receive live nodes/edges/FIM from it.
+[slam_evaluator-14] [INFO] [1782462389.032426162] [slam_evaluator]: Evaluator logging to logs/run_slam_rooms_approx_graph_20260626_162627/run_20260626_162628 for world slam_rooms
+[slam_evaluator-14] [INFO] [1782462389.032750881] [slam_evaluator]: Sampling every 1.00s; waiting for map/TF data.
+[controller_server-5] [INFO] [1782462389.233169960] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[spawn_entity.py-3] [INFO] [1782462389.393751463] [spawn_entity]: Calling service /spawn_entity
+[gzserver-1] [INFO] [1782462389.547324961] [turtlebot3_imu]: <initial_orientation_as_reference> is unset, using default value of false to comply with REP 145 (world as orientation reference)
+[spawn_entity.py-3] [INFO] [1782462389.600659064] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [burger]
+[gzserver-1] [INFO] [1782462389.716154317] [turtlebot3_diff_drive]: Wheel pair 1 separation set to [0.160000m]
+[gzserver-1] [INFO] [1782462389.716196245] [turtlebot3_diff_drive]: Wheel pair 1 diameter set to [0.066000m]
+[gzserver-1] [INFO] [1782462389.718120292] [turtlebot3_diff_drive]: Subscribed to [/cmd_vel]
+[gzserver-1] [INFO] [1782462389.720178955] [turtlebot3_diff_drive]: Advertise odometry on [/odom]
+[gzserver-1] [INFO] [1782462389.723465096] [turtlebot3_diff_drive]: Publishing odom transforms between [odom] and [base_footprint]
+[INFO] [spawn_entity.py-3]: process has finished cleanly [pid 2181736]
+[controller_server-5] [INFO] [1782462389.733175311] [local_costmap.local_costmap]: Timed out waiting for transform from base_link to odom to become available, tf error: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+[gzserver-1] [INFO] [1782462389.737701026] [turtlebot3_joint_state]: Going to publish joint [wheel_left_joint]
+[gzserver-1] [INFO] [1782462389.737733676] [turtlebot3_joint_state]: Going to publish joint [wheel_right_joint]
+[sync_slam_toolbox_node-4] [WARN] [1782462389.942814692] [slam_toolbox]: minimum laser range setting (0.0 m) exceeds the capabilities of the used Lidar (0.1 m)
+[sync_slam_toolbox_node-4] Info: clipped range threshold to be within minimum and maximum range!
+[sync_slam_toolbox_node-4] [WARN] [1782462389.942966391] [slam_toolbox]: maximum laser range setting (25.0 m) exceeds the capabilities of the used Lidar (3.5 m)
+[sync_slam_toolbox_node-4] Registering sensor: [Custom Described Lidar]
+[controller_server-5] [INFO] [1782462390.233249687] [local_costmap.local_costmap]: start
+[slam_evaluator-14] [INFO] [1782462390.423552354] [slam_evaluator]: Waiting for data: /map, TF map->base_footprint, ground truth model burger on /model_states, /gazebo/model_states, /get_entity_state, or /odom
+[controller_server-5] [INFO] [1782462390.434264647] [controller_server]: Creating bond (controller_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782462390.518406314] [lifecycle_manager_navigation]: Server controller_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782462390.518433019] [lifecycle_manager_navigation]: [34m[1mActivating smoother_server[0m[0m
+[smoother_server-6] [INFO] [1782462390.518688895] [smoother_server]: Activating
+[smoother_server-6] [INFO] [1782462390.518722663] [smoother_server]: Creating bond (smoother_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782462390.623281215] [lifecycle_manager_navigation]: Server smoother_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782462390.623305250] [lifecycle_manager_navigation]: [34m[1mActivating planner_server[0m[0m
+[planner_server-7] [INFO] [1782462390.623540180] [planner_server]: Activating
+[planner_server-7] [INFO] [1782462390.623577622] [global_costmap.global_costmap]: Activating
+[planner_server-7] [INFO] [1782462390.623590249] [global_costmap.global_costmap]: Checking transform
+[planner_server-7] [INFO] [1782462390.623661255] [global_costmap.global_costmap]: start
+[planner_server-7] [INFO] [1782462391.125093791] [planner_server]: Activating plugin GridBased of type NavfnPlanner
+[planner_server-7] [INFO] [1782462391.126454205] [planner_server]: Creating bond (planner_server) to lifecycle manager.
+[lifecycle_manager-12] [INFO] [1782462391.230020135] [lifecycle_manager_navigation]: Server planner_server connected with bond.
+[lifecycle_manager-12] [INFO] [1782462391.230047516] [lifecycle_manager_navigation]: [34m[1mActivating behavior_server[0m[0m
+[behavior_server-8] [INFO] [1782462391.230374806] [behavior_server]: Activating
+[behavior_server-8] [INFO] [1782462391.230402174] [behavior_server]: Activating spin
+[behavior_server-8] [INFO] [1782462391.230414406] [behavior_server]: Activating backup
+[behavior_server-8] [INFO] [1782462391.230423562] [behavior_server]: Activating drive_on_heading
+[behavior_server-8] [INFO] [1782462391.230432666] [behavior_server]: Activating assisted_teleop
+[behavior_server-8] [INFO] [1782462391.230440842] [behavior_server]: Activating wait
+[behavior_server-8] [INFO] [1782462391.230452808] [behavior_server]: Creating bond (behavior_server) to lifecycle manager.
+[lifecycle_manager-12] [ERROR] [1782462393.234795031] [lifecycle_manager_navigation]: Server behavior_server was unable to be reached after 4.00s by bond. This server may be misconfigured.
+[lifecycle_manager-12] [ERROR] [1782462393.234841610] [lifecycle_manager_navigation]: Failed to bring up all requested nodes. Aborting bringup.
+[slam_evaluator-14] [INFO] [1782462396.033096368] [slam_evaluator]: Waiting for data: /map
+[slam_evaluator-14] [INFO] [1782462401.042818306] [slam_evaluator]: Evaluator is recording samples.
+[planner_server-7] [WARN] [1782462401.869508147] [global_costmap.global_costmap]: Can't update static costmap layer, no map received
+[planner_server-7] [INFO] [1782462403.872562190] [global_costmap.global_costmap]: StaticLayer: Resizing static layer to 67 X 68 at 0.050000 m/pix
+[exploration_coordinator-13] [INFO] [1782462405.884010698] [exploration_coordinator]: Nav2 and the first map are ready; starting exploration.
+[exploration_coordinator-13] [INFO] [1782462405.962903469] [exploration_coordinator]: Shared frontier pool has 2 candidates: unknown=1, open_edge=1, local_filter_ms=9.1.
+[exploration_coordinator-13] [INFO] [1782462405.963219391] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462405.966531182] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462405.970432392] [exploration_coordinator]: Graph-based selected frontier score=21.570, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462405.970739125] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.86, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462405.971603144] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462416.031962709] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.4.
+[exploration_coordinator-13] [INFO] [1782462416.032117516] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462416.034393701] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462416.034533722] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462416.035024406] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462416.081351021] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462416.081497863] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462419.114005405] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462419.114154849] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462422.133228275] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=5.4.
+[exploration_coordinator-13] [INFO] [1782462422.133379940] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462425.152299775] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.5.
+[exploration_coordinator-13] [INFO] [1782462425.152457754] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462428.168883762] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462428.169039283] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462428.171787045] [exploration_coordinator]: Graph-based selected frontier score=21.567, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462428.171949788] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.85, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462428.172611145] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462428.215618865] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=8.8.
+[exploration_coordinator-13] [INFO] [1782462428.215917697] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462431.234255998] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=7.6.
+[exploration_coordinator-13] [INFO] [1782462431.234408254] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462434.245430811] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462434.245580921] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462437.264682040] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462437.264834409] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462437.267055912] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462437.267208865] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462437.267735869] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462437.304851982] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462437.304997597] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462440.324028536] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.2.
+[exploration_coordinator-13] [INFO] [1782462440.324178931] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462443.343043244] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=6.9.
+[exploration_coordinator-13] [INFO] [1782462443.343196645] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462446.363151957] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=5.5.
+[exploration_coordinator-13] [INFO] [1782462446.363306715] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462449.382695594] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=7.3.
+[exploration_coordinator-13] [INFO] [1782462449.382856450] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462449.385932485] [exploration_coordinator]: Graph-based selected frontier score=21.532, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462449.386101152] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.87, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462449.386734139] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462449.420426261] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.2.
+[exploration_coordinator-13] [INFO] [1782462449.420570101] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462452.440569421] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=6.2.
+[exploration_coordinator-13] [INFO] [1782462452.440719297] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462455.461251617] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=8.0.
+[exploration_coordinator-13] [INFO] [1782462455.461403696] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462458.470666729] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462458.470822515] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462458.473076653] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462458.473232322] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462458.473802903] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462458.512610053] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.8.
+[exploration_coordinator-13] [INFO] [1782462458.512755831] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462461.528857882] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=8.9.
+[exploration_coordinator-13] [INFO] [1782462461.529166780] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462464.546744842] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=8.9.
+[exploration_coordinator-13] [INFO] [1782462464.547055014] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462467.558214625] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=6.8.
+[exploration_coordinator-13] [INFO] [1782462467.558366737] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462470.573068818] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462470.573225629] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462470.576003039] [exploration_coordinator]: Graph-based selected frontier score=21.585, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462470.576151928] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.89, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462470.576760878] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462470.613210198] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462470.613353188] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462473.634635133] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462473.634785174] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462476.658276692] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462476.658427709] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462479.675393806] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462479.675543757] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462479.677835742] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462479.677982075] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462479.678546630] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462479.718051585] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=6.1.
+[exploration_coordinator-13] [INFO] [1782462479.718364084] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462482.730719099] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462482.730869780] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462485.746471050] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462485.746618454] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462488.771656127] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462488.771808631] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462491.797665247] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462491.797817804] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462491.800571652] [exploration_coordinator]: Graph-based selected frontier score=21.584, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462491.800716761] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.89, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462491.801502447] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462491.837673025] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462491.837817882] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462494.856985707] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462494.857133866] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462497.876674865] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=6.0.
+[exploration_coordinator-13] [INFO] [1782462497.876830307] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462500.904223829] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.7.
+[exploration_coordinator-13] [INFO] [1782462500.904399487] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462500.906605996] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462500.906753963] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462500.907342282] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462500.944928967] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.3.
+[exploration_coordinator-13] [INFO] [1782462500.945072310] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462503.967963714] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462503.968110593] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462506.977624035] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462506.977844722] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462510.001284286] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462510.001432504] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462513.016566355] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462513.016721307] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462513.019545390] [exploration_coordinator]: Graph-based selected frontier score=21.537, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462513.019694523] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.87, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462513.020371077] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462513.056983753] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.2.
+[exploration_coordinator-13] [INFO] [1782462513.057130208] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462516.072440262] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462516.072591954] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462519.083863522] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462519.084014454] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462522.098673762] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462522.098824978] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462522.100926750] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462522.101071008] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462522.101669042] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462522.138824133] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462522.138965041] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462525.167050135] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=9.0.
+[exploration_coordinator-13] [INFO] [1782462525.167364705] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462528.189136163] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=8.2.
+[exploration_coordinator-13] [INFO] [1782462528.189306795] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462531.204189411] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462531.204342439] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462534.226415282] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.2.
+[exploration_coordinator-13] [INFO] [1782462534.226571969] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462534.229345276] [exploration_coordinator]: Graph-based selected frontier score=21.548, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462534.229494921] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.87, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462534.230195986] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462534.266559256] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462534.266702643] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462537.285447481] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462537.285600170] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462540.305860239] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462540.306003877] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462543.328130020] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462543.328287035] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462543.330582174] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462543.330729136] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462543.331366739] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462543.368691515] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462543.368837594] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462546.380260927] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462546.380483877] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462549.397900794] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462549.398121295] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462552.411935484] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462552.412082255] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462555.426607038] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.3.
+[exploration_coordinator-13] [INFO] [1782462555.426759699] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462555.429575873] [exploration_coordinator]: Graph-based selected frontier score=21.567, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462555.429720635] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.85, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462555.430452048] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462555.466820802] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462555.466960716] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462558.482343451] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462558.482494778] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462561.495195652] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=5.5.
+[exploration_coordinator-13] [INFO] [1782462561.495345861] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462564.508036029] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462564.508188793] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462564.510389311] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462564.510531837] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462564.511180315] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462564.548712549] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462564.548856986] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462567.568144065] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462567.568374578] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462570.604887617] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.2.
+[exploration_coordinator-13] [INFO] [1782462570.605038164] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462573.623126038] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=7.0.
+[exploration_coordinator-13] [INFO] [1782462573.623281218] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462576.636948318] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462576.637102300] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462576.639956833] [exploration_coordinator]: Graph-based selected frontier score=21.540, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462576.640112150] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.87, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462576.640844551] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462576.677049295] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462576.677196263] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462579.702989691] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.5.
+[exploration_coordinator-13] [INFO] [1782462579.703146201] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462582.723727113] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462582.723873239] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462585.749385736] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=8.0.
+[exploration_coordinator-13] [INFO] [1782462585.749690214] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462585.751948319] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462585.752085937] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462585.752817488] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462585.784828459] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462585.784969908] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462588.808558259] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462588.808707514] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462591.823888173] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=7.2.
+[exploration_coordinator-13] [INFO] [1782462591.824047470] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462594.852491094] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462594.852640256] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462597.868128593] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462597.868287221] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462597.871223178] [exploration_coordinator]: Graph-based selected frontier score=21.567, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462597.871394324] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.85, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462597.872452864] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462597.909256173] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462597.909410400] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462600.939707588] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462600.939866919] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462603.974002472] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462603.974150455] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462607.002119171] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462607.002272676] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462607.004538366] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462607.004686709] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462607.005381349] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462607.042258487] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462607.042404618] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462610.060147917] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=8.9.
+[exploration_coordinator-13] [INFO] [1782462610.060451950] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462613.069278314] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462613.069426927] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462616.088170364] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462616.088317574] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462619.101944215] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462619.102096230] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462619.104907285] [exploration_coordinator]: Graph-based selected frontier score=21.570, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462619.105087507] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.86, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462619.105860251] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462619.142360997] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462619.142504515] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462622.166430487] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=8.9.
+[exploration_coordinator-13] [INFO] [1782462622.166732580] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462625.172376813] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462625.172524882] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462628.187062858] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462628.187227485] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462628.189347899] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462628.189495173] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462628.190171441] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462628.226924541] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462628.227069460] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462631.241312349] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462631.241458970] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462634.259962722] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=6.3.
+[exploration_coordinator-13] [INFO] [1782462634.260112907] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462637.269460653] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=5.5.
+[exploration_coordinator-13] [INFO] [1782462637.269610763] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462640.284554471] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462640.284733284] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462640.287383536] [exploration_coordinator]: Graph-based selected frontier score=21.570, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462640.287529899] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.86, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462640.288243837] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462640.324777228] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462640.324918519] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462643.341193228] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462643.341341162] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462646.353939331] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462646.354167818] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462649.373374440] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462649.373562011] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462649.375754918] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462649.375907781] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462649.376585835] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462649.413338104] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.1.
+[exploration_coordinator-13] [INFO] [1782462649.413484491] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462652.425296356] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=5.4.
+[exploration_coordinator-13] [INFO] [1782462652.425443723] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462655.438676586] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462655.438825610] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462658.452745786] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462658.452895058] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462661.466897850] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=1, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462661.467048484] [exploration_coordinator]: Checking shared frontier candidate source=unknown, information_gain=1.24m^2, utility=0.640.
+[exploration_coordinator-13] [INFO] [1782462661.469791379] [exploration_coordinator]: Graph-based selected frontier score=21.532, information_gain=1.24m^2, source=unknown
+[exploration_coordinator-13] [INFO] [1782462661.469934872] [exploration_coordinator]: Navigating to frontier goal=(-2.20, 1.32), size=188, cost=1.87, source=unknown, information_gain=1.24m^2
+[exploration_coordinator-13] [WARN] [1782462661.470634971] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462661.506946264] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462661.507090055] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462664.526006248] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=8.9.
+[exploration_coordinator-13] [INFO] [1782462664.526310349] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462667.534715689] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=3.9.
+[exploration_coordinator-13] [INFO] [1782462667.534860989] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462670.547495364] [exploration_coordinator]: Shared frontier pool has 1 candidates: unknown=0, open_edge=1, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462670.547648430] [exploration_coordinator]: Checking shared frontier candidate source=open_edge, information_gain=2.42m^2, utility=2.156.
+[exploration_coordinator-13] [INFO] [1782462670.549925083] [exploration_coordinator]: Graph-based selected frontier score=16.021, information_gain=2.42m^2, source=open_edge
+[exploration_coordinator-13] [INFO] [1782462670.550070424] [exploration_coordinator]: Navigating to frontier goal=(-2.00, 0.52), size=36, cost=1.12, source=open_edge, information_gain=2.42m^2
+[exploration_coordinator-13] [WARN] [1782462670.550731268] [exploration_coordinator]: Nav2 navigation ended with status=6; retrying.
+[exploration_coordinator-13] [INFO] [1782462670.587674487] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462670.587816147] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
+[exploration_coordinator-13] [INFO] [1782462673.608808335] [exploration_coordinator]: Shared frontier pool has 0 candidates: unknown=0, open_edge=0, local_filter_ms=4.0.
+[exploration_coordinator-13] [INFO] [1782462673.608956331] [exploration_coordinator]: No reachable frontier among 2 clusters. Retrying in 3.0s.
