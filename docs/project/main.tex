@@ -1,0 +1,156 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Technical Report}
+
+\author{\IEEEauthorblockN{Author Name}
+\IEEEauthorblockA{\textit{Department Name} \\
+\textit{Organization Name}\\
+City, Country \\
+email address or ORCID}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
+\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+\textit{name of organization (of Aff.)}\\
+City, Country \\
+email address or ORCID}
+}
+
+\maketitle
+
+\maketitle
+
+\begin{abstract}
+Abstracted abstract abstracts the article.
+\end{abstract}
+
+\begin{IEEEkeywords}
+SLAM
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+Simultaneous Localization and Mapping (SLAM) enables a robot to estimate its trajectory while ploting a map of unknown environment from noisy sensor observations. In conventional, or passive, SLAM, the robot trajectory is determined by an external controller, operator, or task-level planner, while the SLAM system estimates the resulting robot poses and map. In contrast, active SLAM couples perception with decision making: the robot explicitly selects future viewpoints or actions, in order to improve the quality of localization and mapping. 
+
+Most active SLAM methods can be viewed as a three-stage pipeline. First, the robot generates a list candidate targets to explore, called frontier. Second, these candidates are evaluated using an utility function. Finally, the selected target is converted into an executable trajectory using pathfinding algorithms. The resulting observations are incorporated into the SLAM back-end where a map is calculated using maximum \textit{a posteriori}(MAP). Representative classical approaches formulate this utility through expected information gain or entropy reduction \cite{bourgault2002information,stachniss2005rbgain}, feature-driven exploration \cite{newman2003feature}, or optimal experimental-design criteria such as A-optimality \cite{sim2005aoptimal}. Subsequent work has extended this formulation toward non-myopic planning, belief-space planning, and topology-aware objectives \cite{leung2006mpc,valencia2012activepose,indelman2015bsp,mu2016topological}. More recently, learning-based methods have combined learned policies or graph representations with explicit mapping and planning modules to improve adaptation and scalability in complex environments \cite{chaplot2020neural,placed2020drl,chen2020graphs}. 
+
+% Early studies demonstrated that such method is possible by selecting actions according to their expected influence on estimation uncertainty and map quality \cite{feder1999adaptive,davison2002activevision,bourgault2002information}.
+
+However, maximizing local exploration utility does not necessarily maximize global map consistency. In particular, loop closure is a central event in long-horizon SLAM: revisiting a previously observed region can introduce long-range constraints into the pose graph, thereby reducing accumulated drift and improving the consistency of the global trajectory and map. Active loop-closing and active pose-SLAM methods have therefore explicitly incorporated revisiting behavior into exploration decisions \cite{stachniss2004loopclosing,valencia2012activepose,kim2015areacoverage}. This perspective is further strengthened by information-based pose-graph methods and topology-aware visual SLAM systems, which show that the structure of the pose graph itself can inform action selection \cite{ila2010compact,placed2023explorb}.
+
+Nevertheless, the expected value of a revisit depends not only on its geometric proximity or travel cost, but also on whether it can produce a correct and informative data association. A successful loop closure can substantially improve global estimation by connecting distant portions of the trajectory, whereas an incorrect loop closure or erroneous data association may introduce incompatible constraints and severely distort the optimized map. Existing active SLAM objectives commonly evaluate candidate actions through quantities such as map entropy, pose uncertainty, expected information gain, coverage, or motion cost \cite{carlone2014kld,carrillo2015entropy,valencia2012activepose,indelman2015bsp}. Although these criteria characterize the expected informativeness of an observation, they do not directly model the downstream effect of that observation on loop-closure reliability and global pose-graph consistency.
+
+Consequently, a candidate viewpoint with high local information gain may contribute little to global localization accuracy if it does not enable a reliable correspondence, while a seemingly redundant revisit may be highly valuable if it produces a robust loop closure. This gap motivates active SLAM methods that explicitly estimate the expected benefit and risk of prospective loop closures, and incorporate such predictions into viewpoint selection and trajectory planning. By connecting high-level action selection with the reliability and global impact of loop-closure constraints, such a formulation may enable more efficient exploration and more consistent large-scale maps.
+
+
+
+our approach especially targets loop closure: graph based loop aware algorithm
+
+our contributions:
+\begin{itemize}
+    \item contrib 1
+    \item contrib 2
+\end{itemize}
+
+
+
+\section{Problem Formulation}
+
+We consider active SLAM in an initially unknown two-dimensional environment. At each decision epoch $t$, the robot maintains a belief over the map and its own pose,
+\begin{equation}
+\mathcal{S}_t = \left(\mathcal{M}_t,\mathbf{x}_t,\mathcal{H}_t\right),
+\end{equation}
+where $\mathcal{M}_t$ denotes the current map belief, $\mathbf{x}_t\in SE(2)$ is the estimated robot pose, and $\mathcal{H}_t$ contains the accumulated actions and observations. The objective of active SLAM is to choose sensing actions that reduce map uncertainty while preserving reliable localization and limiting motion cost.
+
+At each epoch, the robot selects an action $a_t$ from a set of feasible candidate actions $\mathcal{A}_t$. Each action induces a planned trajectory or navigation path $P_t(a_t)$ and leads to a new observation, after which the SLAM belief is updated. The next action is selected according to
+\begin{equation}
+a_t^\star =
+\arg\max_{a\in\mathcal{A}_t^{\mathrm{feas}}}
+J(a\mid\mathcal{S}_t),
+\end{equation}
+where $\mathcal{A}_t^{\mathrm{feas}}\subseteq\mathcal{A}_t$ contains actions that are safe and executable under the current belief, and $J(\cdot)$ is a utility function measuring the expected benefit of the action.
+
+Conceptually, the long-horizon active SLAM problem can be written as
+\begin{equation}
+\pi^\star =
+\arg\max_{\pi}
+\mathbb{E}
+\left[
+\sum_{t=0}^{T}
+\left(
+\Delta\mathcal{I}_t
+-
+\lambda c(a_t)
+\right)
+\right],
+\end{equation}
+where $a_t=\pi(\mathcal{S}_t)$, $\Delta\mathcal{I}_t$ denotes the expected information gain from executing $a_t$, and $c(a_t)$ denotes its motion or execution cost. The information term may capture reduction in map uncertainty, improvement in coverage, or increased localization constraints such as loop-closure opportunities. In practice, different active SLAM strategies instantiate $J$ using different approximations of this objective, such as frontier information gain, graph-based information value, topological coverage, or hierarchical exploration progress.
+
+\section{Method}
+
+\subsection{System Overview}
+
+\subsection{part one}
+
+\subsection{part two ...}
+
+
+\section{Results}
+
+\subsection{Simulation Setup}
+
+\subsection{Baseline Methods}
+
+\subsection{Evaluation Metrics}
+
+We evaluate each run using trajectory accuracy, exploration efficiency, and final map quality.  Let $G_{ij}$ denote the occupancy value of grid cell $(i,j)$, where $G_{ij}=-1$ is unknown, and let $M_{ij}\in\{0,1\}$ be the evaluation-region mask.  Map coverage is the fraction of cells in this region that have been observed:
+\begin{equation}
+C=\frac{\sum_{i,j}\mathbf{1}[G_{ij}\neq -1]M_{ij}}
+        {\sum_{i,j}M_{ij}} .
+\end{equation}
+Exploration efficiency is assessed by comparing the growth of coverage with respect to both elapsed time and accumulated path length; a faster increase under the same budget indicates more efficient exploration.
+
+Localization accuracy is reported by the absolute trajectory error (ATE) RMSE. Each estimated pose $e_k$ is first matched to the nearest ground-truth pose $g_m$ in time, using a maximum time difference of $0.2$ s:
+\begin{equation}
+\begin{aligned}
+m(k)&=\arg\min_m |t(e_k)-t(g_m)|,\\
+\mathcal{P}&=\{(e_k,g_{m(k)})\mid |t(e_k)-t(g_{m(k)})|\leq0.2\,\mathrm{s}\}.
+\end{aligned}
+\end{equation}
+Only an initial translational alignment is applied.  If $\mathbf{q}(\cdot)$ extracts the planar position and $\boldsymbol{\delta}=\mathbf{q}(g_{m(1)})-\mathbf{q}(e_1)$, then
+\begin{equation}
+\mathrm{ATE}_{\mathrm{RMSE}}=
+\sqrt{\frac{1}{|\mathcal{P}|}\sum_{(e_k,g_m)\in\mathcal{P}}
+\left\|\mathbf{q}(e_k)+\boldsymbol{\delta}-\mathbf{q}(g_m)\right\|_2^2} .
+\end{equation}
+
+Final map consistency is quantified by occupied and free-space IoU.  Let $W_{ij}$ be the ground-truth obstacle map, and let $\mathcal{K}=\{(i,j)\mid G_{ij}\neq -1,M_{ij}=1\}$.  Predicted occupied and free cells are defined by $G_{ij}\geq50$ and $0\leq G_{ij}<50$, respectively; ground-truth occupied and free cells are defined by $W_{ij}=1$ and $W_{ij}=0$.  For class $c\in\{\mathrm{occ},\mathrm{free}\}$, IoU is computed only over known cells:
+\begin{equation}
+\mathrm{IoU}_{c}=\frac{|(\mathcal{P}_{c}\cap\mathcal{T}_{c})\cap\mathcal{K}|}
+{|(\mathcal{P}_{c}\cup\mathcal{T}_{c})\cap\mathcal{K}|} .
+\end{equation}
+
+
+
+\section{Conclusion}
+
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+\end{document}
