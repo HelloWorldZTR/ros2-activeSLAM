@@ -1,5 +1,40 @@
 # Active SLAM Experiment Log
 
+## 2026-06-26 - Paper Figure Generation Script
+
+Goal: turn the completed multi-method active SLAM runs into readable figures
+for paper comparison.
+
+Implementation:
+
+- Added `src/experiments/make_paper_figures.py`.
+- The script scans `src/experiments/ results` for
+  `run_<world>_<method>_<timestamp>` directories, keeps the latest run for each
+  world-method pair, and groups results by map.
+- For each detected map, it writes one coverage-over-time comparison and one
+  multi-method trajectory comparison.
+- `gvd_hierarchical` is labeled as `GVD-Hierarchical (Ours)` and drawn with a
+  thicker red line; the remaining methods are treated as baselines.
+- Figures are saved as both PNG and PDF, and `paper_figure_runs.csv` records
+  the run directory and final metrics used by each plotted curve.
+
+Products:
+
+- `src/experiments/ results/paper_figures/slam_landmarks_coverage_comparison.png`
+- `src/experiments/ results/paper_figures/slam_landmarks_trajectory_comparison.png`
+- `src/experiments/ results/paper_figures/slam_loop_coverage_comparison.png`
+- `src/experiments/ results/paper_figures/slam_loop_trajectory_comparison.png`
+- `src/experiments/ results/paper_figures/slam_rooms_coverage_comparison.png`
+- `src/experiments/ results/paper_figures/slam_rooms_trajectory_comparison.png`
+- `src/experiments/ results/paper_figures/paper_figure_runs.csv`
+
+Verification:
+
+- `python3 -m py_compile src/experiments/make_paper_figures.py`
+- `/home/psirobot/miniconda3/envs/handeye/bin/python src/experiments/make_paper_figures.py`
+
+Status: generated 3 maps x 2 comparison figures, with PNG and PDF outputs.
+
 ## 2026-05-27 - Frontier Baseline Evaluation Polish
 
 Goal: make the frontier baseline easier to evaluate across `slam_*.world` maps and remove current blockers before comparing new active SLAM heuristics.
