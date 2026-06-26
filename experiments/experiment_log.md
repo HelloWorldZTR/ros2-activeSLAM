@@ -844,6 +844,20 @@ NetworkX. Remote ROS smoke validation is pending.
 - Split long `gvd_guide` sparse-edge macro steps into bounded intermediate
   waypoints using the existing `gvd_max_goal_distance`, preventing a single
   Nav2 goal from jumping beyond the rolling global costmap.
+- Added a `gvd_guide` warmup stage before sparse GVD planning: the coordinator
+  greedily selects frontier goals by simple range gain, the area of adjacent
+  unknown connected components, and now accumulates 20m of successful Nav2 path
+  cost before the first guide rebuild. Open-map-edge frontiers are prioritized
+  ahead of ordinary unknown frontiers during this warmup stage. Warmup frontier
+  goals use the same Nav2 Spin plus DriveOnHeading probe defaults as the
+  ordinary frontier mode, and successful probe distance contributes to warmup
+  travel progress.
+- Reduced GVD-only obstacle clearance from `0.18m` to `0.14m` and updated the
+  guide edge-blocked run threshold to `0.28m`; Nav2 costmap footprint and
+  inflation remain unchanged and continue to validate execution.
+- Clarified guide lazy rebuild invalidation to use the same inflated GVD
+  traversability mask as hierarchical/topology construction; active sparse
+  edges now report `inflated_obstacle_blocked_run` when rebuilt by obstruction.
 - Added frontier target staging for ordinary, GBSAE, hierarchical-local, and
   `gvd_guide` frontier detours: far frontier goals are split into known-free
   Nav2-sized approach segments instead of being deferred or marked unreachable
@@ -852,6 +866,16 @@ NetworkX. Remote ROS smoke validation is pending.
   node, the coordinator rebuilds current frontier assignments, reruns local
   detour cost analysis for the next guide segment, removes stale detours, and
   updates the remaining plan queue without forcing a full sparse graph rebuild.
+- Made `gvd_guide` frontier detour scoring obstacle-aware: the planner now
+  estimates `source -> frontier -> target` with two A* queries on the current
+  inflated GVD traversability mask, skips blocked/unreachable detours, and keeps
+  the Euclidean fallback only for tests or callers without map context.
+- Relaxed guide explored-state completion: reaching a frontier detour assigned
+  to a sparse vertex now marks that sparse vertex explored and skips queued
+  macro waypoints that only lead into the newly explored vertex.
+- Relaxed frontier detour insertion defaults to encourage more local coverage
+  side trips: detour penalty `0.5`, max extra distance `4.0m`, and minimum gain
+  `0.5m^2`.
 - Added randomized Gaussian landing-point sampling for `gvd_guide` macro and
   loop waypoints. Each planning request samples nearby clearance-valid map
   cells and randomly sends one to Nav2, falling back to the original topology

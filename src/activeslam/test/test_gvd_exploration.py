@@ -323,7 +323,34 @@ def test_gvd_guide_edge_blocked_run_rewards_contiguous_obstruction():
     assert gvd_guide_edge_blocked_run(polyline, geometry, contiguous) > (
         gvd_guide_edge_blocked_run(polyline, geometry, isolated)
     )
-    assert gvd_guide_edge_blocked_run(polyline, geometry, contiguous) > 0.36
+    assert gvd_guide_edge_blocked_run(polyline, geometry, contiguous) > 0.28
+
+
+def test_gvd_guide_edge_blocked_run_uses_inflated_obstacle_mask():
+    geometry = _geometry(width=10, height=3, resolution=0.1)
+    bounds = WorldBounds(0.0, 1.0, 0.0, 0.3)
+    grid = np.zeros((3, 10), dtype=np.int8)
+    grid[2, 5] = 100
+    polyline = ((0.05, 0.05), (0.55, 0.05), (0.95, 0.05))
+    _, raw_traversable = build_obstacle_traversability(
+        grid,
+        geometry,
+        bounds,
+        resolution=0.1,
+        clearance=0.0,
+        boundary_margin=0.0,
+    )
+    _, inflated_traversable = build_obstacle_traversability(
+        grid,
+        geometry,
+        bounds,
+        resolution=0.1,
+        clearance=0.14,
+        boundary_margin=0.0,
+    )
+
+    assert gvd_guide_edge_blocked_run(polyline, geometry, raw_traversable) == 0.0
+    assert gvd_guide_edge_blocked_run(polyline, geometry, inflated_traversable) > 0.0
 
 
 def test_off_graph_new_free_area_counts_only_far_unknown_to_free_cells():
@@ -461,6 +488,30 @@ def test_gvd_guide_frontier_detour_inserted_only_when_gain_beats_extra_distance(
 
     assert [step.kind for step in queue] == ['frontier_detour', 'gvd_vertex']
     assert queue[0].frontier is good
+
+
+def test_gvd_guide_frontier_detour_skips_obstacle_blocked_candidate():
+    graph = nx.path_graph(2)
+    graph.nodes[0].update(x=0.5, y=2.5)
+    graph.nodes[1].update(x=4.5, y=2.5)
+    graph.edges[0, 1].update(weight=4.0, information_weight=0.25)
+    route_steps, _ = insert_gvd_guide_loop_revisits(graph, (0, 1), 10.0)
+    candidate = _GuideFrontier(_GuideGoal((2.5, 2.5)), information_gain=10.0)
+    traversable = np.ones((5, 5), dtype=bool)
+    traversable[:, 1] = False
+
+    queue = gvd_guide_plan_steps(
+        graph,
+        route_steps,
+        {1: [candidate]},
+        frontier_detour_weight=0.0,
+        frontier_detour_max_extra_distance=10.0,
+        frontier_detour_min_gain=0.0,
+        geometry=_geometry(width=5, height=5),
+        traversable=traversable,
+    )
+
+    assert [step.kind for step in queue] == ['gvd_vertex']
 
 
 def test_gvd_guide_online_detour_refresh_updates_next_local_segment():

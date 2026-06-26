@@ -53,12 +53,13 @@ exploration_coordinator:
     gbsae_loop_path_cost_weight: 0.01
     gvd_guide_expansion_distance: 0.50
     gvd_guide_expansion_area_threshold: 3.0
-    gvd_guide_edge_blocked_run_threshold: 0.36
+    gvd_guide_edge_blocked_run_threshold: 0.28
     gvd_guide_loop_path_cost_weight: 0.01
-    gvd_guide_frontier_detour_weight: 1.0
-    gvd_guide_frontier_detour_max_extra_distance: 2.0
-    gvd_guide_frontier_detour_min_gain: 1.0
+    gvd_guide_frontier_detour_weight: 0.5
+    gvd_guide_frontier_detour_max_extra_distance: 4.0
+    gvd_guide_frontier_detour_min_gain: 0.5
     gvd_guide_rebuild_cooldown: 5.0
+    gvd_guide_warmup_distance: 20.0
     gvd_guide_explored_migration_radius: 1.25
     gvd_guide_waypoint_sample_count: 8
     gvd_guide_waypoint_sample_sigma: 0.30
@@ -67,7 +68,7 @@ exploration_coordinator:
     gvd_raster_resolution: 0.15
     gvd_sweep_radius: 2.0
     gvd_overlap_radius: 0.35
-    gvd_obstacle_clearance: 0.18  # TurtleBot radius used by GVD connectivity and local A*
+    gvd_obstacle_clearance: 0.14  # Reduced GVD-only clearance; Nav2 still validates execution.
     gvd_boundary_margin: 0.20
     gvd_support_vertex_spacing: 2.0
     gvd_corner_turn_threshold_deg: 45.0
@@ -90,6 +91,7 @@ exploration_coordinator:
     gvd_unknown_cycle_suppression_enabled: true
     gvd_unconfident_unknown_radius: 1.0
     gvd_unconfident_unknown_ratio: 0.95
+    gvd_hierarchical_min_vertex_spacing: 2.0
     gvd_hierarchical_state_migration_radius: 0.75
     gvd_hierarchical_local_half_extent: 2.5
     gvd_hierarchical_region_area_weight: 1.0

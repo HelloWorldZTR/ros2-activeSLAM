@@ -1,17 +1,20 @@
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 
 from activeslam.frontier_selection import (
+    frontier_range_gains,
     frontier_probes_enabled_for_mode,
     make_frontier_candidate,
     ranked_frontier_candidates,
     ranked_local_cleanup_candidates,
+    ranked_range_gain_candidates,
 )
 
 
-def _cluster(source, size=1):
-    return SimpleNamespace(source=source, size=size)
+def _cluster(source, size=1, cells=()):
+    return SimpleNamespace(source=source, size=size, cells=tuple(cells))
 
 
 def _goal(x, y=0.0):
@@ -69,6 +72,69 @@ def test_candidate_utility_is_gain_over_safe_goal_distance():
     assert candidate.utility == pytest.approx(1.0)
 
 
+def test_range_gain_ranking_prefers_exploration_range_over_information_gain():
+    near = make_frontier_candidate(
+        _cluster('unknown'),
+        _goal(0.5),
+        10.0,
+        0.0,
+        0.0,
+        range_gain=1.0,
+    )
+    far = make_frontier_candidate(
+        _cluster('unknown'),
+        _goal(4.0),
+        1.0,
+        0.0,
+        0.0,
+        range_gain=3.0,
+    )
+
+    ranked = ranked_range_gain_candidates([near, far], 0.0, 0.0, limit=2)
+
+    assert ranked == [far, near]
+
+
+def test_range_gain_ranking_prefers_open_edge_frontiers_first():
+    unknown = make_frontier_candidate(
+        _cluster('unknown'),
+        _goal(0.5),
+        1.0,
+        0.0,
+        0.0,
+        range_gain=10.0,
+    )
+    open_edge = make_frontier_candidate(
+        _cluster('open_edge'),
+        _goal(4.0),
+        1.0,
+        0.0,
+        0.0,
+        range_gain=1.0,
+    )
+
+    ranked = ranked_range_gain_candidates([unknown, open_edge], 0.0, 0.0, limit=2)
+
+    assert ranked == [open_edge, unknown]
+
+
+def test_frontier_range_gain_counts_adjacent_unknown_component_area():
+    grid = np.array(
+        [
+            [0, -1, -1, 0, 0, -1],
+            [0, -1, -1, 0, 0, -1],
+            [0, 0, 0, 0, 0, 0],
+        ],
+        dtype=np.int8,
+    )
+    large = _cluster('unknown', cells=((0, 0), (1, 0)))
+    small = _cluster('unknown', cells=((0, 4), (1, 4)))
+
+    gains = frontier_range_gains(grid, resolution=0.5, clusters=[large, small])
+
+    assert gains == pytest.approx([1.0, 0.5])
+
+
 def test_local_cleanup_ranking_uses_cluster_size_over_distance():
     large = make_frontier_candidate(_cluster('unknown', size=10), _goal(2.0), 0.1, 0.0, 0.0)
     small = make_frontier_candidate(_cluster('unknown', size=2), _goal(0.5), 10.0, 0.0, 0.0)
@@ -101,6 +167,21 @@ def test_gvd_probe_default_can_be_overridden_for_ablation():
         'gvd_hierarchical',
         frontier_modes_enabled=True,
         gvd_modes_enabled=True,
+    )
+
+
+def test_gvd_guide_warmup_uses_frontier_probe_default():
+    assert frontier_probes_enabled_for_mode(
+        'gvd_guide',
+        frontier_modes_enabled=True,
+        gvd_modes_enabled=False,
+        gvd_guide_warmup=True,
+    )
+    assert not frontier_probes_enabled_for_mode(
+        'gvd_guide',
+        frontier_modes_enabled=False,
+        gvd_modes_enabled=True,
+        gvd_guide_warmup=True,
     )
 
 

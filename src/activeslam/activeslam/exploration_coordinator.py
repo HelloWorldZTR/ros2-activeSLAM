@@ -32,10 +32,12 @@ from .frontier_selection import (
     OPEN_EDGE_FRONTIER,
     UNKNOWN_FRONTIER,
     FrontierCandidate,
+    frontier_range_gains,
     frontier_probes_enabled_for_mode,
     make_frontier_candidate,
     ranked_frontier_candidates,
     ranked_local_cleanup_candidates,
+    ranked_range_gain_candidates,
 )
 from .graph_exploration import (
     ApproximatePoseGraphTracker,
@@ -261,22 +263,25 @@ class ExplorationCoordinator(Node):
             'gvd_guide_expansion_area_threshold', 3.0
         ).value
         self.gvd_guide_edge_blocked_run_threshold = self.declare_parameter(
-            'gvd_guide_edge_blocked_run_threshold', 0.36
+            'gvd_guide_edge_blocked_run_threshold', 0.28
         ).value
         self.gvd_guide_loop_path_cost_weight = self.declare_parameter(
             'gvd_guide_loop_path_cost_weight', 0.01
         ).value
         self.gvd_guide_frontier_detour_weight = self.declare_parameter(
-            'gvd_guide_frontier_detour_weight', 1.0
+            'gvd_guide_frontier_detour_weight', 0.5
         ).value
         self.gvd_guide_frontier_detour_max_extra_distance = self.declare_parameter(
-            'gvd_guide_frontier_detour_max_extra_distance', 2.0
+            'gvd_guide_frontier_detour_max_extra_distance', 4.0
         ).value
         self.gvd_guide_frontier_detour_min_gain = self.declare_parameter(
-            'gvd_guide_frontier_detour_min_gain', 1.0
+            'gvd_guide_frontier_detour_min_gain', 0.5
         ).value
         self.gvd_guide_rebuild_cooldown = self.declare_parameter(
             'gvd_guide_rebuild_cooldown', 5.0
+        ).value
+        self.gvd_guide_warmup_distance = self.declare_parameter(
+            'gvd_guide_warmup_distance', 20.0
         ).value
         self.gvd_guide_explored_migration_radius = self.declare_parameter(
             'gvd_guide_explored_migration_radius', 1.25
@@ -299,7 +304,7 @@ class ExplorationCoordinator(Node):
         self.gvd_sweep_radius = self.declare_parameter('gvd_sweep_radius', 2.0).value
         self.gvd_overlap_radius = self.declare_parameter('gvd_overlap_radius', 0.35).value
         self.gvd_obstacle_clearance = self.declare_parameter(
-            'gvd_obstacle_clearance', 0.18
+            'gvd_obstacle_clearance', 0.14
         ).value
         self.gvd_boundary_margin = self.declare_parameter('gvd_boundary_margin', 0.20).value
         self.gvd_support_vertex_spacing = self.declare_parameter(
@@ -356,6 +361,9 @@ class ExplorationCoordinator(Node):
         ).value
         self.gvd_unconfident_unknown_ratio = self.declare_parameter(
             'gvd_unconfident_unknown_ratio', 0.5
+        ).value
+        self.gvd_hierarchical_min_vertex_spacing = self.declare_parameter(
+            'gvd_hierarchical_min_vertex_spacing', 2.0
         ).value
         self.gvd_hierarchical_state_migration_radius = self.declare_parameter(
             'gvd_hierarchical_state_migration_radius', 0.75
@@ -527,6 +535,9 @@ class ExplorationCoordinator(Node):
         self.selection_request_is_frontier_staging = False
         self.selection_kind = 'frontier'
         self.current_navigation_kind = 'frontier'
+        self.current_navigation_path_cost = 0.0
+        self.frontier_probe_parent_kind = 'frontier'
+        self.frontier_probe_drive_distance = 0.0
         self.frontier_staging_final_goal: Optional[Tuple[float, float]] = None
         self.navigation_start_wall_time: Optional[float] = None
         self.frontier_probe_action_start_wall_time: Optional[float] = None
@@ -557,6 +568,9 @@ class ExplorationCoordinator(Node):
         self.gvd_guide_last_rebuild_wall_time = -math.inf
         self.gvd_guide_last_expansion_area = 0.0
         self.gvd_guide_explored_points: List[Tuple[float, float]] = []
+        self.gvd_guide_warmup_travel = 0.0
+        self.gvd_guide_warmup_started = False
+        self.gvd_guide_warmup_complete_logged = False
         self.gvd_hierarchical_local_graph_tracker: Optional[
             ApproximatePoseGraphTracker
         ] = None
@@ -658,7 +672,10 @@ class ExplorationCoordinator(Node):
                     'canceling and selecting another target.'
                 )
                 self.nav2.cancel_navigation()
-                if self.current_navigation_kind == 'frontier_staging':
+                if self.current_navigation_kind in (
+                    'frontier_staging',
+                    'warmup_frontier_staging',
+                ):
                     self._mark_goal_failed(self.current_goal)
                     self._mark_goal_failed(self.frontier_staging_final_goal)
                 elif (
@@ -766,6 +783,9 @@ class ExplorationCoordinator(Node):
 
     def _start_selection(self, rx: float, ry: float):
         if self.slam_mode == 'gvd_guide':
+            if not self._gvd_guide_warmup_complete():
+                self._start_gvd_guide_warmup_selection(rx, ry)
+                return
             self._start_gvd_guide_selection(rx, ry)
             return
         if self.slam_mode == 'gvd_hierarchical':
@@ -1308,6 +1328,74 @@ class ExplorationCoordinator(Node):
         self.selection_cluster_index += 1
         self._request_next_hierarchical_local_path()
 
+    def _gvd_guide_warmup_complete(self) -> bool:
+        return (
+            self.gvd_guide_warmup_distance <= 0.0
+            or self.gvd_guide_warmup_travel >= self.gvd_guide_warmup_distance
+        )
+
+    def _start_gvd_guide_warmup_selection(self, rx: float, ry: float):
+        if not self.frontier_clusters:
+            self._finish_gvd_guide_warmup_early(
+                'no frontiers available for greedy warmup'
+            )
+            self._schedule_retry(0.0)
+            return
+        if not self.gvd_guide_warmup_started:
+            self.gvd_guide_warmup_started = True
+            self.get_logger().info(
+                f'GVD guide warmup started: greedily selecting max-unknown '
+                f'frontiers for {self.gvd_guide_warmup_distance:.1f}m before '
+                'sparse GVD planning.'
+            )
+        self.selection_start_xy = (rx, ry)
+        now = time.monotonic()
+        self.failed_goals.expire(now)
+        local_filter_start = time.monotonic()
+        self.selection_candidates = self._ranked_frontier_candidates(
+            rx,
+            ry,
+            now,
+            max(self.frontier_planning_attempts, len(self.frontier_clusters)),
+            greedy_range_gain=True,
+        )
+        local_filter_ms = (time.monotonic() - local_filter_start) * 1000.0
+        if not self.selection_candidates:
+            self._finish_gvd_guide_warmup_early(
+                'no safe frontier candidates for greedy warmup'
+            )
+            self._schedule_retry(0.0)
+            return
+        self.selection_generation = self.nav2.start_path_batch()
+        self.selection_cluster_index = 0
+        self.graph_candidates = []
+        self.selection_request_wall_time = None
+        self.selection_request_goal = None
+        self.selection_request_final_goal = None
+        self.selection_request_is_frontier_staging = False
+        self.selection_kind = 'gvd_guide_warmup'
+        self.state = self.SELECTING
+        remaining = max(0.0, self.gvd_guide_warmup_distance - self.gvd_guide_warmup_travel)
+        best = self.selection_candidates[0]
+        self.get_logger().info(
+            f'GVD guide warmup frontier pool has {len(self.selection_candidates)} '
+            f'candidates, remaining={remaining:.2f}m, '
+            f'best_range_gain={best.range_gain:.2f}m^2, '
+            f'local_filter_ms={local_filter_ms:.1f}.'
+        )
+        self._request_next_path()
+
+    def _finish_gvd_guide_warmup_early(self, reason: str):
+        self.gvd_guide_warmup_travel = max(
+            self.gvd_guide_warmup_travel,
+            self.gvd_guide_warmup_distance,
+        )
+        if not self.gvd_guide_warmup_complete_logged:
+            self.gvd_guide_warmup_complete_logged = True
+            self.get_logger().warn(
+                f'GVD guide warmup ended early: {reason}; starting sparse GVD planning.'
+            )
+
     def _start_gvd_guide_selection(self, rx: float, ry: float):
         if self.latest_map is None or self.latest_grid is None:
             self._schedule_retry()
@@ -1395,14 +1483,20 @@ class ExplorationCoordinator(Node):
             self._schedule_retry(0.0)
             return
         if math.dist((rx, ry), step.goal_xy) <= self.nav2_goal_reach_radius:
-            self._record_gvd_guide_explored_step(step)
+            explored_vertex = self._record_gvd_guide_explored_step(step)
             if self.gvd_guide_pending_rebuild_reason is not None:
                 self.gvd_guide_rebuild_start_hint_xy = self._gvd_guide_step_target_hint(step)
             reached = planner.advance_active_step()
+            skipped = (
+                self._skip_gvd_guide_steps_to_explored_vertex(explored_vertex)
+                if reached is not None and reached.kind == 'frontier_detour'
+                else 0
+            )
             self._refresh_gvd_guide_online_detours(reached)
             self.get_logger().info(
                 f'GVD guide waypoint already reached: kind={reached.kind}, '
-                f'goal=({reached.goal_xy[0]:.2f}, {reached.goal_xy[1]:.2f}).'
+                f'goal=({reached.goal_xy[0]:.2f}, {reached.goal_xy[1]:.2f})'
+                f'{", skipped_explored_steps=" + str(skipped) if skipped else ""}.'
             )
             self._schedule_retry(0.0)
             return
@@ -1554,16 +1648,23 @@ class ExplorationCoordinator(Node):
                     'continuing the same detour on the next selection pass.'
                 )
             else:
-                self._record_gvd_guide_explored_step(step)
+                explored_vertex = self._record_gvd_guide_explored_step(step)
+                skipped = 0
                 if planner is not None:
                     if self.gvd_guide_pending_rebuild_reason is not None:
                         self.gvd_guide_rebuild_start_hint_xy = (
                             self._gvd_guide_step_target_hint(step)
                         )
                     planner.advance_active_step()
+                    skipped = (
+                        self._skip_gvd_guide_steps_to_explored_vertex(explored_vertex)
+                        if step.kind == 'frontier_detour'
+                        else 0
+                    )
                     self._refresh_gvd_guide_online_detours(step)
                 self.get_logger().info(
-                    f'Nav2 reached GVD guide waypoint kind={step.kind}.'
+                    f'Nav2 reached GVD guide waypoint kind={step.kind}'
+                    f'{", skipped_explored_steps=" + str(skipped) if skipped else ""}.'
                 )
             if step.kind == 'frontier_detour' and self._frontier_probe_settings() is not None:
                 self._start_frontier_probe()
@@ -1578,20 +1679,46 @@ class ExplorationCoordinator(Node):
         self._schedule_retry(0.0)
         return True
 
-    def _record_gvd_guide_explored_step(self, step: GVDGuidePlanStep):
+    def _record_gvd_guide_explored_step(
+        self,
+        step: GVDGuidePlanStep,
+    ) -> Optional[int]:
         """Persist reached sparse guide vertices across future rebuilds."""
-        if step.kind != 'gvd_vertex' or step.vertex_id is None:
-            return
+        if step.kind == 'gvd_vertex' and step.vertex_id is not None:
+            node_id = step.vertex_id
+        elif step.kind == 'frontier_detour' and step.target_vertex is not None:
+            node_id = step.target_vertex
+        else:
+            return None
         point = step.goal_xy
         if (
             self.gvd_guide_planner is not None
-            and step.vertex_id in self.gvd_guide_planner.graph
+            and node_id in self.gvd_guide_planner.graph
         ):
-            self.gvd_guide_planner.graph.nodes[step.vertex_id]['explored'] = True
+            self.gvd_guide_planner.graph.nodes[node_id]['explored'] = True
+            point = _graph_node_point(self.gvd_guide_planner.graph, node_id)
         radius = max(0.0, self.gvd_guide_explored_migration_radius)
         if any(math.dist(point, existing) <= radius for existing in self.gvd_guide_explored_points):
-            return
+            return node_id
         self.gvd_guide_explored_points.append(point)
+        return node_id
+
+    def _skip_gvd_guide_steps_to_explored_vertex(self, vertex_id: Optional[int]) -> int:
+        planner = self.gvd_guide_planner
+        if planner is None or vertex_id is None:
+            return 0
+        skipped = 0
+        while (
+            planner.active_step is not None
+            and planner.active_step.kind == 'gvd_vertex'
+            and (
+                planner.active_step.vertex_id == vertex_id
+                or planner.active_step.target_vertex == vertex_id
+            )
+        ):
+            planner.skip_active_step()
+            skipped += 1
+        return skipped
 
     def _gvd_guide_rebuild_start_hint(self) -> Optional[Tuple[float, float]]:
         if self.gvd_guide_rebuild_start_hint_xy is not None:
@@ -1689,7 +1816,8 @@ class ExplorationCoordinator(Node):
             self.gvd_checked_map_generation = self.gvd_map_generation
             if blocked_run > self.gvd_guide_edge_blocked_run_threshold:
                 self.get_logger().warn(
-                    f'GVD guide active sparse edge blocked_run={blocked_run:.2f}m '
+                    f'GVD guide active sparse edge inflated_obstacle_blocked_run='
+                    f'{blocked_run:.2f}m '
                     f'exceeds {self.gvd_guide_edge_blocked_run_threshold:.2f}m; '
                     'canceling active goal and rebuilding.'
                 )
@@ -1698,7 +1826,7 @@ class ExplorationCoordinator(Node):
                     self.gvd_guide_active_step
                 )
                 self.gvd_guide_pending_rebuild_reason = (
-                    f'active edge blocked_run={blocked_run:.2f}m'
+                    f'active edge inflated_obstacle_blocked_run={blocked_run:.2f}m'
                 )
                 self.gvd_guide_planner = None
                 self.gvd_guide_active_step = None
@@ -1734,8 +1862,8 @@ class ExplorationCoordinator(Node):
         )
         if not polyline:
             return 0.0
-        geometry, traversable = self._current_gvd_traversability()
-        return gvd_guide_edge_blocked_run(polyline, geometry, traversable)
+        geometry, inflated_traversable = self._current_gvd_traversability()
+        return gvd_guide_edge_blocked_run(polyline, geometry, inflated_traversable)
 
     def _gvd_guide_off_graph_new_free_area(self) -> float:
         planner = self.gvd_guide_planner
@@ -1878,6 +2006,11 @@ class ExplorationCoordinator(Node):
         )
         return True
 
+    def _gvd_min_vertex_spacing_for_mode(self) -> float:
+        if self.slam_mode == 'gvd_hierarchical':
+            return self.gvd_hierarchical_min_vertex_spacing
+        return self.gvd_min_vertex_spacing
+
     def _build_gvd_topology(self) -> GVDTopology:
         assert self.latest_map is not None
         assert self.latest_grid is not None
@@ -1891,7 +2024,7 @@ class ExplorationCoordinator(Node):
             boundary_margin=self.gvd_boundary_margin,
             support_vertex_spacing=self.gvd_support_vertex_spacing,
             corner_turn_threshold=self.gvd_corner_turn_threshold,
-            min_vertex_spacing=self.gvd_min_vertex_spacing,
+            min_vertex_spacing=self._gvd_min_vertex_spacing_for_mode(),
             suppress_unknown_cycles=self.gvd_unknown_cycle_suppression_enabled,
             unconfident_unknown_radius=self.gvd_unconfident_unknown_radius,
             unconfident_unknown_ratio=self.gvd_unconfident_unknown_ratio,
@@ -1955,6 +2088,7 @@ class ExplorationCoordinator(Node):
         )
 
     def _current_gvd_traversability(self):
+        """Return the GVD raster after obstacle inflation with shared clearance."""
         assert self.latest_grid is not None
         assert self.gvd_bounds is not None
         return build_obstacle_traversability(
@@ -2462,12 +2596,22 @@ class ExplorationCoordinator(Node):
             goal_xy, is_staging = self._frontier_request_goal(candidate)
             self.selection_request_wall_time = time.monotonic()
             self.selection_request_goal = goal_xy
-            self.get_logger().info(
-                f'Checking shared frontier candidate source={candidate.cluster.source}, '
-                f'information_gain={candidate.information_gain:.2f}m^2, '
-                f'utility={candidate.utility:.3f}'
-                f'{", staging first" if is_staging else ""}.'
-            )
+            if self.selection_kind == 'gvd_guide_warmup':
+                self.get_logger().info(
+                    f'Checking GVD guide warmup frontier source={candidate.cluster.source}, '
+                    f'range_gain={candidate.range_gain:.2f}m^2, '
+                    f'information_gain={candidate.information_gain:.2f}m^2, '
+                    f'progress={self.gvd_guide_warmup_travel:.2f}/'
+                    f'{self.gvd_guide_warmup_distance:.2f}m'
+                    f'{", staging first" if is_staging else ""}.'
+                )
+            else:
+                self.get_logger().info(
+                    f'Checking shared frontier candidate source={candidate.cluster.source}, '
+                    f'information_gain={candidate.information_gain:.2f}m^2, '
+                    f'utility={candidate.utility:.3f}'
+                    f'{", staging first" if is_staging else ""}.'
+                )
             self.nav2.compute_path(
                 self.selection_generation,
                 self.selection_start_xy,
@@ -2487,6 +2631,13 @@ class ExplorationCoordinator(Node):
             self._dispatch_navigation(candidate, planned_path)
             return
 
+        if self.selection_kind == 'gvd_guide_warmup':
+            self._finish_gvd_guide_warmup_early(
+                'no reachable warmup frontier after Nav2 path checks'
+            )
+            self.nav2.cancel_path_batch()
+            self._schedule_retry(0.0)
+            return
         self.get_logger().info(
             f'No reachable frontier among {len(self.frontier_clusters)} clusters. '
             f'Retrying in {self.frontier_retry_interval:.1f}s.'
@@ -2536,16 +2687,20 @@ class ExplorationCoordinator(Node):
         self.selection_request_goal = None
         self.selection_request_final_goal = None
         self.selection_request_is_frontier_staging = False
-        self.current_navigation_kind = 'frontier'
+        warmup = self.selection_kind == 'gvd_guide_warmup'
+        self.current_navigation_kind = 'warmup_frontier' if warmup else 'frontier'
+        self.current_navigation_path_cost = planned_path.cost
         self.state = self.NAVIGATING
         self.navigation_start_wall_time = time.monotonic()
         self._start_gvd_progress_watchdog(self.selection_start_xy)
         yaw = heading_to_target(planned_path.goal_xy, (cluster.centroid_x, cluster.centroid_y))
+        prefix = 'GVD guide warmup frontier' if warmup else 'frontier'
+        range_note = f', range_gain={candidate.range_gain:.2f}m^2' if warmup else ''
         self.get_logger().info(
-            f'Navigating to frontier goal=({planned_path.goal_xy[0]:.2f}, '
+            f'Navigating to {prefix} goal=({planned_path.goal_xy[0]:.2f}, '
             f'{planned_path.goal_xy[1]:.2f}), size={cluster.size}, '
             f'cost={planned_path.cost:.2f}, source={cluster.source}, '
-            f'information_gain={candidate.information_gain:.2f}m^2'
+            f'information_gain={candidate.information_gain:.2f}m^2{range_note}'
         )
         self.nav2.navigate(planned_path.goal_xy, yaw, self._navigation_finished)
 
@@ -2564,13 +2719,18 @@ class ExplorationCoordinator(Node):
         self.selection_request_goal = None
         self.selection_request_final_goal = None
         self.selection_request_is_frontier_staging = False
-        self.current_navigation_kind = 'frontier_staging'
+        warmup = self.selection_kind == 'gvd_guide_warmup'
+        self.current_navigation_kind = (
+            'warmup_frontier_staging' if warmup else 'frontier_staging'
+        )
+        self.current_navigation_path_cost = planned_path.cost
         self.state = self.NAVIGATING
         self.navigation_start_wall_time = time.monotonic()
         self._start_gvd_progress_watchdog(self.selection_start_xy)
         yaw = heading_to_target(planned_path.goal_xy, final_goal)
+        prefix = 'GVD guide warmup frontier staging' if warmup else 'frontier staging'
         self.get_logger().info(
-            f'Navigating to frontier staging goal=({planned_path.goal_xy[0]:.2f}, '
+            f'Navigating to {prefix} goal=({planned_path.goal_xy[0]:.2f}, '
             f'{planned_path.goal_xy[1]:.2f}) toward final=({final_goal[0]:.2f}, '
             f'{final_goal[1]:.2f}), cost={planned_path.cost:.2f}, '
             f'source={candidate.cluster.source}.'
@@ -2667,8 +2827,10 @@ class ExplorationCoordinator(Node):
             self._clear_navigation()
             self._schedule_retry(0.0)
             return
-        if self.current_navigation_kind == 'frontier_staging':
+        if self.current_navigation_kind in ('frontier_staging', 'warmup_frontier_staging'):
             if status == GOAL_STATUS_SUCCEEDED:
+                if self.current_navigation_kind == 'warmup_frontier_staging':
+                    self._record_gvd_guide_warmup_progress()
                 self.get_logger().info(
                     'Nav2 reached a frontier staging waypoint; continuing '
                     'toward the final frontier on the next selection pass.'
@@ -2684,6 +2846,8 @@ class ExplorationCoordinator(Node):
             self._schedule_retry(0.0)
             return
         if status == GOAL_STATUS_SUCCEEDED:
+            if self.current_navigation_kind == 'warmup_frontier':
+                self._record_gvd_guide_warmup_progress()
             self.get_logger().info('Nav2 reached the active frontier goal.')
             if self._frontier_probe_settings() is not None:
                 self._start_frontier_probe()
@@ -2693,6 +2857,26 @@ class ExplorationCoordinator(Node):
             self._mark_goal_failed(self.current_goal)
         self._clear_navigation()
         self._schedule_retry(0.0)
+
+    def _record_gvd_guide_warmup_progress(self, distance: Optional[float] = None):
+        if self.slam_mode != 'gvd_guide' or self.gvd_guide_warmup_distance <= 0.0:
+            return
+        before = self.gvd_guide_warmup_travel
+        traveled = self.current_navigation_path_cost if distance is None else distance
+        self.gvd_guide_warmup_travel += max(0.0, float(traveled))
+        target = self.gvd_guide_warmup_distance
+        if before < target <= self.gvd_guide_warmup_travel:
+            if not self.gvd_guide_warmup_complete_logged:
+                self.gvd_guide_warmup_complete_logged = True
+                self.get_logger().info(
+                    f'GVD guide warmup completed after '
+                    f'{self.gvd_guide_warmup_travel:.2f}m; starting sparse GVD planning.'
+                )
+        else:
+            self.get_logger().info(
+                f'GVD guide warmup progress '
+                f'{self.gvd_guide_warmup_travel:.2f}/{target:.2f}m.'
+            )
 
     def _start_frontier_probe(self):
         if (
@@ -2710,6 +2894,7 @@ class ExplorationCoordinator(Node):
             self._frontier_probe_failed()
             return
 
+        self.frontier_probe_parent_kind = self.current_navigation_kind
         self.frontier_probe_normal = normal
         target_yaw = math.atan2(normal[1], normal[0])
         yaw_delta = normalize_angle(target_yaw - pose[2])
@@ -2747,6 +2932,7 @@ class ExplorationCoordinator(Node):
             self._frontier_probe_failed()
             return
         distance, speed, timeout = settings
+        self.frontier_probe_drive_distance = distance
         self.state = self.PROBING_FRONTIER
         self.frontier_probe_action_start_wall_time = time.monotonic()
         pose = self._get_robot_pose()
@@ -2771,10 +2957,18 @@ class ExplorationCoordinator(Node):
             self._frontier_probe_failed()
             return
         self.get_logger().info('Frontier Nav2 probe completed.')
+        if self.frontier_probe_parent_kind == 'warmup_frontier':
+            self._record_gvd_guide_warmup_progress(
+                self.frontier_probe_drive_distance
+            )
         self._clear_navigation()
         self._schedule_retry(0.0)
 
     def _frontier_probe_settings(self) -> Optional[Tuple[float, float, float]]:
+        warmup_frontier_probe = (
+            self.slam_mode == 'gvd_guide'
+            and self.current_navigation_kind == 'warmup_frontier'
+        )
         if (
             self.target_cluster is None
             or not frontier_probes_enabled_for_mode(
@@ -2788,6 +2982,7 @@ class ExplorationCoordinator(Node):
                 hierarchical_local_cleanup_enabled=(
                     self.gvd_hierarchical_local_probes_enabled
                 ),
+                gvd_guide_warmup=warmup_frontier_probe,
             )
         ):
             return None
@@ -2824,12 +3019,15 @@ class ExplorationCoordinator(Node):
         self.navigation_start_wall_time = None
         self.frontier_probe_normal = None
         self.frontier_probe_action_start_wall_time = None
+        self.frontier_probe_parent_kind = 'frontier'
+        self.frontier_probe_drive_distance = 0.0
         self.gvd_guide_active_step = None
         self.gvd_active_path = ()
         self.gvd_active_traversability = None
         self.gvd_progress_anchor_xy = None
         self.gvd_last_progress_wall_time = None
         self.current_navigation_kind = 'frontier'
+        self.current_navigation_path_cost = 0.0
 
     def _handle_navigation_failure(self, reason: str):
         if self._skip_unreachable_loop_revisit(reason):
@@ -3101,6 +3299,7 @@ class ExplorationCoordinator(Node):
         clusters=None,
         local_cleanup: bool = False,
         allowed_goal_mask: Optional[np.ndarray] = None,
+        greedy_range_gain: bool = False,
     ) -> List[FrontierCandidate]:
         if self.latest_grid is None:
             return []
@@ -3122,23 +3321,30 @@ class ExplorationCoordinator(Node):
             point_sample_limit=self.frontier_goal_point_sample_limit,
         )
         prepared_grid = prepare_safe_goal_grid(data, geometry, search_config)
-        candidates = [
-            candidate
-            for cluster in (self.frontier_clusters if clusters is None else clusters)
-            if (
-                candidate := self._candidate_for_cluster(
-                    cluster,
-                    rx,
-                    ry,
-                    now,
-                    data,
-                    geometry,
-                    search_config,
-                    prepared_grid,
-                    allowed_goal_mask,
-                )
-            ) is not None
-        ]
+        cluster_list = list(self.frontier_clusters if clusters is None else clusters)
+        range_gains = (
+            frontier_range_gains(data, geometry.resolution, cluster_list)
+            if greedy_range_gain
+            else [0.0 for _ in cluster_list]
+        )
+        candidates = []
+        for cluster, range_gain in zip(cluster_list, range_gains):
+            candidate = self._candidate_for_cluster(
+                cluster,
+                rx,
+                ry,
+                now,
+                data,
+                geometry,
+                search_config,
+                prepared_grid,
+                allowed_goal_mask,
+                range_gain=range_gain,
+            )
+            if candidate is not None:
+                candidates.append(candidate)
+        if greedy_range_gain:
+            return ranked_range_gain_candidates(candidates, rx, ry, limit)
         if local_cleanup:
             return ranked_local_cleanup_candidates(candidates, rx, ry, limit)
         return ranked_frontier_candidates(candidates, limit)
@@ -3154,6 +3360,7 @@ class ExplorationCoordinator(Node):
         search_config: SafeGoalSearchConfig,
         prepared_grid: PreparedSafeGoalGrid,
         allowed_goal_mask: Optional[np.ndarray] = None,
+        range_gain: float = 0.0,
     ) -> Optional[FrontierCandidate]:
         goal = select_safe_frontier_goal(
             data,
@@ -3189,6 +3396,7 @@ class ExplorationCoordinator(Node):
             rx,
             ry,
             on_cooldown=self.failed_goals.contains(goal.point, now),
+            range_gain=range_gain,
         )
 
     def _frontier_outward_normal(

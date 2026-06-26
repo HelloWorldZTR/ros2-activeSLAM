@@ -722,6 +722,8 @@ class GVDGuidePlanner:
         expansion_area: float = 0.0,
         route_shortcuts: int = 0,
         start_hint: Optional[Point] = None,
+        geometry: Optional[GridGeometry] = None,
+        traversable: Optional[np.ndarray] = None,
     ):
         self.graph = graph.copy()
         self.rebuild_grid = np.asarray(rebuild_grid, dtype=np.int8).copy()
@@ -731,6 +733,12 @@ class GVDGuidePlanner:
         self.explored_vertices = tuple(sorted(explored_vertices))
         self.route_shortcuts = int(route_shortcuts)
         self.start_hint = start_hint
+        self.geometry = geometry
+        self.traversable = (
+            None
+            if traversable is None
+            else np.asarray(traversable, dtype=bool).copy()
+        )
         self.frontier_assignments = (
             {key: list(value) for key, value in frontier_assignments.items()}
             if frontier_assignments is not None
@@ -791,6 +799,8 @@ class GVDGuidePlanner:
                 frontier_assignments=assignments,
                 explored_vertices=explored_vertices,
                 start_hint=start_hint,
+                geometry=topology.geometry,
+                traversable=topology.traversable,
             )
         targets = sorted(
             (set(sparse_leaf_vertices(sparse)) - set(explored_vertices))
@@ -822,6 +832,8 @@ class GVDGuidePlanner:
             frontier_detour_max_extra_distance=frontier_detour_max_extra_distance,
             frontier_detour_min_gain=frontier_detour_min_gain,
             max_waypoint_distance=max_waypoint_distance,
+            geometry=topology.geometry,
+            traversable=topology.traversable,
         )
         return cls(
             sparse,
@@ -833,6 +845,8 @@ class GVDGuidePlanner:
             explored_vertices=explored_vertices,
             route_shortcuts=route_shortcuts,
             start_hint=start_hint,
+            geometry=topology.geometry,
+            traversable=topology.traversable,
         )
 
     @property
@@ -929,6 +943,8 @@ class GVDGuidePlanner:
                 frontier_detour_weight=frontier_detour_weight,
                 frontier_detour_max_extra_distance=frontier_detour_max_extra_distance,
                 frontier_detour_min_gain=frontier_detour_min_gain,
+                geometry=self.geometry,
+                traversable=self.traversable,
             )
             if detour is not None:
                 remaining.insert(0, detour)
@@ -1409,6 +1425,8 @@ def gvd_guide_plan_steps(
     frontier_detour_max_extra_distance: float,
     frontier_detour_min_gain: float,
     max_waypoint_distance: float = math.inf,
+    geometry: Optional[GridGeometry] = None,
+    traversable: Optional[np.ndarray] = None,
 ) -> Tuple[GVDGuidePlanStep, ...]:
     """Convert route vertices into executable steps with at most one detour per segment."""
     if len(route_steps) < 2:
@@ -1428,6 +1446,8 @@ def gvd_guide_plan_steps(
                 frontier_detour_weight=frontier_detour_weight,
                 frontier_detour_max_extra_distance=frontier_detour_max_extra_distance,
                 frontier_detour_min_gain=frontier_detour_min_gain,
+                geometry=geometry,
+                traversable=traversable,
             )
             if detour is not None:
                 queue.append(detour)
@@ -1451,16 +1471,19 @@ def gvd_guide_plan_steps(
 def gvd_guide_edge_blocked_run(
     polyline: Sequence[Point],
     geometry: GridGeometry,
-    traversable: np.ndarray,
+    inflated_traversable: np.ndarray,
 ) -> float:
-    """Return the longest continuous blocked run along a sparse edge polyline."""
-    if len(polyline) < 2 or traversable.shape != (geometry.height, geometry.width):
+    """Return the longest run where a sparse edge enters inflated obstacles."""
+    if (
+        len(polyline) < 2
+        or inflated_traversable.shape != (geometry.height, geometry.width)
+    ):
         return 0.0
     longest = 0.0
     current = 0.0
-    previous_blocked = _point_blocked(polyline[0], geometry, traversable)
+    previous_blocked = _point_blocked(polyline[0], geometry, inflated_traversable)
     for source, target in zip(polyline, polyline[1:]):
-        target_blocked = _point_blocked(target, geometry, traversable)
+        target_blocked = _point_blocked(target, geometry, inflated_traversable)
         length = math.dist(source, target)
         if previous_blocked or target_blocked:
             current += length
@@ -1707,6 +1730,8 @@ def _best_frontier_detour(
     frontier_detour_weight: float,
     frontier_detour_max_extra_distance: float,
     frontier_detour_min_gain: float,
+    geometry: Optional[GridGeometry] = None,
+    traversable: Optional[np.ndarray] = None,
 ) -> Optional[GVDGuidePlanStep]:
     if source not in graph or target not in graph:
         return None
@@ -1726,7 +1751,15 @@ def _best_frontier_detour(
         gain = float(getattr(frontier, 'information_gain', 0.0))
         if gain < max(0.0, frontier_detour_min_gain):
             continue
-        detour_cost = math.dist(source_point, goal) + math.dist(goal, target_point)
+        detour_cost = _frontier_detour_path_cost(
+            source_point,
+            goal,
+            target_point,
+            geometry,
+            traversable,
+        )
+        if detour_cost is None:
+            continue
         extra = detour_cost - direct
         if extra < 0.0:
             extra = 0.0
@@ -1748,6 +1781,45 @@ def _best_frontier_detour(
         expected_cost=-neg_extra,
         optional=True,
     )
+
+
+def _frontier_detour_path_cost(
+    source: Point,
+    frontier: Point,
+    target: Point,
+    geometry: Optional[GridGeometry],
+    traversable: Optional[np.ndarray],
+) -> Optional[float]:
+    if geometry is None or traversable is None:
+        return math.dist(source, frontier) + math.dist(frontier, target)
+    if traversable.shape != (geometry.height, geometry.width):
+        return None
+    source_cell = _detour_traversable_cell(source, geometry, traversable)
+    frontier_cell = _detour_traversable_cell(frontier, geometry, traversable)
+    target_cell = _detour_traversable_cell(target, geometry, traversable)
+    if source_cell is None or frontier_cell is None or target_cell is None:
+        return None
+    first = bidirectional_astar_path(traversable, source_cell, frontier_cell)
+    if not first:
+        return None
+    second = bidirectional_astar_path(traversable, frontier_cell, target_cell)
+    if not second:
+        return None
+    return (
+        _grid_path_length(first, geometry.resolution)
+        + _grid_path_length(second, geometry.resolution)
+    )
+
+
+def _detour_traversable_cell(
+    point: Point,
+    geometry: GridGeometry,
+    traversable: np.ndarray,
+) -> Optional[GridCell]:
+    cell = world_to_grid(point, geometry)
+    if cell is None or not traversable[cell]:
+        return None
+    return cell
 
 
 def _split_gvd_guide_waypoints(

@@ -16,6 +16,37 @@ Pytest collection error summary:
 
 - `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
 
+2026-06-26 gvd_guide obstacle-aware frontier detour update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/exploration_coordinator.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- Guide frontier detour insertion estimates `source -> frontier -> target`
+  with two A* paths over the current inflated GVD traversability mask when map
+  context is available.
+- Detour candidates whose source, frontier, target, or connecting path is
+  blocked are skipped before scoring.
+- Online guide detour refresh uses the same stored traversability snapshot as
+  the plan epoch.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 18 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting `test_gvd_exploration.py`.
+
 2026-06-26 generic guide route shortcut update
 
 Commands:
@@ -58,6 +89,230 @@ Results:
 - Python compilation passed.
 - git diff whitespace check passed.
 - `test_frontier_selection.py` passed: 14 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting
+  `test_gvd_exploration.py`.
+
+2026-06-26 gvd_guide inflated lazy-rebuild obstruction update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/gvd_exploration.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- GVD guide lazy rebuild checks active sparse-edge obstruction against the
+  inflated GVD traversability mask.
+- The inflation clearance is the shared `gvd_obstacle_clearance` used by GVD
+  hierarchical/topology construction.
+- Rebuild logs now report `inflated_obstacle_blocked_run`.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 18 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting
+  `test_gvd_exploration.py`.
+
+2026-06-26 gvd_guide warmup distance reset update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py
+- git diff --check
+
+Expected behavior:
+
+- GVD guide warmup distance is reset from `40m` to `20m`.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+
+2026-06-26 gvd_guide warmup frontier-probe update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/frontier_selection.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- GVD guide warmup frontier goals use the same frontier-mode probe default:
+  Nav2 `Spin` aligns to the frontier outward normal and Nav2
+  `DriveOnHeading` probes beyond the frontier when the corresponding frontier
+  source probe is enabled.
+- Macro GVD guide behavior remains unchanged; the warmup override does not
+  enable probes for ordinary `gvd_guide` sparse waypoints.
+- Successful warmup DriveOnHeading probe distance contributes to warmup travel
+  progress.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 18 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting
+  `test_gvd_exploration.py`.
+
+2026-06-26 gvd_guide warmup open-edge priority update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/frontier_selection.py src/activeslam/activeslam/exploration_coordinator.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+
+Expected behavior:
+
+- During GVD guide warmup, `open_edge` frontier candidates are ranked ahead of
+  ordinary `unknown` frontier candidates.
+- Within the same frontier source class, candidates still use range gain,
+  distance, and goal point as deterministic tie-breaks.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 17 passed.
+
+2026-06-26 gvd_guide warmup range-gain update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/frontier_selection.py src/activeslam/activeslam/gvd_exploration.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- GVD guide warmup ranks frontier candidates by simple `range_gain`.
+- `range_gain` is the area of unknown connected components adjacent to the
+  frontier cluster. Distance is used only as a tie-break in the greedy warmup
+  order.
+- Existing local `information_gain` remains available for other frontier and
+  detour scoring paths.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 16 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting
+  `test_gvd_exploration.py`.
+
+2026-06-26 gvd_guide clearance and warmup-distance update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/frontier_selection.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- GVD-only obstacle clearance is reduced to `0.14m`.
+- The guide edge-blocked run threshold follows the reduced clearance at `0.28m`.
+- GVD guide greedy frontier warmup runs for `20m` of successful Nav2 planned path
+  cost before sparse GVD planning.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 15 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting
+  `test_gvd_exploration.py`.
+
+2026-06-26 gvd_guide frontier-explored and relaxed detour update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/gvd_exploration.py src/activeslam/activeslam/frontier_selection.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- Reaching a `gvd_vertex` still marks that sparse vertex explored.
+- Reaching a `frontier_detour` also marks its assigned `target_vertex` explored.
+- After a detour marks its target vertex explored, queued `gvd_vertex` steps
+  that only lead into that target are skipped in the current epoch.
+- Detour insertion defaults are relaxed to encourage more side trips:
+  `gvd_guide_frontier_detour_weight=0.5`,
+  `gvd_guide_frontier_detour_max_extra_distance=4.0`, and
+  `gvd_guide_frontier_detour_min_gain=0.5`.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 15 passed.
+- GVD pytest did not run to completion in the local environment because the
+  system Python does not provide `networkx`.
+
+Pytest collection error summary:
+
+- `ModuleNotFoundError: No module named 'networkx'` while collecting
+  `test_gvd_exploration.py`.
+
+2026-06-26 gvd_guide greedy frontier warmup update
+
+Commands:
+
+- python -m py_compile src/activeslam/activeslam/exploration_coordinator.py src/activeslam/activeslam/frontier_selection.py src/activeslam/activeslam/gvd_exploration.py
+- git diff --check
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_frontier_selection.py -q
+- PYTHONPATH=src/activeslam pytest src/activeslam/test/test_gvd_exploration.py -q
+
+Expected behavior:
+
+- `gvd_guide` starts with a warmup stage before sparse GVD planning.
+- During warmup, frontier candidates are ranked greedily by estimated unknown
+  area instead of gain-over-distance utility.
+- Warmup accumulates successful Nav2 planned path cost until 20m, then starts
+  sparse GVD guide planning. If no safe/reachable warmup frontier exists, it
+  ends early and starts sparse GVD planning.
+
+Results:
+
+- Python compilation passed.
+- git diff whitespace check passed.
+- `test_frontier_selection.py` passed: 15 passed.
 - GVD pytest did not run to completion in the local environment because the
   system Python does not provide `networkx`.
 
