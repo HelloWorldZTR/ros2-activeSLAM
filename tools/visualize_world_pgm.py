@@ -17,7 +17,6 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
 
 import numpy as np
 
@@ -184,7 +183,12 @@ def write_yaml(path: Path, pgm_path: Path, map_data: InferredMap) -> None:
     )
 
 
-def resolve_prior_path(world: str, maps_dir: Path, prior_arg: str | None, no_prior: bool) -> Path | None:
+def resolve_prior_path(
+    world: str,
+    maps_dir: Path,
+    prior_arg: str | None,
+    no_prior: bool,
+) -> Path | None:
     if no_prior:
         return None
     if prior_arg:
@@ -409,7 +413,8 @@ def main() -> int:
     print(f"World: {world_path}")
     print(
         f"Map: {map_data.width}x{map_data.height} cells, "
-        f"{map_data.resolution:.3f} m/cell, origin=({map_data.origin_x:.3f}, {map_data.origin_y:.3f})"
+        f"{map_data.resolution:.3f} m/cell, "
+        f"origin=({map_data.origin_x:.3f}, {map_data.origin_y:.3f})"
     )
     if prior_path is not None:
         print(f"GBSAE prior: {prior_path}")

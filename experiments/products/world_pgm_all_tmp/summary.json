@@ -1,0 +1,140 @@
+[
+  {
+    "world": "slam_landmarks",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_landmarks.world",
+    "returncode": 0,
+    "ok": true,
+    "stdout": "World: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_landmarks.world\nMap: 282x243 cells, 0.050 m/cell, origin=(-7.050, -6.050)\nGBSAE prior: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_landmarks.gbsae.json\nOutput directory: /home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_landmarks_inferred.pgm\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_landmarks_inferred.yaml\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_landmarks_inferred.png\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_landmarks_inferred.pdf",
+    "stderr": "",
+    "outputs": [
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_landmarks_inferred.pgm",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_landmarks_inferred.yaml",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_landmarks_inferred.png",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_landmarks_inferred.pdf"
+    ]
+  },
+  {
+    "world": "slam_loop",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_loop.world",
+    "returncode": 0,
+    "ok": true,
+    "stdout": "World: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_loop.world\nMap: 262x203 cells, 0.050 m/cell, origin=(-6.550, -5.050)\nGBSAE prior: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_loop.gbsae.json\nOutput directory: /home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_loop_inferred.pgm\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_loop_inferred.yaml\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_loop_inferred.png\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_loop_inferred.pdf",
+    "stderr": "",
+    "outputs": [
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_loop_inferred.pgm",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_loop_inferred.yaml",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_loop_inferred.png",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_loop_inferred.pdf"
+    ]
+  },
+  {
+    "world": "slam_office",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_office.world",
+    "returncode": 0,
+    "ok": true,
+    "stdout": "World: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_office.world\nMap: 1019x495 cells, 0.050 m/cell, origin=(-28.650, -1.100)\nGBSAE prior: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_office.gbsae.json\nOutput directory: /home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_office_inferred.pgm\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_office_inferred.yaml\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_office_inferred.png\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_office_inferred.pdf",
+    "stderr": "",
+    "outputs": [
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_office_inferred.pgm",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_office_inferred.yaml",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_office_inferred.png",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_office_inferred.pdf"
+    ]
+  },
+  {
+    "world": "slam_rooms",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_rooms.world",
+    "returncode": 0,
+    "ok": true,
+    "stdout": "World: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_rooms.world\nMap: 284x243 cells, 0.050 m/cell, origin=(-7.100, -6.050)\nGBSAE prior: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_rooms.gbsae.json\nOutput directory: /home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_inferred.pgm\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_inferred.yaml\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_inferred.png\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_inferred.pdf",
+    "stderr": "",
+    "outputs": [
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_inferred.pgm",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_inferred.yaml",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_inferred.png",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_inferred.pdf"
+    ]
+  },
+  {
+    "world": "slam_rooms_corridor",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_rooms_corridor.world",
+    "returncode": 0,
+    "ok": true,
+    "stdout": "World: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_rooms_corridor.world\nMap: 524x243 cells, 0.050 m/cell, origin=(-7.100, -6.050)\nGBSAE prior: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/slam_rooms_corridor.gbsae.json\nOutput directory: /home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_corridor_inferred.pgm\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_corridor_inferred.yaml\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_corridor_inferred.png\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_corridor_inferred.pdf",
+    "stderr": "",
+    "outputs": [
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_corridor_inferred.pgm",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_corridor_inferred.yaml",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_corridor_inferred.png",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/slam_rooms_corridor_inferred.pdf"
+    ]
+  },
+  {
+    "world": "turtlebot3_autorace_2020",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_autorace_2020.world",
+    "returncode": 0,
+    "ok": true,
+    "stdout": "World: /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_autorace_2020.world\nMap: 200x200 cells, 0.050 m/cell, origin=(-5.000, -5.000)\nGBSAE prior: none\nOutput directory: /home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/turtlebot3_autorace_2020_inferred.pgm\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/turtlebot3_autorace_2020_inferred.yaml\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/turtlebot3_autorace_2020_inferred.png\n/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/turtlebot3_autorace_2020_inferred.pdf",
+    "stderr": "",
+    "outputs": [
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/turtlebot3_autorace_2020_inferred.pgm",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/turtlebot3_autorace_2020_inferred.yaml",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/turtlebot3_autorace_2020_inferred.png",
+      "/home/psirobot/projects/ros2_ws/experiments/products/world_pgm_all_tmp/turtlebot3_autorace_2020_inferred.pdf"
+    ]
+  },
+  {
+    "world": "turtlebot3_dqn_stage1",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_dqn_stage1.world",
+    "returncode": 1,
+    "ok": false,
+    "stdout": "",
+    "stderr": "error: no inline box collision geometry found in /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_dqn_stage1.world",
+    "outputs": []
+  },
+  {
+    "world": "turtlebot3_dqn_stage2",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_dqn_stage2.world",
+    "returncode": 1,
+    "ok": false,
+    "stdout": "",
+    "stderr": "error: no inline box collision geometry found in /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_dqn_stage2.world",
+    "outputs": []
+  },
+  {
+    "world": "turtlebot3_dqn_stage3",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_dqn_stage3.world",
+    "returncode": 1,
+    "ok": false,
+    "stdout": "",
+    "stderr": "error: no inline box collision geometry found in /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_dqn_stage3.world",
+    "outputs": []
+  },
+  {
+    "world": "turtlebot3_dqn_stage4",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_dqn_stage4.world",
+    "returncode": 1,
+    "ok": false,
+    "stdout": "",
+    "stderr": "error: no inline box collision geometry found in /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_dqn_stage4.world",
+    "outputs": []
+  },
+  {
+    "world": "turtlebot3_house",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_house.world",
+    "returncode": 1,
+    "ok": false,
+    "stdout": "",
+    "stderr": "error: no inline box collision geometry found in /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_house.world",
+    "outputs": []
+  },
+  {
+    "world": "turtlebot3_world",
+    "world_path": "/home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_world.world",
+    "returncode": 1,
+    "ok": false,
+    "stdout": "",
+    "stderr": "error: no inline box collision geometry found in /home/psirobot/projects/ros2_ws/src/activeslam_resource/maps/turtlebot3_world.world",
+    "outputs": []
+  }
+]
